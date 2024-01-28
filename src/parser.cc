@@ -32,7 +32,6 @@ void print_token(donsus_parser& parser){
 static
 void print_ast(donsus_ast& result) {
     auto *temp = result.left;
-
     while (temp){
         std::cout << '\n' << result.left->value; // call custom operator <<
         if (temp->left){
@@ -170,7 +169,6 @@ donsus_ast& donsus_factor(donsus_parser& parser, donsus_ast& cur_state){
         }
         return result;
     }
-
     factor->value = token;
     return *factor;
 }

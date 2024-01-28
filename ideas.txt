@@ -1,0 +1,51 @@
+`50 points about Donsus`:
+
+(1)  - Donsus is a compiler
+(2)  - Donsus is statically typed, providing clean and efficient methods of static typing.
+(3)  - Donsus has no indentations as white spaces don't matter.
+(4)  - Donsus is a language implemented without the GIL and avoids it deliberately.
+(5)  - Donsus tends to be really FAST(ideas from tiny c compiler, or any other really fast compilers).
+(6)  - Donsus supports multi parallelism(TRUE MULTI-THREADING).
+(7)  - Donsus provides automatic memory management, although memory can be allocated manually as an alternative.
+(8)  - Donsus tends to support embedded programming and low-level interfaces.
+(9)  - Donsus's syntax should be relatively high-level, Python-like(NOT IDENTICIAL).
+(10) - Donsus is an object-oriented language(Dr. Alan Kay articles).
+(11) - Donsus implements shorthand-keyword arguments.
+(12) - Donsus Should be the best option for scientific computing(Ideas can be gathered and inspired by numpy).
+(13) - New types: struct(record like type)?
+(14) - Donsus's functions are late-bound.
+(15) - Donsus is a JIT compiler??
+(16) - Donsus doesn't have any dependencies other than the c++ programming language.
+(18) - Donsus's grammar is context-free(NOT PEG).
+(20) - async syntax support(concurrency)
+(21) - generators support
+(22) - Exception handling
+(23) - REALLY DETAILED ERROR MESSAGES(like rust's error messages)
+(24) - Cross-platform support(custom codegen or llvm?)
+(25) - Add the possibility for creating a new type natively
+(26) - Mathematical operations/ideas can be inherited from: https://docs.julialang.org/en/v1/manual/mathematical-operations/
+While keeping the language high-level.
+(27) - Vectorisation(similar to numpy arrays) (https://www.jsums.edu/robotics/files/2016/12/FECS17_Proceedings-FEC3555.pdf)
+(28) - Get ideas from forth language
+(29) - executing assembly code directly from the language(syntax support)
+(30) - context managers(with)
+(31) - decorators
+(32) - DRY(dont repeat yourself) PRINCIPLE
+(33) - import system
+(34) - switch-case statements including break and continue statements
+(35) - enums supported in syntax
+(36) - typescript like interfaces
+(37) - Generics types supported and generic programming supported
+(38) - Deep understanding of types and consider typescript examples
+(39) - unstable sorting
+(40) - Advanced Regular expression support
+(41) - Compilers giving warning based on this idea:(https://kodare.net/2023/02/02/names-can-be-so-much-more.html)
+(42) - Realtime code verification (https://dafny.org/)
+(43) - Get ideas from Mojo
+(44) - Get ideas from zig
+(45) - Custom Neural CPU
+(46) - Support most backends
+(47) - Own grammar type(dong)
+(48) - cpp's closure system(calls destructor when it goes out of scope)
+(49) - some of the cpp proposals
+(50) - it should be able to execute c++ and c code similar to zig
