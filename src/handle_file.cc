@@ -1,7 +1,6 @@
 // Handling source file
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 
 std::size_t get_file_size(std::ifstream& file){
     file.seekg(0, file.end); // Go to the end of the file
@@ -11,7 +10,7 @@ std::size_t get_file_size(std::ifstream& file){
 }
 
 std::string handle_file(char **argv) {
-    char *path = argv[1]; // get the path of the file
+    std::string path = argv[1]; // get the path of the file
     std::ifstream in(path, std::ifstream::in);
 
     if(!in) {
@@ -21,7 +20,6 @@ std::string handle_file(char **argv) {
 
     std::size_t size = get_file_size(in);
     std::string result {};
-
     result.resize(size);
 
     std::string str(size, '\0');
