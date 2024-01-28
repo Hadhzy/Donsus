@@ -111,8 +111,7 @@ static std::string next_identifier(donsus_parser& parser, donsus_token token, in
 }
 
 donsus_token donsus_lexer_next(donsus_parser& parser) {
-    donsus_token cur_token{DONSUS_END, 0, 0, parser.lexer.cur_line}; // aggregate initialisation
-
+    donsus_token cur_token{DONSUS_END, "", 0, parser.lexer.cur_line}; // aggregate initialisation
     switch (parser.lexer.cur_char) {
         case '\r':
         case '\t':
@@ -132,7 +131,6 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
             return cur_token;
         }
         case '+': {
-            std::cout << "Here at plus" << '\n';
             cur_token.kind = DONSUS_PLUS;
             cur_token.length = 1;
             cur_token.value = "+";
@@ -212,7 +210,6 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
                 cur_token.length = 0; // will be changed during next_number
                 cur_token.value = next_number(parser, cur_token, parser.lexer.cur_pos);
                 cur_token.line = parser.lexer.cur_line;
-                std::cout << "Cur_token value" << '\n';
                 return cur_token;
             }
 

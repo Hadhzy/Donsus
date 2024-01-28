@@ -53,8 +53,8 @@ typedef enum{
 struct donsus_token{
     donsus_token_kind  kind;
     std::string value;
-    unsigned length;
-    unsigned line;
+    unsigned int length;
+    unsigned int line;
 };
 
 // AST implementation
@@ -74,15 +74,16 @@ struct donsus_lexer {
     unsigned int cur_pos, cur_line;
 };
 
+struct donsus_parser;
+donsus_token donsus_lexer_next(donsus_parser& parser); // forward reference
+
 struct donsus_parser{
     bool error;
     donsus_token cur_token;
     donsus_lexer lexer;
 };
 
-donsus_token donsus_lexer_next(donsus_parser& parser);
 /*donsus_lexer donsus_new_lexer(std::string string);*/
-
 void de_printout_single_token(donsus_token);
 std::string de_get_name_from_token(donsus_token_kind kind);
 donsus_parser& donsus_parser_init(donsus_lexer& lexer);
