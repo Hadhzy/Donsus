@@ -2,6 +2,8 @@
 #include <iostream>
 #include "../Include/file.h"
 #include "../Include/parser.h"
+#include "../Include/sema.h"
+
 
 int Du_Main(int argc, char **argv) {
     std::string result = handle_file(argv); // process file
@@ -11,6 +13,8 @@ int Du_Main(int argc, char **argv) {
     std::string::size_type const p(base_filename.find_last_of('.'));
     std::string file_without_extension = base_filename.substr(0, p); // Obtain file without the extension(.du)
     donsus_ast base; // create ast structure obj on the stack
+
+    // Lexer
     donsus_lexer    lexer(result); // initialise lexer
     donsus_parser parser;
 
@@ -19,7 +23,12 @@ int Du_Main(int argc, char **argv) {
     parser.lexer = lexer;
     parser.cur_token = donsus_lexer_next(parser);
 
+    // Parser
     donsus_ast& parser_result = donsus_parse(parser, base);
 
+    // Semantic analysis
+    donsus_ast& sema_result = donsus_sema(parser_result);
+
+    // Code Generation
     return 0;
 }
