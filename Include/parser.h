@@ -4,15 +4,11 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#define DEBUG 1
-
 typedef enum{
     DONSUS_NAME, // IDENTIFIER
     DONSUS_NUMBER, // 69
     DONSUS_STRING, // "hello world"
     DONSUS_NEWLINE, // \n
-    DONSUS_INDENT, //----something here
-    DONSUS_DEDENT, // first token after indent
     DONSUS_END, // mark the end of the code
 
     DONSUS_LPAR, // (
