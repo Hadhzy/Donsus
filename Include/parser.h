@@ -6,6 +6,7 @@
 
 #define DEBUG 1
 
+// AST node types
 typedef enum{
     DONSUS_NAME, // IDENTIFIER
     DONSUS_NUMBER, // 69
@@ -57,10 +58,11 @@ struct donsus_token{
     unsigned int line;
 };
 
-// AST implementation
+// Abstract Syntax Tree structure
 struct donsus_ast{
-    donsus_token value;
-    donsus_ast *left = nullptr;
+    donsus_token value; 
+    donsus_token op; // Operation to be performed on the node
+    donsus_ast *left = nullptr; // left and right child trees 
     donsus_ast *right = nullptr;
 };
 

@@ -72,13 +72,14 @@ donsus_ast& donsus_parse(donsus_parser& parser, donsus_ast& base){
 }
 
 donsus_token donsus_peek(donsus_parser& parser){
-    donsus_lexer save = parser.lexer;*/
+    donsus_lexer save = parser.lexer;
     donsus_token result = donsus_lexer_next(parser);
-    parser.lexer = save;*/
+    parser.lexer = save;
     return result;
 }
 
 donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
+
     donsus_ast& left = donsus_term(parser, cur_state);
     if (donsus_peek(parser).kind != DONSUS_PLUS && donsus_peek(parser).kind != DONSUS_MINUS){
         // fast return -> result | terminal
@@ -97,7 +98,7 @@ donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 // make + token
                 donsus_token plus_token = {.kind = DONSUS_PLUS, .value = "+", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.value = plus_token;
+                cur_state.op = plus_token;
                 break;
             }
 
@@ -108,7 +109,7 @@ donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 // make -  token
                 donsus_token minus_token = {.kind = DONSUS_MINUS, .value = "-", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.value = minus_token;
+                cur_state.op = minus_token;
                 break;
             }
 
