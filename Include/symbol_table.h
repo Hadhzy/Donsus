@@ -6,15 +6,6 @@
 #include "../Include/donsus.h"
 
 // Types here
-struct I16{
-    // short integer
-};
-
-typedef enum {
-    I16,
-    ...
-} SYM_TYPE;
-
 
 class donsus_symbol{
 public:

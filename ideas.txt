@@ -49,3 +49,4 @@ While keeping the language high-level.
 (48) - cpp's closure system(calls destructor when it goes out of scope)
 (49) - some of the cpp proposals
 (50) - it should be able to execute c++ and c code similar to zig
+(51) - using an explicit suffix to indicate the type, like rust does for example
