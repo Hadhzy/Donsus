@@ -73,9 +73,9 @@ donsus_ast& donsus_parse(donsus_parser& parser, donsus_ast& base){
 }
 
 donsus_token donsus_peek(donsus_parser& parser){
-    donsus_lexer save = parser.lexer;*/
+    donsus_lexer save = parser.lexer;
     donsus_token result = donsus_lexer_next(parser);
-    parser.lexer = save;*/
+    parser.lexer = save;
     return result;
 }
 

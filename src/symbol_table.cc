@@ -11,6 +11,6 @@ std::unique_ptr<donsus_symtable> donsus_sym(const std::string file_name){
 
 std::unique_ptr<donsus_symtable> donsus_symbol(std::unique_ptr<donsus_symtable> sym, const std::string name){
     // add symbol to symtable
-    sym->DONSUS_SYM[name];
+    //sym->get_sym()[name];
     return sym;
 }
