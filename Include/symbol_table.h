@@ -9,9 +9,9 @@
 
 class donsus_symbol{
 public:
-    symbol(const std::string name): name(name) {};
+    donsus_symbol(const std::string name): name(name) {};
 
-     const std::string get_name(){
+     const std::string get_name() const {
         return name;
     }
 
@@ -40,6 +40,7 @@ public:
     std::unordered_map<std::string, donsus_symbol> get_sym(){
         return DONSUS_SYM;
     }
+
     friend std::ostream& operator<<(std::ostream &o, donsus_symtable& symtable);
 
     #ifdef DEBUG
@@ -54,19 +55,19 @@ private:
     std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
 };
 
-std::ostream& operator<<(std::ostream &o, donsus_symbol& symbol){
+std::ostream& operator<<(std::ostream &o, const donsus_symbol& symbol){
     // prints a symbol
     o << "Name:  " << symbol.get_name() << "\n";
     return o;
 }
 
 std::ostream& operator<<(std::ostream &o, donsus_symtable& symtable){
-    auto print_sym = [](const auto& key, const auto& value){
-        std::cout << "Key:[" << key << "] Value:[" << value << "]\n";
+    auto print_sym = [](const auto& key, const auto& value, std::ostream &o){
+        o << "Key:[" << key << "] Value:[" << value << "]\n";
     };
 
     for (const auto& n: symtable.DONSUS_SYM)
-        o << print_sym(n.first, n.second);
+        print_sym(n.first, n.second, o);
     return o;
 }
 #endif

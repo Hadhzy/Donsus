@@ -44,7 +44,7 @@ typedef enum{
     DONSUS_SINGLE_QUOTE, // '
     DONSUS_DOUBLE_QUOTE, // "
     DONSUS_THREE_DOTS, // ...
-    DONSUS_NULL_VALUE
+    DONSUS_NULL_VALUE,
 
     // INT
     DONSUS_BASIC_INT, // int
