@@ -1,3 +1,5 @@
+// Lexer of the Donsus compiler
+
 #include <iostream>
 #include "../Include/parser.h"
 #define TOKEN_MAX_STRLEN 100
@@ -38,6 +40,16 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
         case DONSUS_SINGLE_QUOTE : return "DONSUS_SINGLE_QUOTE";
         case DONSUS_DOUBLE_QUOTE : return "DONSUS_DOUBLE_QUOTE";
         case DONSUS_THREE_DOTS: return "DONSUS_THREE_DOTS";
+        case DONSUS_BASIC_INT: return "DONSUS_BASIC_INT";
+        case DONSUS_I8: return "DONSUS_I8";
+        case DONSUS_I16: return "DONSUS_I16";
+        case DONSUS_I32: return "DONSUS_I32";
+        case DONSUS_I64: return "DONSUS_I64";
+        case DONSUS_U32: return "DONSUS_U32";
+        case DONSUS_U64: return "DONSUS_U64";
+        case DONSUS_BOOL: return "DONSUS_BOOL";
+        case DONSUS_VOID: return "DONSUS_VOID";
+        case DONSUS_CHAR: return "DONSUS_CHAR";
         case DONSUS_END: return "DONSUS_END";
 
         default:
@@ -131,6 +143,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
             return cur_token;
         }
         case '+': {
+            cur_token.precedence = 10; // lower precedence
             cur_token.kind = DONSUS_PLUS;
             cur_token.length = 1;
             cur_token.value = "+";
@@ -140,6 +153,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '-': {
+            cur_token.precedence = 10; // lower precedence
             cur_token.kind = DONSUS_MINUS;
             cur_token.length = 1;
             cur_token.value = "-";
@@ -149,6 +163,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '*': {
+            cur_token.precedence = 20; // higher precedence
             cur_token.kind = DONSUS_STAR;
             cur_token.length = 1;
             cur_token.value = "*";
@@ -158,6 +173,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '/': {
+            cur_token.precedence = 20; // higher precedence
             cur_token.kind = DONSUS_SLASH;
             cur_token.length = 1;
             cur_token.value = "/";

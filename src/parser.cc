@@ -1,7 +1,9 @@
 #include <iostream>
 #include "../Include/parser.h"
+#include "../Include/donsus.h"
 
 // forward references
+/*
 donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state);
 donsus_ast& donsus_term(donsus_parser& parser, donsus_ast& cur_state);
 donsus_ast& donsus_factor(donsus_parser& parser, donsus_ast& cur_state);
@@ -94,7 +96,7 @@ donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
             case DONSUS_PLUS: {
                 donsus_parser_next(parser); // skip DONSUS_PLUS
                 donsus_ast& right = donsus_term(parser, cur_state);
-                cur_state.right = &right;
+                cur_state.right = &right; // overwriting
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 // make + token
                 donsus_token plus_token = {.kind = DONSUS_PLUS, .value = "+", .length = 1, .line = parser.lexer.cur_line};
@@ -105,7 +107,7 @@ donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
             case DONSUS_MINUS: {
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 donsus_ast& right = donsus_term(parser, cur_state);
-                cur_state.right = &right;
+                cur_state.right = &right; // overwriting
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 // make -  token
                 donsus_token minus_token = {.kind = DONSUS_MINUS, .value = "-", .length = 1, .line = parser.lexer.cur_line};
@@ -134,7 +136,7 @@ donsus_ast& donsus_term(donsus_parser& parser, donsus_ast& cur_state){
             case DONSUS_STAR: {
                 donsus_parser_next(parser);
                 donsus_ast& right = donsus_factor(parser, cur_state);
-                cur_state.right = &right;
+                cur_state.right = &right; // overwriting
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 donsus_token star_token = {.kind = DONSUS_STAR, .value = "*", .length = 1, .line = parser.lexer.cur_line};
                 cur_state.value = star_token;
@@ -143,7 +145,7 @@ donsus_ast& donsus_term(donsus_parser& parser, donsus_ast& cur_state){
             case DONSUS_SLASH: {
                 donsus_parser_next(parser);
                 donsus_ast& right = donsus_factor(parser, cur_state);
-                cur_state.right = &right;
+                cur_state.right = &right; //overwriting
                 donsus_parser_next(parser); // skip DONSUS_MINUS
                 donsus_token slash_token = {.kind = DONSUS_SLASH, .value = "/", .length = 1, .line = parser.lexer.cur_line};
                 cur_state.value = slash_token;
@@ -173,3 +175,27 @@ donsus_ast& donsus_factor(donsus_parser& parser, donsus_ast& cur_state){
     factor->value = token;
     return *factor;
 }
+*/
+
+// forward references
+
+// DEBUG SECTION 3 functions
+
+// Starting function(donsus_parse)
+// peek
+
+// donsus_expr(){
+
+// }
+
+// donsus_term(){
+
+// }
+
+// donsus_factor() {
+
+
+// }
+
+
+

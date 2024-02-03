@@ -9,6 +9,9 @@ add_executable(donsus
         src/lexer.cc
         src/runner.cc
         src/sema.cc
+        src/ir.cc
+        src/symbol_table.cc
+
 )
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")

@@ -4,7 +4,6 @@
 #include "../Include/parser.h"
 #include "../Include/sema.h"
 
-
 int Du_Main(int argc, char **argv) {
     std::string result = handle_file(argv); // process file
     // File operations
@@ -26,9 +25,9 @@ int Du_Main(int argc, char **argv) {
     // Parser
     donsus_ast& parser_result = donsus_parse(parser, base);
 
-    // Semantic analysis
+    // Semantic analysis (Construct symbol table)
     donsus_ast& sema_result = donsus_sema(parser_result);
 
-    // Code Generation
+    // CODE GENERATION(INVOKE DUASM)
     return 0;
 }
