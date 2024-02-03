@@ -38,6 +38,16 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
         case DONSUS_SINGLE_QUOTE : return "DONSUS_SINGLE_QUOTE";
         case DONSUS_DOUBLE_QUOTE : return "DONSUS_DOUBLE_QUOTE";
         case DONSUS_THREE_DOTS: return "DONSUS_THREE_DOTS";
+        case DONSUS_BASIC_INT: return "DONSUS_BASIC_INT";
+        case DONSUS_I8: return "DONSUS_I8";
+        case DONSUS_I16: return "DONSUS_I16";
+        case DONSUS_I32: return "DONSUS_I32";
+        case DONSUS_I64: return "DONSUS_I64";
+        case DONSUS_U32: return "DONSUS_U32";
+        case DONSUS_U64: return "DONSUS_U64";
+        case DONSUS_BOOL: return "DONSUS_BOOL";
+        case DONSUS_VOID: return "DONSUS_VOID";
+        case DONSUS_CHAR: return "DONSUS_CHAR";
         case DONSUS_END: return "DONSUS_END";
 
         default:

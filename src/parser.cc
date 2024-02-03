@@ -1,5 +1,6 @@
 #include <iostream>
 #include "../Include/parser.h"
+#include "../Include/donsus.h"
 
 // forward references
 donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state);

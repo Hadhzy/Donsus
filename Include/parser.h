@@ -4,15 +4,12 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#define DEBUG 1
-
 typedef enum{
+    // Tokens
     DONSUS_NAME, // IDENTIFIER
     DONSUS_NUMBER, // 69
     DONSUS_STRING, // "hello world"
     DONSUS_NEWLINE, // \n
-    DONSUS_INDENT, //----something here
-    DONSUS_DEDENT, // first token after indent
     DONSUS_END, // mark the end of the code
 
     DONSUS_LPAR, // (
@@ -48,6 +45,19 @@ typedef enum{
     DONSUS_DOUBLE_QUOTE, // "
     DONSUS_THREE_DOTS, // ...
     DONSUS_NULL_VALUE
+
+    // INT
+    DONSUS_BASIC_INT, // int
+    DONSUS_I8, // FROM -(2^7) TO (2^7) -1
+    DONSUS_I16, // FROM −(2^15) TO 2^15 − 1
+    DONSUS_I32, // FROM 0 TO 2^32 -1
+    DONSUS_I64, // FROM 0 TO 2^64 − 1
+    DONSUS_U32, // FROM 0 TO 2^32 -1
+    DONSUS_U64, // FROM 0 TO 2^64 − 1
+
+    DONSUS_BOOL, // bool
+    DONSUS_VOID, // void
+    DONSUS_CHAR, // 'D'
 } donsus_token_kind;
 
 struct donsus_token{
