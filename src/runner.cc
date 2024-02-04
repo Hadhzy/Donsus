@@ -2,7 +2,6 @@
 #include <iostream>
 #include "../Include/file.h"
 #include "../Include/parser.h"
-#include "../Include/sema.h"
 
 int Du_Main(int argc, char **argv) {
     std::string result = handle_file(argv); // process file

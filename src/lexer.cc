@@ -2,7 +2,19 @@
 
 #include <iostream>
 #include "../Include/parser.h"
-#define TOKEN_MAX_STRLEN 100
+
+std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER {
+        {"int", DONSUS_BASIC_INT},
+        {"int8", DONSUS_I8},
+        {"int16", DONSUS_I16},
+        {"int32", DONSUS_I32},
+        {"int64", DONSUS_I64},
+        {"u32", DONSUS_U32},
+        {"u64", DONSUS_U64},
+        {"bool", DONSUS_BOOL},
+        {"void", DONSUS_VOID},
+        {"char" , DONSUS_CHAR},
+};
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
     switch (kind) {
@@ -40,6 +52,8 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
         case DONSUS_SINGLE_QUOTE : return "DONSUS_SINGLE_QUOTE";
         case DONSUS_DOUBLE_QUOTE : return "DONSUS_DOUBLE_QUOTE";
         case DONSUS_THREE_DOTS: return "DONSUS_THREE_DOTS";
+        case DONSUS_DECREMENT: return "DONSUS_DECREMENT";
+        case DONSUS_INCREMENT: return "DONSUS_INCREMENT";
         case DONSUS_BASIC_INT: return "DONSUS_BASIC_INT";
         case DONSUS_I8: return "DONSUS_I8";
         case DONSUS_I16: return "DONSUS_I16";
@@ -50,7 +64,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
         case DONSUS_BOOL: return "DONSUS_BOOL";
         case DONSUS_VOID: return "DONSUS_VOID";
         case DONSUS_CHAR: return "DONSUS_CHAR";
+        case DONSUS_NULL_VALUE: return "DONSUS_NULL_VALUE";
         case DONSUS_END: return "DONSUS_END";
+
 
         default:
             return "UNKNOWN_TOKEN_KIND";
@@ -65,6 +81,13 @@ static bool isstart_identifier(char c){
 static bool iscontinue_identifier(char c){
     // continue point of an identifier
     return isstart_identifier(c) || isdigit(c);
+}
+
+static bool is_type(std::string& s){
+    if(DONSUS_TYPES_LEXER.find(s) != DONSUS_TYPES_LEXER.end()){
+        return true;
+    }
+    return false;
 }
 
 /*donsus_lexer peak_for_token(donsus_parser * parser){
@@ -98,13 +121,13 @@ bool eat(donsus_parser &parser){
     return false;
 }
 
-static std::string get_text_between_pos(donsus_parser &parser, int start, int end) {
+static std::string get_text_between_pos(donsus_parser &parser, unsigned int start, unsigned int end) {
     // returns string from the starting point to the end
     return {std::begin(parser.lexer.string) + start, std::begin(parser.lexer.string) + end};
 
 }
 
-static std::string next_number(donsus_parser& parser,donsus_token token, int start_pos) {
+static std::string next_number(donsus_parser& parser,donsus_token token, unsigned int start_pos) {
     // TBD: we are checking isdigit 2 times here. We can't eat.
 
     while (isdigit(parser.lexer.cur_char)){
@@ -114,12 +137,23 @@ static std::string next_number(donsus_parser& parser,donsus_token token, int sta
     return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
 }
 
-static std::string next_identifier(donsus_parser& parser, donsus_token token, int start_pos){
+static std::string next_identifier(donsus_parser& parser, donsus_token token, unsigned int start_pos){
     while (iscontinue_identifier(parser.lexer.cur_char)){
         token.length++;
         eat(parser);
     }
     return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
+}
+
+static donsus_token make_type(donsus_parser& parser, std::string& value, unsigned int length){
+    // construct type token
+    donsus_token token;
+    token.line = parser.lexer.cur_line;
+    token.kind = DONSUS_TYPES_LEXER[value];
+    token.length = length;
+    token.value = value;
+
+    return token;
 }
 
 donsus_token donsus_lexer_next(donsus_parser& parser) {
@@ -219,7 +253,6 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         default: {
-
             // numbers
             if (isdigit(parser.lexer.cur_char)) {
                 cur_token.kind = DONSUS_NUMBER;
@@ -233,7 +266,16 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
             if (isstart_identifier(parser.lexer.cur_char)) {
                 cur_token.kind = DONSUS_NAME;
                 cur_token.length = 0; // will be changed during next_number
-                cur_token.value = next_identifier(parser, cur_token, parser.lexer.cur_pos);
+                static std::string c_value = next_identifier(parser, cur_token, parser.lexer.cur_pos);
+
+                // If it is a type
+                if(is_type(c_value)){
+                    return make_type(parser, c_value, cur_token.length);
+                }
+                else {
+                    cur_token.value = c_value;  // default choice
+                }
+
                 cur_token.line = parser.lexer.cur_line;
                 return cur_token;
             }

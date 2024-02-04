@@ -74,7 +74,7 @@ std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, unsigned int ptp)
        donsus_parser_next(parser); // get next token
         right = donsus_expr(parser, cur_token.precedence); // recursive call
     
-        left = donsus_make_ast_node(cur_token, std::move(left), std::move(right));
+        left = donsus_make_ast_node(cur_token, std::move(left), std::move(right), cur_token.kind);
 
         if(parser.cur_token.kind == DONSUS_END) {
             return left;
@@ -83,16 +83,35 @@ std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, unsigned int ptp)
     return left;
 }
 
+std::unique_ptr<donsus_ast> donsus_number(donsus_parser& parser, donsus_token_kind type){
+        std::unique_ptr<donsus_ast> n;  // (value, nullptr, nullptr)
+        n = donsus_make_ast_leaf(parser.cur_token, type);
+        donsus_parser_next(parser); // get next token
+        return n;
+}
 std::unique_ptr<donsus_ast> donsus_primary(donsus_parser& parser){
     std::unique_ptr<donsus_ast> n; // declare the type of n
 
     switch(parser.cur_token.kind) {
+        // handle basic number
         case DONSUS_NUMBER:
-            n = donsus_make_ast_leaf(parser.cur_token); // (value, nullptr, nullptr)
-            donsus_parser_next(parser); // get next token
-            return n;
-        
-        default: 
+            return donsus_number(parser, DONSUS_BASIC_INT);
+
+        // handle integers
+        case DONSUS_BASIC_INT:
+        case DONSUS_I8:
+        case DONSUS_I16:
+        case DONSUS_I32:
+        case DONSUS_I64:
+        case DONSUS_U32:
+        case DONSUS_U64: {
+            return donsus_number(parser, parser.cur_token.kind);
+         }
+
+        case DONSUS_BOOL:
+        case DONSUS_VOID:
+        case DONSUS_CHAR:
+        default:
             std::cout << "syntax error somewhere";
     }
 }
