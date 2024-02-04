@@ -72,20 +72,9 @@ struct donsus_token{
 
 // Abstract Syntax Tree structure
 struct donsus_ast{
-    void add_leaf(donsus_token& value){
-        // add a leaf to the node(non-terminal)
-        this->value = value;
-    }
-
-    void add_unary(donsus_token& value, donsus_ast* left){
-        // add only one child for a unary expression
-        this->value = value;
-        this->left = left;
-    }
-
     donsus_token value;
-    donsus_ast *left = nullptr; // left and right child trees
-    donsus_ast *right = nullptr;
+    std::unique_ptr<donsus_ast> left = nullptr; // left child tree
+    std::unique_ptr<donsus_ast> right = nullptr; // right child tree
 };
 
 struct donsus_lexer {
@@ -112,5 +101,5 @@ void de_printout_single_token(donsus_token);
 std::string de_get_name_from_token(donsus_token_kind kind);
 donsus_parser& donsus_parser_init(donsus_lexer& lexer);
 donsus_token donsus_parser_next(donsus_parser &parser);
-donsus_ast& donsus_parse(donsus_parser& parser, donsus_ast& base);
+std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base);
 #endif // PARSER_H

@@ -23,10 +23,10 @@ int Du_Main(int argc, char **argv) {
     parser.cur_token = donsus_lexer_next(parser);
 
     // Parser
-    donsus_ast& parser_result = donsus_parse(parser, base);
+    std::unique_ptr<donsus_ast> parser_result = donsus_parse(parser, base);
 
     // Semantic analysis (Construct symbol table)
-    donsus_ast& sema_result = donsus_sema(parser_result);
+    // donsus_ast& sema_result = donsus_sema(parser_result);
 
     // CODE GENERATION(INVOKE DUASM)
     return 0;

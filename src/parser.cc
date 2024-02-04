@@ -1,12 +1,12 @@
 #include <iostream>
 #include "../Include/parser.h"
 #include "../Include/donsus.h"
+#include "../Include/tree.h"
+#include <memory>
 
-// forward references
-/*
-donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state);
-donsus_ast& donsus_term(donsus_parser& parser, donsus_ast& cur_state);
-donsus_ast& donsus_factor(donsus_parser& parser, donsus_ast& cur_state);
+std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, int ptp);
+std::unique_ptr<donsus_ast> donsus_primary(donsus_parser& parser);
+
 
 donsus_token donsus_parser_next(donsus_parser& parser){
     return parser.cur_token = donsus_lexer_next(parser);
@@ -21,7 +21,6 @@ static std::ostream& operator<<(std::ostream &o, donsus_token& token){
     return o;
 }
 
-// DEBUG
 static
 void print_token(donsus_parser& parser){
     while (parser.cur_token.kind != DONSUS_END){
@@ -30,49 +29,32 @@ void print_token(donsus_parser& parser){
     }
 }
 
-// DEBUG
-static
-void print_ast(donsus_ast& result) {
-    auto *temp = result.left;
-    while (temp){
-        std::cout << '\n' << result.left->value; // call custom operator <<
-        if (temp->left){
-            temp = temp->left;
-        } else {
-            break;
-        }
-    }
+// print ast
+// static
+// void print_ast(donsus_ast& result) {
+//     std::unique_ptr<donsus_ast> temp = result.left;
+//     while (temp){
+//         std::cout << '\n' << result.left->value; // call custom operator <<
+//         if (temp->left){
+//             temp = temp->left;
+//         } else {
+//             break;
+//         }
+//     }
 
-    temp = result.right;
-    while (temp){
-        std::cout << '\n' << result.right->value; // call custom operator <<
-        if (temp->right){
-            temp = temp->right;
-        } else {
-            break;
-        }
-    }
-}
-// start parsing process
-donsus_ast& donsus_parse(donsus_parser& parser, donsus_ast& base){
+//     temp = result.right;
+//     while (temp){
+//         std::cout << '\n' << result.right->value; // call custom operator <<
+//         if (temp->right){
+//             temp = temp->right;
+//         } else {
+//             break;
+//         }
+//     }
+// }
 
-    #ifdef DEBUG
-    std::cout << "LEXER: " << "\n";
-    donsus_parser save = parser;
-    print_token(parser);
-    parser = save;
-    #endif
 
-    donsus_ast& result = donsus_expr(parser, base);
-
-    #ifdef DEBUG
-    std::cout << "AST: " << "\n";
-    print_ast(result);
-    #endif
-
-    return result;
-}
-
+// peek
 donsus_token donsus_peek(donsus_parser& parser){
     donsus_lexer save = parser.lexer;
     donsus_token result = donsus_lexer_next(parser);
@@ -80,122 +62,64 @@ donsus_token donsus_peek(donsus_parser& parser){
     return result;
 }
 
-donsus_ast& donsus_expr(donsus_parser& parser, donsus_ast& cur_state){
+// Starting point
+std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base){
+    
+    #ifdef DEBUG
+    std::cout << "LEXER: " << "\n";
+    donsus_parser save = parser;
+    print_token(parser);
+    parser = save;
+    #endif
 
-    donsus_ast& left = donsus_term(parser, cur_state);
-    if (donsus_peek(parser).kind != DONSUS_PLUS && donsus_peek(parser).kind != DONSUS_MINUS){
-        // fast return -> result | terminal
-        return cur_state;
-    }
+    std::unique_ptr<donsus_ast> result = donsus_expr(parser, 0);
 
-    cur_state.left = &left;
-    donsus_parser_next(parser);
+    #ifdef DEBUG
+    std::cout << "AST: " << "\n";
+    // print_ast(result);
+    #endif
 
-    while(parser.cur_token.kind == DONSUS_PLUS || parser.cur_token.kind == DONSUS_MINUS) {
-        switch (parser.cur_token.kind) {
-            case DONSUS_PLUS: {
-                donsus_parser_next(parser); // skip DONSUS_PLUS
-                donsus_ast& right = donsus_term(parser, cur_state);
-                cur_state.right = &right; // overwriting
-                donsus_parser_next(parser); // skip DONSUS_MINUS
-                // make + token
-                donsus_token plus_token = {.kind = DONSUS_PLUS, .value = "+", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.op = plus_token;
-                break;
-            }
-
-            case DONSUS_MINUS: {
-                donsus_parser_next(parser); // skip DONSUS_MINUS
-                donsus_ast& right = donsus_term(parser, cur_state);
-                cur_state.right = &right; // overwriting
-                donsus_parser_next(parser); // skip DONSUS_MINUS
-                // make -  token
-                donsus_token minus_token = {.kind = DONSUS_MINUS, .value = "-", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.op = minus_token;
-                break;
-            }
-
-            default: break;
-        }
-    }
-
-    return donsus_expr(parser, cur_state); // start recursive call
+    return result;
 }
 
-donsus_ast& donsus_term(donsus_parser& parser, donsus_ast& cur_state){
-    donsus_ast& left = donsus_factor(parser, cur_state);
-    if (donsus_peek(parser).kind != DONSUS_STAR && donsus_peek(parser).kind != DONSUS_SLASH){
+// Return an AST tree
+// Parameter ptp refers to the "previous token's precedence"
+std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, const int ptp) {
+    std::unique_ptr<donsus_ast> left;
+    std::unique_ptr<donsus_ast> right;
+    // Gt the integer on the left
+    left = donsus_primary(parser);
+
+    donsus_token cur_token = parser.cur_token;
+    if (cur_token.kind == DONSUS_END){
         return left;
     }
 
-    cur_state.left = &left;
-    donsus_parser_next(parser);
+    while (cur_token.precedence > ptp) {
+       donsus_parser_next(parser);
+        right = donsus_expr(parser, cur_token.precedence);
+    
+        left = make_ast_node(cur_token, std::move(left), std::move(right));
 
-    while(parser.cur_token.kind == DONSUS_STAR || parser.cur_token.kind == DONSUS_SLASH){
-        switch(parser.cur_token.kind){
-            case DONSUS_STAR: {
-                donsus_parser_next(parser);
-                donsus_ast& right = donsus_factor(parser, cur_state);
-                cur_state.right = &right; // overwriting
-                donsus_parser_next(parser); // skip DONSUS_MINUS
-                donsus_token star_token = {.kind = DONSUS_STAR, .value = "*", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.value = star_token;
-                break;
-            }
-            case DONSUS_SLASH: {
-                donsus_parser_next(parser);
-                donsus_ast& right = donsus_factor(parser, cur_state);
-                cur_state.right = &right; //overwriting
-                donsus_parser_next(parser); // skip DONSUS_MINUS
-                donsus_token slash_token = {.kind = DONSUS_SLASH, .value = "/", .length = 1, .line = parser.lexer.cur_line};
-                cur_state.value = slash_token;
-                break;
-            }
-            default: break;
+        if(parser.cur_token.kind == DONSUS_END) {
+            return left;
         }
     }
-    return cur_state;
+
+    return left;
 }
 
-donsus_ast& donsus_factor(donsus_parser& parser, donsus_ast& cur_state){
-    auto token = parser.cur_token;
-    auto *factor = new donsus_ast();
+std::unique_ptr<donsus_ast> donsus_primary(donsus_parser& parser){
+    std::unique_ptr<donsus_ast> n = std::make_unique<donsus_ast>();
 
-    if (token.kind == DONSUS_LPAR){
-        donsus_parser_next(parser);
-        donsus_ast& result = donsus_expr(parser, cur_state);
-        factor->left = &result;
-        donsus_parser_next(parser);
-
-        if (parser.cur_token.kind != DONSUS_RPAR){
-            throw std::invalid_argument("Mismatched parentheses");
-        }
-        return result;
+    switch(parser.cur_token.kind) {
+        case DONSUS_NUMBER:
+            n = make_ast_leaf(parser.cur_token);
+            donsus_parser_next(parser);
+            return n;
+        
+        default: 
+            std::cout << "syntax error somewhere";
     }
-    factor->value = token;
-    return *factor;
 }
-*/
-
-// forward references
-
-// DEBUG SECTION 3 functions
-
-// Starting function(donsus_parse)
-// peek
-
-// donsus_expr(){
-
-// }
-
-// donsus_term(){
-
-// }
-
-// donsus_factor() {
-
-
-// }
-
-
 
