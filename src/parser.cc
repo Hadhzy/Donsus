@@ -4,7 +4,7 @@
 #include "../Include/tree.h"
 #include <memory>
 
-std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, int ptp);
+std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, unsigned int ptp);
 std::unique_ptr<donsus_ast> donsus_primary(donsus_parser& parser);
 
 
@@ -28,31 +28,6 @@ void print_token(donsus_parser& parser){
         donsus_parser_next(parser); // DO this without moving the actual state of the parser
     }
 }
-
-// print ast
-// static
-// void print_ast(donsus_ast& result) {
-//     std::unique_ptr<donsus_ast> temp = result.left;
-//     while (temp){
-//         std::cout << '\n' << result.left->value; // call custom operator <<
-//         if (temp->left){
-//             temp = temp->left;
-//         } else {
-//             break;
-//         }
-//     }
-
-//     temp = result.right;
-//     while (temp){
-//         std::cout << '\n' << result.right->value; // call custom operator <<
-//         if (temp->right){
-//             temp = temp->right;
-//         } else {
-//             break;
-//         }
-//     }
-// }
-
 
 // peek
 donsus_token donsus_peek(donsus_parser& parser){
@@ -84,38 +59,37 @@ std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base
 
 // Return an AST tree
 // Parameter ptp refers to the "previous token's precedence"
-std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, const int ptp) {
-    std::unique_ptr<donsus_ast> left;
-    std::unique_ptr<donsus_ast> right;
+std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, unsigned int ptp) {
+    std::unique_ptr<donsus_ast> left; // declare the type of left
+    std::unique_ptr<donsus_ast> right; // declare the type of right
     // Gt the integer on the left
-    left = donsus_primary(parser);
+    left = donsus_primary(parser); // return node with value
 
-    donsus_token cur_token = parser.cur_token;
+    donsus_token cur_token = parser.cur_token; // obtain cur_token
     if (cur_token.kind == DONSUS_END){
         return left;
     }
 
     while (cur_token.precedence > ptp) {
-       donsus_parser_next(parser);
-        right = donsus_expr(parser, cur_token.precedence);
+       donsus_parser_next(parser); // get next token
+        right = donsus_expr(parser, cur_token.precedence); // recursive call
     
-        left = make_ast_node(cur_token, std::move(left), std::move(right));
+        left = donsus_make_ast_node(cur_token, std::move(left), std::move(right));
 
         if(parser.cur_token.kind == DONSUS_END) {
             return left;
         }
     }
-
     return left;
 }
 
 std::unique_ptr<donsus_ast> donsus_primary(donsus_parser& parser){
-    std::unique_ptr<donsus_ast> n = std::make_unique<donsus_ast>();
+    std::unique_ptr<donsus_ast> n; // declare the type of n
 
     switch(parser.cur_token.kind) {
         case DONSUS_NUMBER:
-            n = make_ast_leaf(parser.cur_token);
-            donsus_parser_next(parser);
+            n = donsus_make_ast_leaf(parser.cur_token); // (value, nullptr, nullptr)
+            donsus_parser_next(parser); // get next token
             return n;
         
         default: 
