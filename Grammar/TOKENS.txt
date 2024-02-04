@@ -10,7 +10,7 @@ DONSUS_LSQB,          -> [
 DONSUS_RSQB,          -> ]
 DONSUS_COLO,          -> :
 DONSUS_COMM,          -> ,
-DONSUS_PLUS,          -> +
+DONSUS_PLUS,          -> + 
 DONSUS_PLUS_EQUAL,    -> +=
 DONSUS_MINUS,         -> -
 DONSUS_MINUS_EQUAL,   -> -=

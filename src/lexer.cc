@@ -1,3 +1,5 @@
+// Lexer of the Donsus compiler
+
 #include <iostream>
 #include "../Include/parser.h"
 #define TOKEN_MAX_STRLEN 100
@@ -141,6 +143,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
             return cur_token;
         }
         case '+': {
+            cur_token.precedence = 10; // lower precedence
             cur_token.kind = DONSUS_PLUS;
             cur_token.length = 1;
             cur_token.value = "+";
@@ -150,6 +153,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '-': {
+            cur_token.precedence = 10; // lower precedence
             cur_token.kind = DONSUS_MINUS;
             cur_token.length = 1;
             cur_token.value = "-";
@@ -159,6 +163,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '*': {
+            cur_token.precedence = 20; // higher precedence
             cur_token.kind = DONSUS_STAR;
             cur_token.length = 1;
             cur_token.value = "*";
@@ -168,6 +173,7 @@ donsus_token donsus_lexer_next(donsus_parser& parser) {
         }
 
         case '/': {
+            cur_token.precedence = 20; // higher precedence
             cur_token.kind = DONSUS_SLASH;
             cur_token.length = 1;
             cur_token.value = "/";

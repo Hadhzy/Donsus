@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 
 project(donsus LANGUAGES CXX)
+set(CMAKE_BUILD_TYPE Debug)
+
 
 add_executable(donsus
         src/main.cc
@@ -11,6 +13,8 @@ add_executable(donsus
         src/sema.cc
         src/ir.cc
         src/symbol_table.cc
+        src/tree.cc
+
 )
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")

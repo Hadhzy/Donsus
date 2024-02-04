@@ -1,16 +1,18 @@
+// Declarations for parser.cc
 #include <iostream>
 #include <memory>
 
 #ifndef PARSER_H
 #define PARSER_H
 
+// AST node types
 typedef enum{
     // Tokens
     DONSUS_NAME, // IDENTIFIER
+    DONSUS_END, // mark the end of the code
     DONSUS_NUMBER, // 69
     DONSUS_STRING, // "hello world"
     DONSUS_NEWLINE, // \n
-    DONSUS_END, // mark the end of the code
 
     DONSUS_LPAR, // (
     DONSUS_RPAR, // )
@@ -61,17 +63,18 @@ typedef enum{
 } donsus_token_kind;
 
 struct donsus_token{
-    donsus_token_kind  kind;
-    std::string value;
-    unsigned int length;
-    unsigned int line;
+    donsus_token_kind kind; // the kind of the token
+    std::string value; // the value of the token(string)
+    unsigned int length; // the length of the token
+    unsigned int line; // the line number of the token(starts from one)
+    unsigned int precedence; // precedence of the token(the higher the value the more precedence the token has)
 };
 
-// AST implementation
+// Abstract Syntax Tree structure
 struct donsus_ast{
     donsus_token value;
-    donsus_ast *left = nullptr;
-    donsus_ast *right = nullptr;
+    std::unique_ptr<donsus_ast> left = nullptr; // left child tree
+    std::unique_ptr<donsus_ast> right = nullptr; // right child tree
 };
 
 struct donsus_lexer {
@@ -98,5 +101,5 @@ void de_printout_single_token(donsus_token);
 std::string de_get_name_from_token(donsus_token_kind kind);
 donsus_parser& donsus_parser_init(donsus_lexer& lexer);
 donsus_token donsus_parser_next(donsus_parser &parser);
-donsus_ast& donsus_parse(donsus_parser& parser, donsus_ast& base);
+std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base);
 #endif // PARSER_H
