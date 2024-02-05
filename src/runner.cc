@@ -23,6 +23,7 @@ int Du_Main(int argc, char **argv) {
 
     // Parser
     std::unique_ptr<donsus_ast> parser_result = donsus_parse(parser, base);
+    
 
     // Semantic analysis (Construct symbol table)
     // donsus_ast& sema_result = donsus_sema(parser_result);

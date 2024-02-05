@@ -2,6 +2,7 @@
 #include "../Include/parser.h"
 #include "../Include/donsus.h"
 #include "../Include/tree.h"
+#include "./utils/ast_graph_generator.cc"
 #include <memory>
 
 std::unique_ptr<donsus_ast> donsus_expr(donsus_parser& parser, unsigned int ptp);
@@ -50,8 +51,9 @@ std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base
     std::unique_ptr<donsus_ast> result = donsus_expr(parser, 0);
 
     #ifdef DEBUG
-    std::cout << "AST: " << "\n";
-    // print_ast(result);
+    // Graph the AST tree 
+    ASTVisualiserGraph graph;
+    graph.donsus_generateGraph(std::move(result));  // Pass the unique_ptr by value (not using std::move)
     #endif
 
     return result;
