@@ -78,7 +78,7 @@ public:
     }*/
 private:
     int COUNTER_INS = 0; // COUNTER OF INSTRUCTIONS
-    std::vector<DATA_INSTRUCTION> ins;
+    std::vector<DATA_INSTRUCTION> ins; // instructions
 };
 
 // TEXT SEGMENT
