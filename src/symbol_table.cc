@@ -5,7 +5,7 @@
 // donsus_symbol
 donsus_symbol::donsus_symbol(std::string& name, donsus_token_kind type): name(name), type(type) {};
 
-std::string donsus_symbol::get_name() const{
+std::string donsus_symbol::get_name(){
     return name;
 }
 
@@ -16,25 +16,25 @@ donsus_token_kind donsus_symbol::get_type(){
 // donsus_symtable
 donsus_symtable::donsus_symtable(std::string& file_name): file_name(file_name) {};
 
-const std::string& donsus_symtable::get_file_name() {
+std::string& donsus_symtable::get_file_name() {
     return file_name;
 }
 std::unordered_map<std::string, donsus_symbol> donsus_symtable::get_sym() {
     return DONSUS_SYM;
 }
 
-std::ostream& operator<<(std::ostream &o, const donsus_symbol& symbol){
+std::ostream& operator<<(std::ostream &o, donsus_symbol& symbol){
     // prints a symbol
     o << "Name:  " << symbol.get_name() << "\n";
     return o;
 }
 
 std::ostream& operator<<(std::ostream &o, donsus_symtable& symtable){
-    auto print_sym = [](const auto& key, const auto& value, std::ostream &o){
+    auto print_sym = [](auto& key, auto& value, std::ostream &o){
         o << "Key:[" << key << "] Value:[" << value << "]\n";
     };
 
-    for (const auto& n: symtable.DONSUS_SYM)
+    for (auto& n: symtable.DONSUS_SYM)
         print_sym(n.first, n.second, o);
     return o;
 }

@@ -59,11 +59,23 @@ class SECTION{
 class DATA: public SECTION{
     // Initialised data(dx)
 public:
+    DATA() = default;
     DATA(AsmFile& file, DATA_INSTRUCTION& child){
         file.create_section("data");
-        ins.push_back(child); // add child
+        push(child);
         COUNTER_INS++; // INCREASE INS
     }
+
+    void push(DATA_INSTRUCTION& child){
+        ins.push_back(child);
+    }
+    // Todo: fix this here, so that we can fetch the whole section instead of individiual instructions
+/*    void fetch(AsmFile& file){
+        for (unsigned int i = 0; i < ins.size(); i++){
+            auto& data = ins.at(i);
+            data.fetch(file);
+        }
+    }*/
 private:
     int COUNTER_INS = 0; // COUNTER OF INSTRUCTIONS
     std::vector<DATA_INSTRUCTION> ins;
@@ -78,22 +90,30 @@ class DATA_INSTRUCTION: public DATA{
 public:
     // Instruction in a data segment
     // (name, data type, value, new_line)
-    DATA_INSTRUCTION(AsmFile& file): DATA(file, *this){}
+    DATA_INSTRUCTION() = default;
+
+    DATA_INSTRUCTION(AsmFile& file, std::string& name, DX type,
+                     std::string& value, std::string& new_line):
+
+                     DATA(file, *this),
+                     name(name),
+                     type(type),
+                     value(value),
+                     new_line(new_line)
+                     {}
+
     std::string name; // name of the var
     DX type; // "DX"
 
-    std::string value; // actual value
-    NASM_STRING string; // string view
+    std::string value; // string view
 
     std::string new_line; // NEW_LINE
+
     void handle_name(AsmFile& file) {
         file.write_to_file(name);
     }
     void handle_type(AsmFile& file){
         file.write_to_file(" " + donsus_codegen_get_string_type_DX(type));
-    }
-    void handle_string(AsmFile& file){
-        file.write_to_file(string.to_string(value));
     }
     void handle_new_line(AsmFile& file){
         file.write_to_file("09AH", true); // new line
@@ -103,37 +123,46 @@ public:
         // Add the actual instruction to the file
         handle_name(file);
         handle_type(file);
-        handle_string(file);
         handle_new_line(file);
     }
 };
 
-// GLOBALS
-void donsus_codegen_create_instructions(){
+DATA_INSTRUCTION donsus_data_instruction(AsmFile& file, std::string name, DX type, std::string value, std::string new_line){
+    // string view
+    NASM_STRING string;
+    std::string string_view = string.to_string(value);
 
+    DATA_INSTRUCTION INS(file, name, type, string_view, new_line);
+    return INS;
 }
 
+// GLOBALS
 void donsus_codegen_symbol(donsus_symbol& symbol, AsmFile& file){
 
 }
 
 // START CODEGEN
-void donsus_codegen_section_vars_sym(donsus_symtable* symtable, AsmFile& file){
+void donsus_codegen_section_vars_sym(donsus_symtable* symtable, AsmFile& file, DATA& data){
     // find out variables from the symbol table
+
     if (!symtable->get_sym().empty()) return; // there are no symbols
 
-    auto inside_sym = [](const auto& key, const auto& value, AsmFile& file){
-
+    auto inside_sym = [](auto& key, auto& value, AsmFile& file,  DATA& data){
+        // add instruction to data from the key and processing symbol(fetch?)
+        DATA_INSTRUCTION d_ins = donsus_data_instruction(file, value.get_name(), DB, key, "09AH");
+        d_ins.fetch(file);
     };
-        for (const auto& n: symtable->get_sym()){
-        inside_sym(n.first, n.second, file);
+
+     for (auto& n: symtable->get_sym()){
+        inside_sym(n.first, n.second, file, data);
     }
 }
 
 void donsus_codegen_create_data_section(donsus_ast* ast, donsus_symtable* symtable, AsmFile& file){
     /*DATA data_sec;*/
-    // add stuff to data section from symbol table
-    donsus_codegen_section_vars_sym(symtable, file);
+    DATA data;
+    // add the data section from symbol table
+    donsus_codegen_section_vars_sym(symtable, file, data);
 }
 
 // Enter point

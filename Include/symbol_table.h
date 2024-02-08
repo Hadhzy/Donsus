@@ -11,7 +11,7 @@ class donsus_symbol{
 public:
     donsus_symbol(std::string& name, donsus_token_kind type);
 
-    [[nodiscard]] std::string get_name() const;
+    [[nodiscard]] std::string get_name();
 
     donsus_token_kind get_type();
 
@@ -36,7 +36,7 @@ private:
 class donsus_symtable{
 public:
     donsus_symtable(std::string& file_name);
-    const std::string& get_file_name();
+    std::string& get_file_name();
 
     std::unordered_map<std::string, donsus_symbol> get_sym();
 
@@ -48,7 +48,7 @@ public:
     }
     #endif
 private:
-    const std::string file_name; // file name
+    std::string file_name; // file name
     // symbol table type
 
     std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
