@@ -2,6 +2,7 @@
 #include "../Include/parser.h"
 #include "../Include/donsus.h"
 #include "../Include/tree.h"
+#include "./utils/ast_graph_generator.cc"
 #include <memory>
 
 // // DEBUG

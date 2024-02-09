@@ -14,6 +14,7 @@ add_executable(donsus
         src/ir.cc
         src/symbol_table.cc
         src/tree.cc
+        src/utils/ast_graph_generator.cc
 
         # codegen
         src/codegen/asm/duasm.cc
