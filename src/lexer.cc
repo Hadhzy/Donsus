@@ -103,8 +103,8 @@ static bool is_type(std::string& s){
     return result;
 }*/
 
-char peak_for_char(donsus_parser * parser){
-    char next_char = parser->lexer.string[parser->lexer.cur_pos + 1];
+char peak_for_char(DonsusParser& parser){
+    char next_char = parser.lexer.string[parser.lexer.cur_pos + 1];
 
     if (next_char == '\0') {
         return '\0';
@@ -113,7 +113,7 @@ char peak_for_char(donsus_parser * parser){
     return next_char;
 }
 
-bool eat(donsus_parser &parser){
+bool eat(DonsusParser& parser){
     if((parser.lexer.cur_char = parser.lexer.string[++parser.lexer.cur_pos]) != '\0') {
         return true;
     }
@@ -121,23 +121,23 @@ bool eat(donsus_parser &parser){
     return false;
 }
 
-static std::string get_text_between_pos(donsus_parser &parser, unsigned int start, unsigned int end) {
+static std::string get_text_between_pos(DonsusParser& parser, unsigned int start, unsigned int end) {
     // returns string from the starting point to the end
     return {std::begin(parser.lexer.string) + start, std::begin(parser.lexer.string) + end};
 
 }
 
-static std::string next_number(donsus_parser& parser,donsus_token token, unsigned int start_pos) {
+static std::string next_number(DonsusParser& parser, donsus_token token, unsigned int start_pos) {
     // TBD: we are checking isdigit 2 times here. We can't eat.
 
     while (isdigit(parser.lexer.cur_char)){
         token.length++;
         eat(parser);
-    }
+    };
     return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
-}
+};
 
-static std::string next_identifier(donsus_parser& parser, donsus_token token, unsigned int start_pos){
+static std::string next_identifier(DonsusParser& parser, donsus_token token, unsigned int start_pos){
     while (iscontinue_identifier(parser.lexer.cur_char)){
         token.length++;
         eat(parser);
@@ -145,7 +145,7 @@ static std::string next_identifier(donsus_parser& parser, donsus_token token, un
     return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
 }
 
-static donsus_token make_type(donsus_parser& parser, std::string& value, unsigned int length){
+static donsus_token make_type(DonsusParser& parser, std::string& value, unsigned int length){
     // construct type token
     donsus_token token;
     token.line = parser.lexer.cur_line;
@@ -156,7 +156,7 @@ static donsus_token make_type(donsus_parser& parser, std::string& value, unsigne
     return token;
 }
 
-donsus_token donsus_lexer_next(donsus_parser& parser) {
+donsus_token donsus_lexer_next(DonsusParser& parser) {
     donsus_token cur_token{DONSUS_END, "", 0, parser.lexer.cur_line}; // aggregate initialisation
     switch (parser.lexer.cur_char) {
         case '\r':
