@@ -4,16 +4,16 @@
 #include <iostream>
 #include <unordered_map>
 #include "../Include/donsus.h"
-
+#include "../Include/parser.h"
 // Types here
 
 class donsus_symbol{
 public:
-    donsus_symbol(const std::string name): name(name) {};
+    donsus_symbol(std::string& name, donsus_token_kind type);
 
-     const std::string get_name() const {
-        return name;
-    }
+    [[nodiscard]] std::string get_name();
+
+    donsus_token_kind get_type();
 
     friend std::ostream& operator<<(std::ostream &o, donsus_symbol& symbol);
 
@@ -24,22 +24,21 @@ public:
     #endif
 
 private:
-    const std::string name;
+    // name
+    std::string name; // might be redundant
     // scope
     // type
+    donsus_token_kind type;
     // namespace
     // flags
 };
 
 class donsus_symtable{
 public:
-    donsus_symtable(const std::string file_name): file_name(file_name) {};
-    const std::string get_file_name(){
-        return file_name;
-    }
-    std::unordered_map<std::string, donsus_symbol> get_sym(){
-        return DONSUS_SYM;
-    }
+    donsus_symtable(std::string& file_name);
+    std::string& get_file_name();
+
+    std::unordered_map<std::string, donsus_symbol> get_sym();
 
     friend std::ostream& operator<<(std::ostream &o, donsus_symtable& symtable);
 
@@ -49,25 +48,13 @@ public:
     }
     #endif
 private:
-    const std::string file_name; // file name
+    std::string file_name; // file name
     // symbol table type
 
     std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
 };
 
-std::ostream& operator<<(std::ostream &o, const donsus_symbol& symbol){
-    // prints a symbol
-    o << "Name:  " << symbol.get_name() << "\n";
-    return o;
-}
+std::unique_ptr<donsus_symtable> donsus_sym_make(std::string& file_name);
+std::unique_ptr<donsus_symbol> donsus_symbol_make(std::string& name, donsus_token_kind type);
 
-std::ostream& operator<<(std::ostream &o, donsus_symtable& symtable){
-    auto print_sym = [](const auto& key, const auto& value, std::ostream &o){
-        o << "Key:[" << key << "] Value:[" << value << "]\n";
-    };
-
-    for (const auto& n: symtable.DONSUS_SYM)
-        print_sym(n.first, n.second, o);
-    return o;
-}
 #endif
