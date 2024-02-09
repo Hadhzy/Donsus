@@ -18,15 +18,10 @@ int Du_Main(int argc, char **argv) {
 
     // Lexer
     donsus_lexer lexer(result); // initialise lexer
-    donsus_parser parser;
-
-    parser.error = false;
-
-    parser.lexer = lexer;
-    parser.cur_token = donsus_lexer_next(parser);
+    DonsusParser parser(lexer);
 
     // Parser
-    std::unique_ptr<donsus_ast> parser_result = donsus_parse(parser, base);
+    std::unique_ptr<donsus_ast> parser_result = parser.donsus_parse();
 
     // Semantic analysis (Construct symbol table)
     std::unique_ptr<donsus_symtable> symtable_result = donsus_sym(path);

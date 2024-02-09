@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 
+class DonsusParser;
 
 // AST node types
 typedef enum{
@@ -93,19 +94,41 @@ struct donsus_lexer {
     unsigned int cur_pos, cur_line;
 };
 
-struct donsus_parser;
-donsus_token donsus_lexer_next(donsus_parser& parser); // forward reference
+// struct donsus_parser;
+donsus_token donsus_lexer_next(DonsusParser& parser); // forward reference
 
-struct donsus_parser{
-    bool error;
+// struct donsus_parser{
+//     bool error;
+//     donsus_token cur_token;
+//     donsus_lexer lexer;
+// };
+
+// /*donsus_lexer donsus_new_lexer(std::string string);*/
+// void de_printout_single_token(donsus_token);
+// std::string de_get_name_from_token(donsus_token_kind kind);
+// donsus_parser& donsus_parser_init(donsus_lexer& lexer);
+// donsus_token donsus_parser_next(donsus_parser &parser);
+// std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base);
+
+class DonsusParser {
+    public:
+    DonsusParser(donsus_lexer& lexer);
+
+    void de_printout_single_token(donsus_token);
+    std::string de_get_name_from_token(donsus_token_kind kind); 
+    donsus_token donsus_parser_next();
+    std::unique_ptr<donsus_ast> donsus_parse();
+    void print_token();
+    donsus_token donsus_peek();
+    std::unique_ptr<donsus_ast> donsus_expr(unsigned int ptp);
+    std::unique_ptr<donsus_ast> donsus_number(donsus_token_kind type);
+    std::unique_ptr<donsus_ast> donsus_primary();
+
     donsus_token cur_token;
     donsus_lexer lexer;
+    private:
+    bool error;
 };
 
-/*donsus_lexer donsus_new_lexer(std::string string);*/
-void de_printout_single_token(donsus_token);
-std::string de_get_name_from_token(donsus_token_kind kind);
-donsus_parser& donsus_parser_init(donsus_lexer& lexer);
-donsus_token donsus_parser_next(donsus_parser &parser);
-std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base);
+
 #endif // PARSER_H
