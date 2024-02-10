@@ -1,4 +1,4 @@
-// AST TREE API FOR PARSER.CC
+// AST TREE API FOR PARSER.CC wrapper around donsus_ast
 #include "../Include/parser.h"
 #include <memory>
 

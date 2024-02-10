@@ -97,30 +97,18 @@ struct donsus_lexer {
 // struct donsus_parser;
 donsus_token donsus_lexer_next(DonsusParser& parser); // forward reference
 
-// struct donsus_parser{
-//     bool error;
-//     donsus_token cur_token;
-//     donsus_lexer lexer;
-// };
-
-// /*donsus_lexer donsus_new_lexer(std::string string);*/
-// void de_printout_single_token(donsus_token);
-// std::string de_get_name_from_token(donsus_token_kind kind);
-// donsus_parser& donsus_parser_init(donsus_lexer& lexer);
-// donsus_token donsus_parser_next(donsus_parser &parser);
-// std::unique_ptr<donsus_ast> donsus_parse(donsus_parser& parser, donsus_ast& base);
-
+// debug
 class DonsusParser {
     public:
-    DonsusParser(donsus_lexer& lexer);
 
-    void de_printout_single_token(donsus_token);
-    std::string de_get_name_from_token(donsus_token_kind kind); 
+    DonsusParser(donsus_lexer& lexer);
     donsus_token donsus_parser_next();
     std::unique_ptr<donsus_ast> donsus_parse();
     void print_token();
     donsus_token donsus_peek();
-    std::unique_ptr<donsus_ast> donsus_expr(unsigned int ptp);
+
+    // parsing number expressions
+    std::unique_ptr<donsus_ast> donsus_number_expr(unsigned int ptp);
     std::unique_ptr<donsus_ast> donsus_number(donsus_token_kind type);
     std::unique_ptr<donsus_ast> donsus_primary();
 
@@ -129,6 +117,6 @@ class DonsusParser {
     private:
     bool error;
 };
-
-
+// debug
+std::string de_get_name_from_token(donsus_token_kind kind);
 #endif // PARSER_H
