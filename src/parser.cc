@@ -51,8 +51,26 @@ std::unique_ptr<donsus_ast> DonsusParser::donsus_parse() {
     *this = save;
     #endif
 
-    std::unique_ptr<donsus_ast> result = donsus_expr(0);
+    std::unique_ptr<donsus_ast> result;
 
+    while (cur_token.kind != DONSUS_END) {
+        switch(cur_token.kind){
+            case DONSUS_BOOL:
+            case DONSUS_VOID:
+            case DONSUS_CHAR:
+            case DONSUS_BASIC_INT:
+
+            case DONSUS_I8:
+            case DONSUS_I16:
+            case DONSUS_I32:
+            case DONSUS_I64:
+            case DONSUS_U32:
+            case DONSUS_U64: {
+                return donsus_number_expr(cur_token.kind);
+            }
+            default: {}
+        }
+    }
     // #ifdef DEBUG
     // std::cout << "AST: " << "\n";
     // // print_ast(result);
@@ -62,7 +80,7 @@ std::unique_ptr<donsus_ast> DonsusParser::donsus_parse() {
 
 }
 
-std::unique_ptr<donsus_ast> DonsusParser::donsus_expr(unsigned int ptp) {
+std::unique_ptr<donsus_ast> DonsusParser::donsus_number_expr(unsigned int ptp) {
     std::unique_ptr<donsus_ast> left; // declare the type of left
     std::unique_ptr<donsus_ast> right; // declare the type of right
     // Gt the integer on the left

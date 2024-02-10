@@ -110,7 +110,7 @@ class DonsusParser {
     // parsing number expressions
     std::unique_ptr<donsus_ast> donsus_number_expr(unsigned int ptp);
     std::unique_ptr<donsus_ast> donsus_number(donsus_token_kind type);
-    std::unique_ptr<donsus_ast> donsus_primary();
+    std::unique_ptr<donsus_ast> donsus_number_primary();
 
     donsus_token cur_token;
     donsus_lexer lexer;
