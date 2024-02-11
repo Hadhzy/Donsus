@@ -158,7 +158,7 @@ void donsus_codegen_section_vars_sym(donsus_symtable* symtable, AsmFile& file, D
     }
 }
 
-void donsus_codegen_create_data_section(donsus_ast* ast, donsus_symtable* symtable, AsmFile& file){
+void donsus_codegen_create_data_section(donsus_global_ast* ast, donsus_symtable* symtable, AsmFile& file){
     /*DATA data_sec;*/
     DATA data;
     // add the data section from symbol table
@@ -166,7 +166,7 @@ void donsus_codegen_create_data_section(donsus_ast* ast, donsus_symtable* symtab
 }
 
 // Enter point
-void donsus_codegen_x64(std::unique_ptr<donsus_ast> ast, std::unique_ptr<donsus_symtable> symtable, std::string& filename){
+void donsus_codegen_x64(std::unique_ptr<donsus_global_ast> ast, std::unique_ptr<donsus_symtable> symtable, std::string& filename){
 
     AsmFile x64_file(filename); // create file instance
 

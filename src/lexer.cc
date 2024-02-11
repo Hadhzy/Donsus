@@ -78,11 +78,6 @@ static bool isstart_identifier(char c){
     return isalpha(c) || c == '_';
 }
 
-static bool iscontinue_identifier(char c){
-    // continue point of an identifier
-    return isstart_identifier(c) || isdigit(c);
-}
-
 static bool is_type(std::string& s){
     if(DONSUS_TYPES_LEXER.find(s) != DONSUS_TYPES_LEXER.end()){
         return true;
@@ -90,10 +85,15 @@ static bool is_type(std::string& s){
     return false;
 }
 
+
+static bool iscontinue_identifier(char c){
+    // continue point of an identifier
+    return isstart_identifier(c) || isdigit(c);
+}
+
+
 /*donsus_lexer peak_for_token(donsus_parser * parser){
     donsus_lexer result;
-
-
     donsus_lexer old_lexer = parser->lexer;
     donsus_lexer new_token(parser->lexer.string);
 
@@ -114,15 +114,20 @@ char peak_for_char(DonsusParser& parser){
 }
 
 bool eat(DonsusParser& parser){
-    if((parser.lexer.cur_char = parser.lexer.string[++parser.lexer.cur_pos]) != '\0') {
+    if((parser.lexer.cur_char = parser.lexer.string[parser.lexer.cur_pos]) != '\0') {
+        std::cout << "here?";
         return true;
-    }
 
+    }
+    std::cout << "or here?";
     return false;
 }
 
 static std::string get_text_between_pos(DonsusParser& parser, unsigned int start, unsigned int end) {
     // returns string from the starting point to the end
+    std::cout << "start: " << start;
+    std::cout << "end: " << end;
+
     return {std::begin(parser.lexer.string) + start, std::begin(parser.lexer.string) + end};
 
 }
@@ -156,19 +161,20 @@ static donsus_token make_type(DonsusParser& parser, std::string& value, unsigned
     return token;
 }
 
+void consume_spaces(DonsusParser& parser){
+    while (std::isspace(parser.lexer.cur_char)){
+        eat(parser);
+    }
+}
+
 donsus_token donsus_lexer_next(DonsusParser& parser) {
     donsus_token cur_token{DONSUS_END, "", 0, parser.lexer.cur_line}; // aggregate initialisation
+
+
+    // consume spaces
+    consume_spaces(parser);
+
     switch (parser.lexer.cur_char) {
-        case '\r':
-        case '\t':
-        case ' ': {
-            if (!eat(parser)) {
-                cur_token.kind = DONSUS_END;
-                cur_token.line = parser.lexer.cur_line;
-                return cur_token;
-            }
-            break;
-        }
         case '\n': {
             cur_token.line = ++parser.lexer.cur_line;
             cur_token.kind = DONSUS_NEWLINE;
@@ -252,6 +258,14 @@ donsus_token donsus_lexer_next(DonsusParser& parser) {
             return cur_token;
         }
 
+        case ';': {
+            cur_token.kind = DONSUS_SEMICOLON;
+            cur_token.length = 1;
+            cur_token.value = ";";
+            cur_token.line = parser.lexer.cur_line;
+            eat(parser);
+            return cur_token;
+        }
         default: {
             // numbers
             if (isdigit(parser.lexer.cur_char)) {

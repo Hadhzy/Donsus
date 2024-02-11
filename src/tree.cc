@@ -1,4 +1,4 @@
-// AST TREE API FOR PARSER.CC
+// AST TREE API FOR PARSER.CC wrapper around donsus_ast
 #include "../Include/parser.h"
 #include <memory>
 
@@ -20,3 +20,5 @@ std::unique_ptr<donsus_ast> donsus_make_ast_leaf(donsus_token &value, donsus_tok
 std::unique_ptr<donsus_ast> donsus_make_ast_unary(donsus_token& value, std::unique_ptr<donsus_ast> left, donsus_token_kind type) {
     return  donsus_make_ast_node(value, std::move(left), nullptr, type);
 }
+
+
