@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <vector>
 
 class DonsusParser;
 
@@ -23,6 +24,7 @@ typedef enum{
     DONSUS_RSQB, // ]
     DONSUS_COLO, // :
     DONSUS_COMM,  // ,
+    DONSUS_SEMICOLON, // ;
     DONSUS_PLUS, // +
     DONSUS_PLUS_EQUAL, // +=
     DONSUS_MINUS, // -
@@ -63,6 +65,9 @@ typedef enum{
     DONSUS_BOOL, // bool
     DONSUS_VOID, // void
     DONSUS_CHAR, // 'D'
+
+    // COMPLEX STUFF
+    DONSUS_VAR_DECLARATION
 } donsus_token_kind;
 
 // For the lexer
@@ -84,6 +89,11 @@ struct donsus_ast{
     donsus_token_kind type; // TYPE
 };
 
+// Holds global ast
+struct donsus_global_ast{
+    std::vector<std::unique_ptr<donsus_ast>> body; // TOP level nodes
+};
+
 struct donsus_lexer {
     donsus_lexer(std::string input) :
     string(input), cur_pos(0), cur_line(1), cur_char(input[0]) {}
@@ -94,6 +104,7 @@ struct donsus_lexer {
     unsigned int cur_pos, cur_line;
 };
 
+
 // struct donsus_parser;
 donsus_token donsus_lexer_next(DonsusParser& parser); // forward reference
 
@@ -103,7 +114,7 @@ class DonsusParser {
 
     DonsusParser(donsus_lexer& lexer);
     donsus_token donsus_parser_next();
-    std::unique_ptr<donsus_ast> donsus_parse();
+    std::unique_ptr<donsus_global_ast> donsus_parse();
     void print_token();
     donsus_token donsus_peek();
 

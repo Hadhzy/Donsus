@@ -6,6 +6,7 @@
 #include <memory>
 
 // HELPER
+
 std::unique_ptr<donsus_ast> add_to_result(std::unique_ptr<donsus_ast> current, std::unique_ptr<donsus_ast> result){
 }
 
@@ -43,7 +44,7 @@ donsus_token DonsusParser::donsus_peek() {
 }
 
 // TODO: proper debug for lexer and AST
-std::unique_ptr<donsus_ast> DonsusParser::donsus_parse() {
+std::unique_ptr<donsus_global_ast> DonsusParser::donsus_parse() {
     #ifdef DEBUG
     std::cout << "LEXER: " << "\n";
     DonsusParser save = *this;
@@ -51,25 +52,29 @@ std::unique_ptr<donsus_ast> DonsusParser::donsus_parse() {
     *this = save;
     #endif
 
-    std::unique_ptr<donsus_ast> result;
+    std::unique_ptr<donsus_global_ast> result;
 
+    std::cout << cur_token.kind << std::endl;
     while (cur_token.kind != DONSUS_END) {
-        switch(cur_token.kind){
+        donsus_parser_next();
+/*        switch(cur_token.kind){
             case DONSUS_BOOL:
             case DONSUS_VOID:
             case DONSUS_CHAR:
             case DONSUS_BASIC_INT:
-
+                donsus_parser_next();
             case DONSUS_I8:
             case DONSUS_I16:
             case DONSUS_I32:
             case DONSUS_I64:
             case DONSUS_U32:
             case DONSUS_U64: {
-                return donsus_number_expr(cur_token.kind);
+                 result->body.push_back(donsus_number_expr(cur_token.kind));
+
             }
             default: {}
-        }
+        }*/
+
     }
     // #ifdef DEBUG
     // std::cout << "AST: " << "\n";
