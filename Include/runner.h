@@ -3,4 +3,4 @@
 
 int Du_Main(int argc, char **argv);
 
-#endif //DONSUS_RUNNER_H
+#endif // DONSUS_RUNNER_H

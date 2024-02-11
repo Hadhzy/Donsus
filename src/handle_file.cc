@@ -2,31 +2,39 @@
 #include <fstream>
 #include <iostream>
 
-std::size_t get_file_size(std::ifstream& file){
-    file.seekg(0, file.end); // Go to the end of the file
-    std::size_t size = file.tellg(); // Read the current position
-    file.seekg(0, file.beg); // Go to the beginning of the file
-    return size;
+std::size_t get_file_size(std::ifstream &file) {
+
+  file.seekg(0, file.end);         // Go to the end of the file
+  std::size_t size = file.tellg(); // Read the current position
+  file.seekg(0, file.beg);         // Go to the beginning of the file
+  return size;
 }
 
 std::string handle_file(char **argv) {
-    std::string path = argv[1]; // get the path of the file
-    std::ifstream in(path, std::ifstream::in);
 
-    if(!in) {
-        std::cout << "FILE NOT FOUND AT THIS PATH" << std::endl;
-        exit(1);
-    }
+  std::string path = argv[1]; // get the path of the file
+  std::ifstream in(path, std::ifstream::in);
 
-    std::size_t size = get_file_size(in);
-    std::string result {};
-    result.resize(size);
+  if (!in) {
 
-    std::string str(size, '\0');
+    std::cout << "FILE NOT FOUND AT THIS PATH" << std::endl;
 
-    if (in.read(&str[0],  static_cast<int>(size)))
-        result = str;
+    exit(1);
+  }
 
-    in.close();
-    return result;
+  std::size_t size = get_file_size(in);
+
+  std::string result{};
+
+  result.resize(size);
+
+  std::string str(size, '\0');
+
+  if (in.read(&str[0], static_cast<int>(size)))
+
+    result = str;
+
+  in.close();
+
+  return result;
 }
