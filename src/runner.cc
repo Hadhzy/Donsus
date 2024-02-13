@@ -25,7 +25,7 @@ int Du_Main(int argc, char **argv) {
   DonsusParser parser(lexer);
 
   // Parser
-  std::unique_ptr<donsus_global_ast> parser_result = parser.donsus_parse();
+  donsus_global_ast* parser_result = parser.donsus_parse();
 
   // Semantic analysis (Construct symbol table)
   std::unique_ptr<donsus_symtable> symtable_result = donsus_sym(path);

@@ -6,10 +6,14 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <variant>
 
+#include "./utility/handle.h"
+#include "ast/node.h"
 class DonsusParser;
 
-// AST node types
+// lexer
+// Token types made by the lexer
 typedef enum {
   // Tokens
   DONSUS_NAME,    // IDENTIFIER
@@ -65,12 +69,8 @@ typedef enum {
   DONSUS_BOOL, // bool
   DONSUS_VOID, // void
   DONSUS_CHAR, // 'D'
-
-  // COMPLEX STUFF
-  DONSUS_VAR_DECLARATION
 } donsus_token_kind;
 
-// For the lexer
 extern std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER;
 
 struct donsus_token {
@@ -80,21 +80,9 @@ struct donsus_token {
   unsigned int line;       // the line number of the token(starts from one)
   unsigned int precedence; // precedence of the token(the higher the value the
                            // more precedence the token has)
-};
 
-// Abstract Syntax Tree structure
-struct donsus_ast {
-  donsus_token value;
-  std::unique_ptr<donsus_ast> left;  // left child tree
-  std::unique_ptr<donsus_ast> right; // right child tree
-  donsus_token_kind type;            // TYPE
 };
-
-// Holds global ast
-struct donsus_global_ast {
-  std::vector<std::unique_ptr<donsus_ast>> body; // TOP level nodes
-};
-
+// lexer--
 struct donsus_lexer {
   donsus_lexer(std::string input)
       : string(input), cur_pos(0), cur_line(1), cur_char(input[0]) {}
@@ -111,16 +99,22 @@ donsus_token donsus_lexer_next(DonsusParser &parser); // forward reference
 // debug
 class DonsusParser {
 public:
+  using parse_result = utility::handle<donsus_ast::node>;
   DonsusParser(donsus_lexer &lexer);
   donsus_token donsus_parser_next();
-  std::unique_ptr<donsus_global_ast> donsus_parse();
+  auto donsus_parse() -> parse_result ;
   void print_token();
   donsus_token donsus_peek();
 
+  // parsing expression
+  auto donsus_expr() -> parse_result;
   // parsing number expressions
-  std::unique_ptr<donsus_ast> donsus_number_expr(unsigned int ptp);
-  std::unique_ptr<donsus_ast> donsus_number(donsus_token_kind type);
-  std::unique_ptr<donsus_ast> donsus_number_primary();
+  auto donsus_number_expr(unsigned int ptp) -> parse_result;
+  auto donsus_number(donsus_token_kind type) -> parse_result;
+  auto donsus_number_primary() -> parse_result;
+
+  // parsing variable declaration
+  auto donsus_variable_decl(donsus_token_kind type) -> parse_result;
 
   donsus_token cur_token;
   donsus_lexer lexer;

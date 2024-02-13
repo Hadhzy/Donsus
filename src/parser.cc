@@ -1,14 +1,15 @@
 // pratt parser
 #include "../Include/parser.h"
 #include "../Include/donsus.h"
-#include "../Include/tree.h"
+#include "../src/utility/handle.h"
 #include <iostream>
 #include <memory>
 
+/*
 // HELPER
-
 std::unique_ptr<donsus_ast> add_to_result(std::unique_ptr<donsus_ast> current,
                                           std::unique_ptr<donsus_ast> result) {}
+*/
 
 // DEBUG
 static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
@@ -44,7 +45,7 @@ donsus_token DonsusParser::donsus_peek() {
 }
 
 // TODO: proper debug for lexer and AST
-std::unique_ptr<donsus_global_ast> DonsusParser::donsus_parse() {
+auto DonsusParser::donsus_parse() ->parse_result {
 #ifdef DEBUG
   std::cout << "LEXER: "
             << "\n";
@@ -53,7 +54,7 @@ std::unique_ptr<donsus_global_ast> DonsusParser::donsus_parse() {
   *this = save;
 #endif
 
-  std::unique_ptr<donsus_global_ast> result;
+  donsus_global_ast *result;
 
   while (cur_token.kind != DONSUS_END) {
     donsus_parser_next();
@@ -62,15 +63,13 @@ std::unique_ptr<donsus_global_ast> DonsusParser::donsus_parse() {
     case DONSUS_VOID:
     case DONSUS_CHAR:
     case DONSUS_BASIC_INT:
-      std::cout << "here i am and everything has been paresed down";
-      break;
     case DONSUS_I8:
     case DONSUS_I16:
     case DONSUS_I32:
     case DONSUS_I64:
     case DONSUS_U32:
     case DONSUS_U64: {
-      result->body.push_back(donsus_number_expr(cur_token.kind));
+      result->body.emplace_back(donsus_variable_decl(cur_token.kind));
     }
     default: {
     }
@@ -84,11 +83,9 @@ std::unique_ptr<donsus_global_ast> DonsusParser::donsus_parse() {
   return result;
 }
 
-std::unique_ptr<donsus_ast> DonsusParser::donsus_number_expr(unsigned int ptp) {
-  std::unique_ptr<donsus_ast> left;  // declare the type of left
-  std::unique_ptr<donsus_ast> right; // declare the type of right
+auto DonsusParser::donsus_number_expr(unsigned int ptp) ->parse_result {
   // Gt the integer on the left
-  left = donsus_number_primary(); // return node with value
+  const utility::handle<donsus_ast::node> left = donsus_number_primary(); // return node with value
 
   donsus_token previous_token = cur_token;
 
@@ -98,10 +95,10 @@ std::unique_ptr<donsus_ast> DonsusParser::donsus_number_expr(unsigned int ptp) {
 
   while (previous_token.precedence > ptp) {
     donsus_parser_next();                                  // get next token
-    right = donsus_number_expr(previous_token.precedence); // recursive call
+    const utility::handle<donsus_ast::node> right = donsus_number_expr(previous_token.precedence); // recursive call
 
-    left = donsus_make_ast_node(previous_token, std::move(left),
-                                std::move(right), previous_token.kind);
+    const utility::handle<donsus_ast::node> left =
+        new donsus_math_expr(previous_token, left, right, previous_token.kind);
 
     if (cur_token.kind == DONSUS_END) {
       return left;
@@ -110,15 +107,26 @@ std::unique_ptr<donsus_ast> DonsusParser::donsus_number_expr(unsigned int ptp) {
   return left;
 }
 
-std::unique_ptr<donsus_ast>
-DonsusParser::donsus_number(donsus_token_kind type) {
-  std::unique_ptr<donsus_ast> n; // (value, nullptr, nullptr)
-  n = donsus_make_ast_leaf(cur_token, type);
+auto DonsusParser::donsus_number(donsus_token_kind type) ->parse_result {
+  auto *n = new donsus_math_expr(cur_token, type);
   donsus_parser_next(); // get next token
   return n;
 }
 
-std::unique_ptr<donsus_ast> DonsusParser::donsus_number_primary() {
-  std::unique_ptr<donsus_ast> n; // declare the type of n
+auto DonsusParser::donsus_number_primary() ->parse_result {
+  std::unique_ptr<donsus_math_expr> n; // declare the type of n
   return donsus_number(cur_token.kind);
+}
+
+auto DonsusParser::donsus_expr() -> parse_result{
+  // number expressions, string expressions etc.
+}
+
+auto DonsusParser::donsus_variable_decl(donsus_token_kind type) ->parse_result {
+  // create an ast node with type DONSUS_DECLARATION
+  // add this ast node to the top level AST
+  // add this to the symbol table
+  // figure out whether it has a definition
+  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
+  return n;
 }

@@ -1,0 +1,53 @@
+// Donsus memory allocator
+#ifndef UTILITY_MEMORY_ALLOC_H
+#define UTILITY_MEMORY_ALLOC_H
+#include <cstdint>
+#include <iostream>
+
+namespace utility {
+class DonsusAllocator {
+  // one particular block
+  struct block {
+    // free(block) the memory
+    block(uint8_t *memory);
+    ~block();
+    uint8_t *memory;
+    uint64_t position;
+    block *next = nullptr; // next block
+  };
+
+public:
+  DonsusAllocator(uint64_t block_size);
+  // free(all) the memory
+  ~DonsusAllocator();
+
+  void print_used() const;
+
+  auto alloc(uint64_t size) -> void *;
+  auto alloc_zero(uint64_t size) -> void *;
+
+  template <typename type> auto alloc() -> type * {
+    return static_cast<type *>(alloc(sizeof(type)));
+  };
+
+  template <typename type, typename... value_types>
+  auto emplace(value_types &&...values) -> type * {
+    return new (alloc(sizeof(type))) type(std::forward<value_types>(values)...);
+  }
+
+  auto get_block_count() const -> uint64_t;
+
+  auto get_block_size() const -> uint64_t;
+
+private:
+  void alloc_block();
+
+  block *first_block;
+  block *current_block;
+
+  uint64_t block_size;
+  uint64_t block_count = 0;
+};
+} // namespace utility
+
+#endif

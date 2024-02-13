@@ -75,7 +75,7 @@ public:
 
   void push(DATA_INSTRUCTION &child) { ins.push_back(child); }
   // Todo: fix this here, so that we can fetch the whole section instead of
-  // individiual instructions
+  // individual instructions
   /*    void fetch(AsmFile& file){
           for (unsigned int i = 0; i < ins.size(); i++){
               auto& data = ins.at(i);
@@ -170,12 +170,11 @@ void donsus_codegen_create_data_section(donsus_global_ast *ast,
 }
 
 // Enter point
-void donsus_codegen_x64(std::unique_ptr<donsus_global_ast> ast,
-                        std::unique_ptr<donsus_symtable> symtable,
+void donsus_codegen_x64(donsus_global_ast *ast, donsus_symtable *symtable,
                         std::string &filename) {
 
   AsmFile x64_file(filename); // create file instance
 
   // create data section
-  donsus_codegen_create_data_section(ast.get(), symtable.get(), x64_file);
+  donsus_codegen_create_data_section(ast, symtable, x64_file);
 }
