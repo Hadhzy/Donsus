@@ -45,7 +45,7 @@ donsus_token DonsusParser::donsus_peek() {
 }
 
 // TODO: proper debug for lexer and AST
-auto DonsusParser::donsus_parse() ->parse_result {
+auto DonsusParser::donsus_parse() -> parse_result {
 #ifdef DEBUG
   std::cout << "LEXER: "
             << "\n";
@@ -83,22 +83,25 @@ auto DonsusParser::donsus_parse() ->parse_result {
   return result;
 }
 
-auto DonsusParser::donsus_number_expr(unsigned int ptp) ->parse_result {
+auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   // Gt the integer on the left
-  const utility::handle<donsus_ast::node> left = donsus_number_primary(); // return node with value
+  const utility::handle<donsus_ast::node> left;
+  const utility::handle<donsus_ast::node> right;
 
-  donsus_token previous_token = cur_token;
+  left = donsus_number_primary(); // return AST node with only value
 
-  if (previous_token.kind == DONSUS_END) {
-    return left;
+  donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
+
+  if (previous_token.kind == DONSUS_END) { // CHECK END
+    return left; // return whole node
   }
 
   while (previous_token.precedence > ptp) {
-    donsus_parser_next();                                  // get next token
-    const utility::handle<donsus_ast::node> right = donsus_number_expr(previous_token.precedence); // recursive call
+    donsus_parser_next(); // get next token
 
-    const utility::handle<donsus_ast::node> left =
-        new donsus_math_expr(previous_token, left, right, previous_token.kind);
+    right = donsus_number_expr(previous_token.precedence); // recursive call
+
+    left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 2, previous_token);
 
     if (cur_token.kind == DONSUS_END) {
       return left;
@@ -107,22 +110,23 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) ->parse_result {
   return left;
 }
 
-auto DonsusParser::donsus_number(donsus_token_kind type) ->parse_result {
-  auto *n = new donsus_math_expr(cur_token, type);
-  donsus_parser_next(); // get next token
-  return n;
+auto DonsusParser::donsus_number(donsus_ast::donsus_node_type type)
+    -> parse_result {
+  const utility::handle<donsus_ast::node> node = create_node();
+  node->children[0] = left;
+  node->children[1] = right
 }
 
-auto DonsusParser::donsus_number_primary() ->parse_result {
-  std::unique_ptr<donsus_math_expr> n; // declare the type of n
+auto DonsusParser::donsus_number_primary() -> parse_result {
   return donsus_number(cur_token.kind);
 }
 
-auto DonsusParser::donsus_expr() -> parse_result{
+auto DonsusParser::donsus_expr() -> parse_result {
   // number expressions, string expressions etc.
 }
 
-auto DonsusParser::donsus_variable_decl(donsus_token_kind type) ->parse_result {
+auto DonsusParser::donsus_variable_decl(donsus_token_kind type)
+    -> parse_result {
   // create an ast node with type DONSUS_DECLARATION
   // add this ast node to the top level AST
   // add this to the symbol table

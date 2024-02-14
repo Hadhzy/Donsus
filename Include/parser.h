@@ -9,6 +9,7 @@
 #include <variant>
 
 #include "./utility/handle.h"
+#include "ast/tree.h"
 #include "ast/node.h"
 class DonsusParser;
 
@@ -106,6 +107,10 @@ public:
   void print_token();
   donsus_token donsus_peek();
 
+  // create node
+  auto create_node(donsus_ast::donsus_node_type type, uint64_t child_count, donsus_token value) -> utility::handle<donsus_ast::node>{
+    return donsus_tree.create_node(type, child_count, value);
+  }
   // parsing expression
   auto donsus_expr() -> parse_result;
   // parsing number expressions
@@ -118,7 +123,7 @@ public:
 
   donsus_token cur_token;
   donsus_lexer lexer;
-
+  donsus_ast::tree donsus_tree; // holds top level ast nodes
 private:
   bool error;
 };
