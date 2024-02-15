@@ -53,7 +53,7 @@ private:
 };
 
 utility::handle<donsus_symtable>
-donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc);
+donsus_sym_make(std::string &file_name);
 utility::handle<donsus_symbol> donsus_symbol_make(std::string &name,
                                                   donsus_token_kind type);
 

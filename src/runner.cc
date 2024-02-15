@@ -18,17 +18,15 @@ int Du_Main(int argc, char **argv) {
       base_filename.substr(0, p); // Obtain file without the extension(.du)
                                   // create ast structure obj on the stack
 
-  // Global allocator
-  utility::DonsusAllocator alloc;
   // Lexer
   donsus_lexer lexer(result); // initialise lexer
   DonsusParser parser(lexer);
 
   // Parser
-  DonsusParser::parse_result parser_result = parser.donsus_parse();
+  DonsusParser::end_result parser_result = parser.donsus_parse();
 
   // Semantic analysis (Construct symbol table)
-  utility::handle<donsus_symtable> symtable_result = donsus_sym(path, alloc);
+  utility::handle<donsus_symtable> symtable_result = donsus_sym(path);
 
   // nothing currently Todo: catch value and everything(sema_result)
   DonsusParser::parse_result sema_result =

@@ -432,6 +432,19 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     return cur_token;
   }
 
+  case ':':{
+    cur_token.kind = DONSUS_COLO;
+
+    cur_token.length = 1;
+
+    cur_token.value = ":";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
   case ')': {
 
     cur_token.kind = DONSUS_RPAR;
