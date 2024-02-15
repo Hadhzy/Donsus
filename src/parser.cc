@@ -53,7 +53,6 @@ auto DonsusParser::donsus_parse() -> end_result {
 #endif
 
   while (cur_token.kind != DONSUS_END) {
-    donsus_parser_next();
     switch (cur_token.kind) {
     case DONSUS_NUMBER:
       donsus_tree.add_node(donsus_number_expr(0));
@@ -104,8 +103,8 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
     left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
                        3, previous_token);
 
-    left->children[0] = left;
-    left->children[1] = right;
+    left->children.push_back(left);
+    left->children.push_back(right);
 
     if (cur_token.kind == DONSUS_END) {
       return left;
