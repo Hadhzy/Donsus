@@ -36,7 +36,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser); // forward reference
 class DonsusParser {
 public:
   using parse_result = utility::handle<donsus_ast::node>;
-  using end_result = donsus_ast::tree;
+  using end_result = utility::handle<donsus_ast::tree>;
+
   DonsusParser(donsus_lexer &lexer);
   donsus_token donsus_parser_next();
   auto donsus_parse() -> end_result;
@@ -45,8 +46,8 @@ public:
 
   // create node
   auto create_node(donsus_ast::donsus_node_type type, uint64_t child_count,
-                   donsus_token value) -> utility::handle<donsus_ast::node> {
-    return donsus_tree.create_node(type, child_count, value);
+                   donsus_token value) -> parse_result {
+    return donsus_tree->create_node(type, child_count, value);
   }
   // parsing expression
   auto donsus_expr() -> parse_result;
@@ -60,7 +61,7 @@ public:
 
   donsus_token cur_token;
   donsus_lexer lexer;
-  donsus_ast::tree donsus_tree; // holds top level ast nodes
+  utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes
 private:
   bool error;
 };
