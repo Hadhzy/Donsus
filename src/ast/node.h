@@ -24,7 +24,8 @@ struct donsus_node_type {
 };
 struct node {
   // children tbd
-  std::vector<utility::handle<node>> children; // size type in the future
+  std::vector<utility::handle<donsus_ast::node>>
+      children; // size type in the future
   donsus_node_type type;
   donsus_token value;
 };

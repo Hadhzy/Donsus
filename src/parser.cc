@@ -53,10 +53,11 @@ auto DonsusParser::donsus_parse() -> end_result {
 #endif
 
   while (cur_token.kind != DONSUS_END) {
-    donsus_parser_next();
     switch (cur_token.kind) {
-    case DONSUS_NUMBER:
-      donsus_tree.add_node(donsus_number_expr(0));
+    case DONSUS_NUMBER: {
+      utility::handle<donsus_ast::node> result = donsus_number_expr(0);
+      donsus_tree.add_node(result);
+    }
     case DONSUS_BOOL:
     case DONSUS_VOID:
     case DONSUS_CHAR:
@@ -85,6 +86,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   // Gt the integer on the left
   utility::handle<donsus_ast::node> left;
   utility::handle<donsus_ast::node> right;
+  utility::handle<donsus_ast::node> global_node;
 
   left = donsus_number_primary(
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
@@ -101,17 +103,18 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
     right = donsus_number_expr(previous_token.precedence); // recursive call
 
-    left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
-                       3, previous_token);
+    global_node =
+        create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 3,
+                    previous_token);
 
-    left->children[0] = left;
-    left->children[1] = right;
+    global_node->children.push_back(left);
+    global_node->children.push_back(right);
 
     if (cur_token.kind == DONSUS_END) {
-      return left;
+      return global_node;
     }
   }
-  return left;
+  return global_node;
 }
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
