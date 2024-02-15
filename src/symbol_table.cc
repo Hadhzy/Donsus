@@ -1,7 +1,5 @@
 // PUBLIC SYMBOL TABLE API
 #include "../Include/symbol_table.h"
-#include "../src/utility/memory_alloc.h"
-#include <memory>
 
 // donsus_symbol
 donsus_symbol::donsus_symbol(std::string &name, donsus_token_kind type)
