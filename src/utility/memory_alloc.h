@@ -9,9 +9,9 @@ class DonsusAllocator {
   // one particular block
   struct block {
     // free(block) the memory
-    block(uint8_t *memory);
+    block(uint64_t *memory);
     ~block();
-    uint8_t *memory;
+    uint64_t *memory;
     uint64_t position;
     block *next = nullptr; // next block
   };
@@ -30,10 +30,16 @@ public:
     type *a = (type *)std::malloc(sizeof(type));
     ::new (a) type(pargs...);
   }
+  template<typename type>
+  auto alloc_node() -> type*{
+    type* a = (type*)std::malloc(sizeof(type));
+    return a;
+  }
+/*  auto alloc(uint64_t size) -> void *;*/
+/*  auto alloc_zero(uint64_t size) -> void *;*/
 
-  auto alloc(uint64_t size) -> void *;
-  auto alloc_zero(uint64_t size) -> void *;
 
+/*
   template <typename type> auto alloc() -> type * {
     return static_cast<type *>(alloc(sizeof(type)));
   };
@@ -42,13 +48,14 @@ public:
   auto emplace(value_types &&...values) -> type * {
     return new (alloc(sizeof(type))) type(std::forward<value_types>(values)...);
   }
+*/
 
   auto get_block_count() const -> uint64_t;
 
   auto get_block_size() const -> uint64_t;
 
 private:
-  void alloc_block();
+  // void alloc_block();
 
   block *first_block;
   block *current_block;

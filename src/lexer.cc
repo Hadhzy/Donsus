@@ -39,8 +39,7 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_RSQB:
     return "DONSUS_RSQB";
 
-  case DONSUS_COLO:
-    return "DONSUS_COLO";
+
 
   case DONSUS_COMM:
     return "DONSUS_COMM";
@@ -122,6 +121,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_INCREMENT:
     return "DONSUS_INCREMENT";
+
+  case DONSUS_COLO:
+    return "DONSUS_COLO";
 
   case DONSUS_SEMICOLON:
     return "DONSUS_SEMICOLON";
@@ -432,6 +434,19 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     return cur_token;
   }
 
+  case ':':{
+    cur_token.kind = DONSUS_COLO;
+
+    cur_token.length = 1;
+
+    cur_token.value = ":";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
   case ')': {
 
     cur_token.kind = DONSUS_RPAR;

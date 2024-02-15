@@ -21,15 +21,14 @@
 #include "../Include/symbol_table.h"
 
 // Make symbol table
-utility::handle<donsus_symtable> donsus_sym(std::string &file_name,
-                                            utility::DonsusAllocator &alloc) {
+utility::handle<donsus_symtable> donsus_sym(std::string &file_name) {
   utility::handle<donsus_symtable> t;
 
-  t = donsus_sym_make(file_name, alloc); // construct a symbol table GLOBAL
+  t = donsus_sym_make(file_name); // construct a symbol table GLOBAL
   return t;
 }
 
-DonsusParser::parse_result donsus_sema(DonsusParser::parse_result ast,
+DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
                                        std::string &file_name) {
   // TBD:
   // make sema

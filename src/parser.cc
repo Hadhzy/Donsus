@@ -43,7 +43,7 @@ donsus_token DonsusParser::donsus_peek() {
 }
 
 // TODO: proper debug for lexer and AST
-auto DonsusParser::donsus_parse() -> parse_result {
+auto DonsusParser::donsus_parse() -> end_result {
 #ifdef DEBUG
   std::cout << "LEXER: "
             << "\n";
@@ -55,6 +55,8 @@ auto DonsusParser::donsus_parse() -> parse_result {
   while (cur_token.kind != DONSUS_END) {
     donsus_parser_next();
     switch (cur_token.kind) {
+    case DONSUS_NUMBER:
+      donsus_tree.add_node(donsus_number_expr(0));
     case DONSUS_BOOL:
     case DONSUS_VOID:
     case DONSUS_CHAR:
@@ -65,12 +67,13 @@ auto DonsusParser::donsus_parse() -> parse_result {
     case DONSUS_I64:
     case DONSUS_U32:
     case DONSUS_U64: {
-      donsus_tree.add_node(donsus_variable_decl(cur_token.kind));
+      // donsus_tree.add_node(donsus_variable_decl(cur_token.kind));
     }
     default: {
     }
     }
   }
+  return donsus_tree;
   // #ifdef DEBUG
   // std::cout << "AST: " << "\n";
   // // print_ast(result);
@@ -99,7 +102,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
     right = donsus_number_expr(previous_token.precedence); // recursive call
 
     left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
-                       2, previous_token);
+                       3, previous_token);
 
     left->children[0] = left;
     left->children[1] = right;
@@ -115,6 +118,7 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
   const utility::handle<donsus_ast::node> node =
       create_node(type, child_count, cur_token);
+
   donsus_parser_next();
   return node;
 }

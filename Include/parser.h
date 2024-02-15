@@ -36,9 +36,10 @@ donsus_token donsus_lexer_next(DonsusParser &parser); // forward reference
 class DonsusParser {
 public:
   using parse_result = utility::handle<donsus_ast::node>;
+  using end_result = donsus_ast::tree;
   DonsusParser(donsus_lexer &lexer);
   donsus_token donsus_parser_next();
-  auto donsus_parse() -> parse_result;
+  auto donsus_parse() -> end_result;
   void print_token();
   donsus_token donsus_peek();
 

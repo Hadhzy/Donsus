@@ -31,7 +31,7 @@ public:
       -> utility::handle<node> {
     assert(child_count <= std::numeric_limits<uint64_t>::max());
     // Todo: think about this
-    const utility::handle node_ptr = allocator.emplace<node>();
+    const utility::handle node_ptr = allocator.alloc_node<node>();
 
     // initialise the node
     node_ptr->type = type;
