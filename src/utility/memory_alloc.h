@@ -11,7 +11,7 @@ class DonsusAllocator {
     // free(block) the memory
     block(uint64_t *memory);
     ~block();
-    uint8_t *memory;
+    uint64_t *memory;
     uint64_t position;
     block *next = nullptr; // next block
   };

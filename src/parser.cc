@@ -43,7 +43,7 @@ donsus_token DonsusParser::donsus_peek() {
 }
 
 // TODO: proper debug for lexer and AST
-auto DonsusParser::donsus_parse() -> parse_result {
+auto DonsusParser::donsus_parse() -> end_result {
 #ifdef DEBUG
   std::cout << "LEXER: "
             << "\n";
