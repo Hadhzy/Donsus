@@ -21,6 +21,12 @@ add_executable(donsus
         #utility
         src/utility/memory_alloc.cc
 
+        #utility h
+        src/utility/handle.h
+        src/utility/macros.h
+        src/utility/memory_alloc.h
+        src/utility/slices.h
+
         #ast
         src/ast/node.cc
         src/ast/tree.cc

@@ -17,11 +17,19 @@ class DonsusAllocator {
   };
 
 public:
+  DonsusAllocator() = default;
   DonsusAllocator(uint64_t block_size);
   // free(all) the memory
   ~DonsusAllocator();
 
   void print_used() const;
+
+  // Allocate uninitialised object and set up the constructor
+  template <typename type, typename... params>
+  auto alloc_constructor(params... pargs) -> type*{
+    type* a = (type*)std::malloc(sizeof(type));
+    ::new(a) type(pargs...);
+  }
 
   auto alloc(uint64_t size) -> void *;
   auto alloc_zero(uint64_t size) -> void *;
