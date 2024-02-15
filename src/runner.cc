@@ -2,10 +2,8 @@
 #include "../Include/file.h"
 #include "../Include/parser.h"
 #include "../Include/sema.h"
-#include "../Include/symbol_table.h"
 #include "./codegen/target/x64/x64.h"
 #include <iostream>
-#include <memory>
 
 int Du_Main(int argc, char **argv) {
 
@@ -18,25 +16,26 @@ int Du_Main(int argc, char **argv) {
 
   std::string file_without_extension =
       base_filename.substr(0, p); // Obtain file without the extension(.du)
-  donsus_ast base;                // create ast structure obj on the stack
+                                  // create ast structure obj on the stack
 
+  // Global allocator
+  utility::DonsusAllocator alloc;
   // Lexer
   donsus_lexer lexer(result); // initialise lexer
   DonsusParser parser(lexer);
 
   // Parser
-  std::unique_ptr<donsus_global_ast> parser_result = parser.donsus_parse();
+  DonsusParser::parse_result parser_result = parser.donsus_parse();
 
   // Semantic analysis (Construct symbol table)
-  std::unique_ptr<donsus_symtable> symtable_result = donsus_sym(path);
+  utility::handle<donsus_symtable> symtable_result = donsus_sym(path, alloc);
 
   // nothing currently Todo: catch value and everything(sema_result)
-  std::unique_ptr<donsus_global_ast> sema_result =
-      donsus_sema(std::move(parser_result), file_without_extension);
+  DonsusParser::parse_result sema_result =
+      donsus_sema(parser_result, file_without_extension);
 
   // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
-  donsus_codegen_x64(std::move(sema_result), std::move(symtable_result),
-                     file_without_extension);
+  donsus_codegen_x64(sema_result, symtable_result, file_without_extension);
 
   return 0;
 }

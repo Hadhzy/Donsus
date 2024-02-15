@@ -3,6 +3,7 @@
 #define DONSUS_SYMBOL_TABLE_H
 #include "../Include/donsus.h"
 #include "../Include/parser.h"
+#include "../src//utility/memory_alloc.h"
 #include <iostream>
 #include <unordered_map>
 // Types here
@@ -44,14 +45,16 @@ public:
   void debug_symtable() { std::cout << *this; }
 #endif
 private:
-  std::string file_name; // file name
+  std::string file_name;              // file name
+  utility::DonsusAllocator sym_alloc; // allocator for symtable
   // symbol table type
 
   std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
 };
 
-std::unique_ptr<donsus_symtable> donsus_sym_make(std::string &file_name);
-std::unique_ptr<donsus_symbol> donsus_symbol_make(std::string &name,
+utility::handle<donsus_symtable>
+donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc);
+utility::handle<donsus_symbol> donsus_symbol_make(std::string &name,
                                                   donsus_token_kind type);
 
 #endif

@@ -1,6 +1,5 @@
 // PUBLIC SYMBOL TABLE API
 #include "../Include/symbol_table.h"
-#include <memory>
 
 // donsus_symbol
 donsus_symbol::donsus_symbol(std::string &name, donsus_token_kind type)
@@ -37,17 +36,21 @@ std::ostream &operator<<(std::ostream &o, donsus_symtable &symtable) {
 }
 
 // PUBLIC API
-std::unique_ptr<donsus_symtable> donsus_sym_make(std::string &file_name) {
+utility::handle<donsus_symtable>
+donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc) {
   // create symbol table
-  std::unique_ptr<donsus_symtable> sym =
-      std::make_unique<donsus_symtable>(file_name);
+  // redesign this part
+  utility::handle sym = alloc.alloc_constructor<donsus_symtable>(file_name);
   return sym;
 }
 
-std::unique_ptr<donsus_symbol> donsus_symbol_make(std::string &name,
+/*
+utility::handle<donsus_symbol> donsus_symbol_make(std::string &name,
                                                   donsus_token_kind type) {
   // create symbol
+  // redesign this part
   std::unique_ptr<donsus_symbol> symbol =
       std::make_unique<donsus_symbol>(name, type);
   return symbol;
 }
+*/

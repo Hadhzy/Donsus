@@ -13,11 +13,24 @@ add_executable(donsus
         src/sema.cc
         src/ir.cc
         src/symbol_table.cc
-        src/tree.cc
 
         # codegen
         src/codegen/asm/duasm.cc
         src/codegen/target/x64/x64.cc
+
+        #utility
+        src/utility/memory_alloc.cc
+
+        #utility h
+        src/utility/handle.h
+        src/utility/macros.h
+        src/utility/memory_alloc.h
+        src/utility/slices.h
+
+        #ast
+        src/ast/node.cc
+        src/ast/tree.cc
+
 )
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")

@@ -75,7 +75,7 @@ public:
 
   void push(DATA_INSTRUCTION &child) { ins.push_back(child); }
   // Todo: fix this here, so that we can fetch the whole section instead of
-  // individiual instructions
+  // individual instructions
   /*    void fetch(AsmFile& file){
           for (unsigned int i = 0; i < ins.size(); i++){
               auto& data = ins.at(i);
@@ -141,8 +141,8 @@ DATA_INSTRUCTION donsus_data_instruction(AsmFile &file, std::string name,
 void donsus_codegen_symbol(donsus_symbol &symbol, AsmFile &file) {}
 
 // START CODEGEN
-void donsus_codegen_section_vars_sym(donsus_symtable *symtable, AsmFile &file,
-                                     DATA &data) {
+void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable,
+                                     AsmFile &file, DATA &data) {
   // find out variables from the symbol table
 
   if (!symtable->get_sym().empty())
@@ -160,9 +160,9 @@ void donsus_codegen_section_vars_sym(donsus_symtable *symtable, AsmFile &file,
   }
 }
 
-void donsus_codegen_create_data_section(donsus_global_ast *ast,
-                                        donsus_symtable *symtable,
-                                        AsmFile &file) {
+void donsus_codegen_create_data_section(
+    DonsusParser::parse_result ast, utility::handle<donsus_symtable> symtable,
+    AsmFile &file) {
   /*DATA data_sec;*/
   DATA data;
   // add the data section from symbol table
@@ -170,12 +170,12 @@ void donsus_codegen_create_data_section(donsus_global_ast *ast,
 }
 
 // Enter point
-void donsus_codegen_x64(std::unique_ptr<donsus_global_ast> ast,
-                        std::unique_ptr<donsus_symtable> symtable,
+void donsus_codegen_x64(DonsusParser::parse_result ast,
+                        utility::handle<donsus_symtable> symtable,
                         std::string &filename) {
 
   AsmFile x64_file(filename); // create file instance
 
   // create data section
-  donsus_codegen_create_data_section(ast.get(), symtable.get(), x64_file);
+  donsus_codegen_create_data_section(ast, symtable, x64_file);
 }
