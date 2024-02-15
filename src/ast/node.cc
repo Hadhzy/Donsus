@@ -7,5 +7,7 @@ auto donsus_node_type::to_string() const -> std::string {
   switch (type) {
   case DONSUS_VARIABLE_DECLARATION:
     return "DONSUS_VARIABLE_DECLARATION";
+  case DONSUS_NUMBER_EXPRESSION:
+    return "DONSUS_NUMBER_EXPRESSION";
   }
 }

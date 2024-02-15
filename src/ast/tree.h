@@ -25,17 +25,18 @@ public:
   auto get_nodes() -> std::vector<utility::handle<node>>;
   auto get_allocator() -> utility::DonsusAllocator;
 
-  auto allocate_node_list(uint64_t count) -> std::vector<utility::handle<node>>;
+  void allocate_node_list(uint64_t count);
 
-  auto create_node(donsus_node_type type, uint64_t child_count, donsus_token value)
-      -> utility::handle<node> {
+  auto create_node(donsus_node_type type, uint64_t child_count,
+                   donsus_token value) -> utility::handle<node> {
     assert(child_count <= std::numeric_limits<uint64_t>::max());
     // Todo: think about this
     const utility::handle node_ptr = allocator.alloc_node<node>();
 
     // initialise the node
+    allocate_node_list(child_count);
     node_ptr->type = type;
-    node_ptr->children = allocate_node_list(child_count);
+    node_ptr->children = nodes;
     node_ptr->value = value;
 
     return node_ptr;
