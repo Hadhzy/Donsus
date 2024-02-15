@@ -8,9 +8,9 @@
 #include <variant>
 #include <vector>
 
+#include "../src/ast/tree.h"
 #include "../src/utility/handle.h"
 #include "token.h"
-#include "../src/ast/tree.h"
 class DonsusParser;
 
 // lexer#include "../src/ast/tree.h"
@@ -52,8 +52,8 @@ public:
   auto donsus_expr() -> parse_result;
   // parsing number expressions
   auto donsus_number_expr(unsigned int ptp) -> parse_result;
-  auto donsus_number_primary(donsus_ast::donsus_node_type type, uint64_t child_count)
-      -> parse_result;
+  auto donsus_number_primary(donsus_ast::donsus_node_type type,
+                             uint64_t child_count) -> parse_result;
 
   // parsing variable declaration
   auto donsus_variable_decl(donsus_token_kind type) -> parse_result;
