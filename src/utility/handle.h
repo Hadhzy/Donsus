@@ -13,7 +13,8 @@ public:
   explicit handle(other_type *other) : m_ptr(reinterpret_cast<type *>(other)) {}
 
   template <typename other_type>
-  explicit handle(handle<other_type> other) : m_ptr(reinterpret_cast<type *>(other)) {}
+  explicit handle(handle<other_type> other)
+      : m_ptr(reinterpret_cast<type *>(other)) {}
 
   auto operator*() const -> type & { return *m_ptr; }
 

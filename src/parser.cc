@@ -75,7 +75,7 @@ auto DonsusParser::donsus_parse() -> parse_result {
   // std::cout << "AST: " << "\n";
   // // print_ast(result);
   // #endif
-/*  return donsus_tree;*/
+  /*  return donsus_tree;*/
 }
 
 auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
@@ -83,12 +83,14 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   utility::handle<donsus_ast::node> left;
   utility::handle<donsus_ast::node> right;
 
-  left = donsus_number_primary(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 20); // return AST node with only value
+  left = donsus_number_primary(
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+      20); // return AST node with only value
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
 
   if (previous_token.kind == DONSUS_END) { // CHECK END
-    return left; // return whole node
+    return left;                           // return whole node
   }
 
   while (previous_token.precedence > ptp) {
@@ -96,7 +98,8 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
     right = donsus_number_expr(previous_token.precedence); // recursive call
 
-    left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 2, previous_token);
+    left = create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+                       2, previous_token);
 
     left->children[0] = left;
     left->children[1] = right;
@@ -108,9 +111,10 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   return left;
 }
 
-auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type, uint64_t child_count)
-    -> parse_result {
-  const utility::handle<donsus_ast::node> node = create_node(type, child_count, cur_token);
+auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
+                                         uint64_t child_count) -> parse_result {
+  const utility::handle<donsus_ast::node> node =
+      create_node(type, child_count, cur_token);
   donsus_parser_next();
   return node;
 }
@@ -125,6 +129,6 @@ auto DonsusParser::donsus_variable_decl(donsus_token_kind type)
   // add this ast node to the top level AST
   // add this to the symbol table
   // figure out whether it has a definition
-/*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
-  return n;*/
+  /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
+    return n;*/
 }

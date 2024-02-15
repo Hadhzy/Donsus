@@ -11,6 +11,7 @@ public:
   [[nodiscard]] auto operator[](u_int64_t index) -> type & {
     return m_data[index];
   }
+
 private:
   type *m_data;
 };

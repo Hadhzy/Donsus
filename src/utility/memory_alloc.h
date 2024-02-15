@@ -26,9 +26,9 @@ public:
 
   // Allocate uninitialised object and set up the constructor
   template <typename type, typename... params>
-  auto alloc_constructor(params... pargs) -> type*{
-    type* a = (type*)std::malloc(sizeof(type));
-    ::new(a) type(pargs...);
+  auto alloc_constructor(params... pargs) -> type * {
+    type *a = (type *)std::malloc(sizeof(type));
+    ::new (a) type(pargs...);
   }
 
   auto alloc(uint64_t size) -> void *;

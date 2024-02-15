@@ -11,7 +11,8 @@ auto tree::get_nodes() -> std::vector<utility::handle<node>> { return nodes; }
 
 auto tree::get_allocator() -> utility::DonsusAllocator { return allocator; }
 
-auto tree::allocate_node_list(uint64_t count) -> std::vector<utility::handle<node>> {
+auto tree::allocate_node_list(uint64_t count)
+    -> std::vector<utility::handle<node>> {
   nodes.reserve(count); // reserve memory for a specific count
   return nodes;
 }

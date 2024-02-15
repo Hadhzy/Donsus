@@ -3,9 +3,9 @@
 #include <iostream>
 #include <vector>
 
+#include "../../Include/token.h"
 #include "../utility/handle.h"
 #include "../utility/slices.h"
-#include "../../Include/token.h"
 
 // Contains ast(node) types that the parser figures out
 

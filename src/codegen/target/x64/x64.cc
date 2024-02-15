@@ -141,8 +141,8 @@ DATA_INSTRUCTION donsus_data_instruction(AsmFile &file, std::string name,
 void donsus_codegen_symbol(donsus_symbol &symbol, AsmFile &file) {}
 
 // START CODEGEN
-void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable, AsmFile &file,
-                                     DATA &data) {
+void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable,
+                                     AsmFile &file, DATA &data) {
   // find out variables from the symbol table
 
   if (!symtable->get_sym().empty())
@@ -160,9 +160,9 @@ void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable, 
   }
 }
 
-void donsus_codegen_create_data_section(DonsusParser::parse_result ast,
-                                        utility::handle<donsus_symtable> symtable,
-                                        AsmFile &file) {
+void donsus_codegen_create_data_section(
+    DonsusParser::parse_result ast, utility::handle<donsus_symtable> symtable,
+    AsmFile &file) {
   /*DATA data_sec;*/
   DATA data;
   // add the data section from symbol table
@@ -170,7 +170,8 @@ void donsus_codegen_create_data_section(DonsusParser::parse_result ast,
 }
 
 // Enter point
-void donsus_codegen_x64(DonsusParser::parse_result ast, utility::handle<donsus_symtable> symtable,
+void donsus_codegen_x64(DonsusParser::parse_result ast,
+                        utility::handle<donsus_symtable> symtable,
                         std::string &filename) {
 
   AsmFile x64_file(filename); // create file instance

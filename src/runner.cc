@@ -16,7 +16,7 @@ int Du_Main(int argc, char **argv) {
 
   std::string file_without_extension =
       base_filename.substr(0, p); // Obtain file without the extension(.du)
-             // create ast structure obj on the stack
+                                  // create ast structure obj on the stack
 
   // Global allocator
   utility::DonsusAllocator alloc;
@@ -30,13 +30,12 @@ int Du_Main(int argc, char **argv) {
   // Semantic analysis (Construct symbol table)
   utility::handle<donsus_symtable> symtable_result = donsus_sym(path, alloc);
 
- // nothing currently Todo: catch value and everything(sema_result)
+  // nothing currently Todo: catch value and everything(sema_result)
   DonsusParser::parse_result sema_result =
       donsus_sema(parser_result, file_without_extension);
 
   // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
-  donsus_codegen_x64(sema_result, symtable_result,
-                     file_without_extension);
+  donsus_codegen_x64(sema_result, symtable_result, file_without_extension);
 
   return 0;
 }

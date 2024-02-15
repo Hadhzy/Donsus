@@ -38,7 +38,8 @@ std::ostream &operator<<(std::ostream &o, donsus_symtable &symtable) {
 }
 
 // PUBLIC API
-utility::handle<donsus_symtable> donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc) {
+utility::handle<donsus_symtable>
+donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc) {
   // create symbol table
   // redesign this part
   utility::handle sym = alloc.alloc_constructor<donsus_symtable>(file_name);

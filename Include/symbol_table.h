@@ -45,14 +45,15 @@ public:
   void debug_symtable() { std::cout << *this; }
 #endif
 private:
-  std::string file_name; // file name
+  std::string file_name;              // file name
   utility::DonsusAllocator sym_alloc; // allocator for symtable
   // symbol table type
 
   std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
 };
 
-utility::handle<donsus_symtable> donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc);
+utility::handle<donsus_symtable>
+donsus_sym_make(std::string &file_name, utility::DonsusAllocator alloc);
 utility::handle<donsus_symbol> donsus_symbol_make(std::string &name,
                                                   donsus_token_kind type);
 
