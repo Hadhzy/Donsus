@@ -56,7 +56,7 @@ auto DonsusParser::donsus_parse() -> end_result {
     switch (cur_token.kind) {
     case DONSUS_NUMBER: {
       utility::handle<donsus_ast::node> result = donsus_number_expr(0);
-      donsus_tree.add_node(result);
+      donsus_tree->add_node(result);
     }
     case DONSUS_BOOL:
     case DONSUS_VOID:

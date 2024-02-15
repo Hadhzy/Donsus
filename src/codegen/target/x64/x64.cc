@@ -161,7 +161,7 @@ void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable,
 }
 
 void donsus_codegen_create_data_section(
-    DonsusParser::parse_result ast, utility::handle<donsus_symtable> symtable,
+    DonsusParser::end_result ast, utility::handle<donsus_symtable> symtable,
     AsmFile &file) {
   /*DATA data_sec;*/
   DATA data;
@@ -170,7 +170,7 @@ void donsus_codegen_create_data_section(
 }
 
 // Enter point
-void donsus_codegen_x64(DonsusParser::parse_result ast,
+void donsus_codegen_x64(DonsusParser::end_result ast,
                         utility::handle<donsus_symtable> symtable,
                         std::string &filename) {
 
