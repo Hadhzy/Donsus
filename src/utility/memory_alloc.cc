@@ -1,7 +1,5 @@
 // Donsus memory allocator
 #include "memory_alloc.h"
-#include <assert.h>
-#include <cstring>
 
 namespace utility {
 DonsusAllocator::block::block(uint64_t *memory) : memory(memory), position(0) {}
@@ -22,6 +20,11 @@ DonsusAllocator::~DonsusAllocator() {
     first_block = first_block->next;
     delete temp; // call block destructor
   };
+}
+
+template <typename type, typename... params>
+auto DonsusAllocator::alloc_constructor(params... pargs) -> type * {
+  return ::new (std::malloc(sizeof(type))) type(pargs...);
 }
 
 /*auto DonsusAllocator::alloc(uint64_t size) -> void * {
@@ -48,7 +51,8 @@ DonsusAllocator::~DonsusAllocator() {
 
 /*void DonsusAllocator::alloc_block(){
   std::cout << "block size" << block_size;
-  auto memory = static_cast<uint64_t*>(std::malloc(static_cast<size_t>(block_size)));
+  auto memory =
+static_cast<uint64_t*>(std::malloc(static_cast<size_t>(block_size)));
 
   auto new_block = new block(memory);
 

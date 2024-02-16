@@ -17,7 +17,6 @@ public:
       : m_ptr(reinterpret_cast<type *>(other)) {}
 
   auto operator*() const -> type & { return *m_ptr; }
-
   auto operator->() const -> type * { return m_ptr; }
 
   auto get() const -> type * { return m_ptr; }

@@ -25,12 +25,10 @@ public:
   void print_used() const;
 
   // Allocate uninitialised object and set up the constructor
+
   template <typename type, typename... params>
-  auto alloc_constructor(params... pargs) -> type * {
-    type *a = (type *)std::malloc(sizeof(type));
-    ::new (a) type(pargs...);
-    return a;
-  }
+  auto alloc_constructor(params... pargs) -> type *;
+
   template <typename type> auto alloc_node() -> type * {
     type *a = (type *)std::malloc(sizeof(type));
     return a;
