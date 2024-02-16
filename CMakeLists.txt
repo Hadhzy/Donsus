@@ -19,7 +19,11 @@ add_executable(donsus
         src/codegen/target/x64/x64.cc
 
         #utility
+        src/utility/handle.h
+        src/utility/macros.h
+        src/utility/memory_alloc.h
         src/utility/memory_alloc.cc
+        src/utility/slices.h
 
 
         #ast
