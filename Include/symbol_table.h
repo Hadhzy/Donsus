@@ -52,8 +52,7 @@ private:
   std::unordered_map<std::string, donsus_symbol> DONSUS_SYM; // hash table
 };
 
-utility::handle<donsus_symtable>
-donsus_sym_make(std::string &file_name);
+utility::handle<donsus_symtable> donsus_sym_make(std::string &file_name);
 utility::handle<donsus_symbol> donsus_symbol_make(std::string &name,
                                                   donsus_token_kind type);
 
