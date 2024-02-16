@@ -29,7 +29,7 @@ utility::handle<donsus_symtable> donsus_sym(std::string &file_name) {
 }
 
 DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
-                                       std::string &file_name) {
+                                     std::string &file_name) {
   // TBD:
   // make sema
   // donsus_sym(file_name); // ahh, might use it here instead of runner.cc

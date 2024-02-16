@@ -20,6 +20,7 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
 
 DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
+  donsus_tree = new donsus_ast::tree();
 }
 
 donsus_token DonsusParser::donsus_parser_next() {

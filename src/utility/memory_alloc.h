@@ -29,26 +29,26 @@ public:
   auto alloc_constructor(params... pargs) -> type * {
     type *a = (type *)std::malloc(sizeof(type));
     ::new (a) type(pargs...);
-  }
-  template<typename type>
-  auto alloc_node() -> type*{
-    type* a = (type*)std::malloc(sizeof(type));
     return a;
   }
-/*  auto alloc(uint64_t size) -> void *;*/
-/*  auto alloc_zero(uint64_t size) -> void *;*/
-
-
-/*
-  template <typename type> auto alloc() -> type * {
-    return static_cast<type *>(alloc(sizeof(type)));
-  };
-
-  template <typename type, typename... value_types>
-  auto emplace(value_types &&...values) -> type * {
-    return new (alloc(sizeof(type))) type(std::forward<value_types>(values)...);
+  template <typename type> auto alloc_node() -> type * {
+    type *a = (type *)std::malloc(sizeof(type));
+    return a;
   }
-*/
+  /*  auto alloc(uint64_t size) -> void *;*/
+  /*  auto alloc_zero(uint64_t size) -> void *;*/
+
+  /*
+    template <typename type> auto alloc() -> type * {
+      return static_cast<type *>(alloc(sizeof(type)));
+    };
+
+    template <typename type, typename... value_types>
+    auto emplace(value_types &&...values) -> type * {
+      return new (alloc(sizeof(type)))
+    type(std::forward<value_types>(values)...);
+    }
+  */
 
   auto get_block_count() const -> uint64_t;
 
