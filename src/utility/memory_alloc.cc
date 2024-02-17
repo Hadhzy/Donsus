@@ -22,11 +22,6 @@ DonsusAllocator::~DonsusAllocator() {
   };
 }
 
-template <typename type, typename... params>
-auto DonsusAllocator::alloc_constructor(params... pargs) -> type * {
-  return ::new (std::malloc(sizeof(type))) type(pargs...);
-}
-
 /*auto DonsusAllocator::alloc(uint64_t size) -> void * {
   assert(size <= block_size); // memory alignment
   if (size == 0) {

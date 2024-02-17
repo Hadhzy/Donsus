@@ -145,8 +145,8 @@ void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable,
                                      AsmFile &file, DATA &data) {
   // find out variables from the symbol table
 
-  if (!symtable->get_sym().empty())
-    return; // there are no symbols
+  // if (!symtable->get_sym().empty())
+  //   return; // there are no symbols
 
   auto inside_sym = [](auto &key, auto &value, AsmFile &file, DATA &data) {
     // add instruction to data from the key and processing symbol(fetch?)
@@ -155,9 +155,9 @@ void donsus_codegen_section_vars_sym(utility::handle<donsus_symtable> symtable,
     d_ins.fetch(file);
   };
 
-  for (auto &n : symtable->get_sym()) {
-    inside_sym(n.first, n.second, file, data);
-  }
+  // for (auto &n : symtable->get_sym()) {
+  //   inside_sym(n.first, n.second, file, data);
+  // }
 }
 
 void donsus_codegen_create_data_section(
