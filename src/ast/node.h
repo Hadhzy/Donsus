@@ -24,7 +24,11 @@ struct donsus_node_type {
   underlying type;
 };
 
-struct variable_decl {};
+struct variable_decl {
+  donsus_token_kind identifier_type;
+  std::string identifier_name;
+  void *identifier_value;
+};
 
 struct number_expr {
   donsus_token value;
