@@ -1,11 +1,12 @@
 #ifndef donsus_node_h
 #define donsus_node_h
-#include <iostream>
-#include <vector>
-#include <variant>
 #include "../../Include/token.h"
 #include "../utility/handle.h"
+#include "../utility/property.h"
 #include "../utility/slices.h"
+#include <iostream>
+#include <variant>
+#include <vector>
 
 // Contains ast(node) types that the parser figures out
 
@@ -23,23 +24,19 @@ struct donsus_node_type {
   underlying type;
 };
 
-struct variable_decl{
+struct variable_decl {};
 
-};
-
-struct number_expr{
+struct number_expr {
   donsus_token value;
 };
 
+using node_properties = utility::property<variable_decl, number_expr>;
 
-using node_properties = std::variant<variable_decl, number_expr>;
-
-struct node: node_properties {
+struct node : node_properties {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children; // size type in the future
   donsus_node_type type;
-  donsus_token value;
 };
 } // namespace donsus_ast
 #endif

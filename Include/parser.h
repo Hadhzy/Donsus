@@ -45,10 +45,6 @@ public:
   donsus_token donsus_peek();
 
   // create node
-  auto create_node(donsus_ast::donsus_node_type type, uint64_t child_count,
-                   donsus_token& value) -> parse_result {
-    return donsus_tree->create_node(type, child_count, value);
-  }
   // parsing expression
   auto donsus_expr() -> parse_result;
   // parsing number expressions
@@ -57,7 +53,13 @@ public:
                              uint64_t child_count) -> parse_result;
 
   // parsing variable declaration
-  auto donsus_variable_decl(donsus_token_kind type) -> parse_result;
+  auto donsus_variable_decl() -> parse_result;
+  auto create_number_expression(donsus_ast::donsus_node_type type,
+                                u_int64_t child_count)
+      -> utility::handle<donsus_ast::node>;
+  auto create_variable_declaration(donsus_ast::donsus_node_type type,
+                                   u_int64_t child_count)
+      -> utility::handle<donsus_ast::node>;
 
   donsus_token cur_token;
   donsus_lexer lexer;

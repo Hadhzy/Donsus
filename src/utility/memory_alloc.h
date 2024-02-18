@@ -50,6 +50,8 @@ public:
     }
   */
 
+  template <typename type> void *emplace() { return std::malloc(sizeof(type)); }
+
   auto get_block_count() const -> uint64_t;
 
   auto get_block_size() const -> uint64_t;
