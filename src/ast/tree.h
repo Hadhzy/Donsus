@@ -27,8 +27,9 @@ public:
 
   void allocate_node_list(uint64_t count);
 
-  auto create_node(donsus_node_type type, uint64_t child_count,
-                   donsus_token value) -> utility::handle<node> {
+  template <typename extra_type = utility::empty_property>
+  auto create_node(donsus_node_type type, uint64_t child_count)
+      -> utility::handle<node> {
     assert(child_count <= std::numeric_limits<uint64_t>::max());
     // Todo: think about this
     const utility::handle node_ptr = allocator.alloc_node<node>();
@@ -37,7 +38,7 @@ public:
     allocate_node_list(child_count);
     node_ptr->type = type;
     node_ptr->children = nodes;
-    node_ptr->value = value;
+    node_ptr->set_property(allocator.emplace<extra_type>());
 
     return node_ptr;
   };

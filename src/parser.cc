@@ -1,6 +1,7 @@
 // pratt parser
 #include "../Include/parser.h"
 #include "../Include/donsus.h"
+#include "./ast/node.h"
 #include <iostream>
 
 /*
@@ -60,15 +61,15 @@ auto DonsusParser::donsus_parse() -> end_result {
       donsus_tree->add_node(result);
     }
     case DONSUS_NAME: {
-/*      case DONSUS_BOOL:
-      case DONSUS_VOID:
-      case DONSUS_CHAR:
-      case DONSUS_BASIC_INT:
-      case DONSUS_I8:
-      case DONSUS_I16:
-      case DONSUS_I32:
-      case DONSUS_I64:
-      case DONSUS_U32:*/
+      /*      case DONSUS_BOOL:
+            case DONSUS_VOID:
+            case DONSUS_CHAR:
+            case DONSUS_BASIC_INT:
+            case DONSUS_I8:
+            case DONSUS_I16:
+            case DONSUS_I32:
+            case DONSUS_I64:
+            case DONSUS_U32:*/
       /*case DONSUS_U64:*/
       donsus_tree->add_node(donsus_variable_decl());
       break;
@@ -106,11 +107,13 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
     right = donsus_number_expr(previous_token.precedence); // recursive call
 
-    global_node =
-        create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 3,
-                    previous_token);
+    global_node = create_number_expression(
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
 
-    global_node->children.push_back(left); // [0]
+    auto &expression = global_node->get<donsus_ast::number_expr>();
+    expression.value = previous_token;
+
+    global_node->children.push_back(left);  // [0]
     global_node->children.push_back(right); // [1]
 
     if (cur_token.kind == DONSUS_END) {
@@ -122,8 +125,11 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
-  const utility::handle<donsus_ast::node> node =
-      create_node(type, child_count, cur_token);
+  const utility::handle<donsus_ast::node> node = create_number_expression(
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
+
+  auto &expression = node->get<donsus_ast::number_expr>();
+  expression.value = cur_token;
 
   donsus_parser_next();
   return node;
@@ -133,13 +139,23 @@ auto DonsusParser::donsus_expr() -> parse_result {
   // number expressions, string expressions etc.
 }
 
-auto DonsusParser::donsus_variable_decl(donsus_token_kind type)
-    -> parse_result {
+auto DonsusParser::donsus_variable_decl() -> parse_result {
   // create an ast node with type DONSUS_DECLARATION
   // add this ast node to the top level AST
   // add this to the symbol table
   // figure out whether it has a definition
   /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
     return n;*/
+}
 
+auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
+                                            uint64_t child_count)
+    -> utility::handle<donsus_ast::node> {
+  return donsus_tree->create_node<donsus_ast::number_expr>(type, child_count);
+}
+
+auto DonsusParser::create_variable_declaration(
+    donsus_ast::donsus_node_type type, uint64_t child_count)
+    -> utility::handle<donsus_ast::node> {
+  return donsus_tree->create_node<donsus_ast::variable_decl>(type, child_count);
 }
