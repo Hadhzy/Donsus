@@ -59,17 +59,19 @@ auto DonsusParser::donsus_parse() -> end_result {
       utility::handle<donsus_ast::node> result = donsus_number_expr(0);
       donsus_tree->add_node(result);
     }
-    case DONSUS_BOOL:
-    case DONSUS_VOID:
-    case DONSUS_CHAR:
-    case DONSUS_BASIC_INT:
-    case DONSUS_I8:
-    case DONSUS_I16:
-    case DONSUS_I32:
-    case DONSUS_I64:
-    case DONSUS_U32:
-    case DONSUS_U64: {
-      // donsus_tree.add_node(donsus_variable_decl(cur_token.kind));
+    case DONSUS_NAME: {
+/*      case DONSUS_BOOL:
+      case DONSUS_VOID:
+      case DONSUS_CHAR:
+      case DONSUS_BASIC_INT:
+      case DONSUS_I8:
+      case DONSUS_I16:
+      case DONSUS_I32:
+      case DONSUS_I64:
+      case DONSUS_U32:*/
+      /*case DONSUS_U64:*/
+      donsus_tree->add_node(donsus_variable_decl());
+      break;
     }
     default: {
     }
@@ -108,8 +110,8 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
         create_node(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 3,
                     previous_token);
 
-    global_node->children.push_back(left);
-    global_node->children.push_back(right);
+    global_node->children.push_back(left); // [0]
+    global_node->children.push_back(right); // [1]
 
     if (cur_token.kind == DONSUS_END) {
       return global_node;
@@ -139,4 +141,5 @@ auto DonsusParser::donsus_variable_decl(donsus_token_kind type)
   // figure out whether it has a definition
   /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
     return n;*/
+
 }

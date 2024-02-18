@@ -46,7 +46,7 @@ public:
 
   // create node
   auto create_node(donsus_ast::donsus_node_type type, uint64_t child_count,
-                   donsus_token value) -> parse_result {
+                   donsus_token& value) -> parse_result {
     return donsus_tree->create_node(type, child_count, value);
   }
   // parsing expression

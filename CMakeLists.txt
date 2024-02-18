@@ -13,6 +13,9 @@ add_executable(donsus
         src/sema.cc
         src/ir.cc
 
+        # symtable
+        src/symbol_table.cc
+
         # codegen
 
         #utility

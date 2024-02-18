@@ -2,7 +2,7 @@
 #define donsus_node_h
 #include <iostream>
 #include <vector>
-
+#include <variant>
 #include "../../Include/token.h"
 #include "../utility/handle.h"
 #include "../utility/slices.h"
@@ -22,7 +22,19 @@ struct donsus_node_type {
   [[nodiscard]] auto to_string() const -> std::string;
   underlying type;
 };
-struct node {
+
+struct variable_decl{
+
+};
+
+struct number_expr{
+  donsus_token value;
+};
+
+
+using node_properties = std::variant<variable_decl, number_expr>;
+
+struct node: node_properties {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children; // size type in the future
