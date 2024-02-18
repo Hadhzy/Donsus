@@ -12,11 +12,8 @@ add_executable(donsus
         src/runner.cc
         src/sema.cc
         src/ir.cc
-        src/symbol_table.cc
 
         # codegen
-        src/codegen/asm/duasm.cc
-        src/codegen/target/x64/x64.cc
 
         #utility
         src/utility/handle.h

@@ -18,8 +18,8 @@
  *
  */
 #include "../Include/parser.h"
-#include "../Include/symbol_table.h"
 
+/*
 // Make symbol table
 utility::handle<donsus_symtable> donsus_sym(std::string &file_name) {
   utility::handle<donsus_symtable> t;
@@ -27,6 +27,7 @@ utility::handle<donsus_symtable> donsus_sym(std::string &file_name) {
   t = donsus_sym_make(file_name); // construct a symbol table GLOBAL
   return t;
 }
+*/
 
 DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
                                      std::string &file_name) {
