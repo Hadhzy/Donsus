@@ -54,12 +54,12 @@ public:
 
   // parsing variable declaration
   auto donsus_variable_decl() -> parse_result;
+  // parsing variable definition
+  auto donsus_variable_definition(parse_result &declaration) -> parse_result;
   auto create_number_expression(donsus_ast::donsus_node_type type,
-                                u_int64_t child_count)
-      -> utility::handle<donsus_ast::node>;
+                                u_int64_t child_count) -> parse_result;
   auto create_variable_declaration(donsus_ast::donsus_node_type type,
-                                   u_int64_t child_count)
-      -> utility::handle<donsus_ast::node>;
+                                   u_int64_t child_count) -> parse_result;
 
   donsus_token cur_token;
   donsus_lexer lexer;

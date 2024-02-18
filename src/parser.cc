@@ -57,7 +57,7 @@ auto DonsusParser::donsus_parse() -> end_result {
   while (cur_token.kind != DONSUS_END) {
     switch (cur_token.kind) {
     case DONSUS_NUMBER: {
-      utility::handle<donsus_ast::node> result = donsus_number_expr(0);
+      parse_result result = donsus_number_expr(0);
       donsus_tree->add_node(result);
     }
     case DONSUS_NAME: {
@@ -88,9 +88,9 @@ auto DonsusParser::donsus_parse() -> end_result {
 
 auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   // Gt the integer on the left
-  utility::handle<donsus_ast::node> left;
-  utility::handle<donsus_ast::node> right;
-  utility::handle<donsus_ast::node> global_node;
+  parse_result left;
+  parse_result right;
+  parse_result global_node;
 
   left = donsus_number_primary(
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
@@ -98,13 +98,13 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
 
-  if (previous_token.kind == DONSUS_END) { // CHECK END
-    return left;                           // return whole node
+  donsus_parser_next();
+
+  if (cur_token.kind == DONSUS_END) { // CHECK END
+    return left;                      // return whole node
   }
 
   while (previous_token.precedence > ptp) {
-    donsus_parser_next(); // get next token
-
     right = donsus_number_expr(previous_token.precedence); // recursive call
 
     global_node = create_number_expression(
@@ -125,7 +125,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
-  const utility::handle<donsus_ast::node> node = create_number_expression(
+  const parse_result node = create_number_expression(
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
 
   auto &expression = node->get<donsus_ast::number_expr>();
@@ -137,6 +137,20 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
 
 auto DonsusParser::donsus_expr() -> parse_result {
   // number expressions, string expressions etc.
+  switch (cur_token.kind) {
+  case DONSUS_NUMBER: {
+    return donsus_number_expr(0);
+  }
+  }
+}
+
+auto DonsusParser::donsus_variable_definition(
+    utility::handle<donsus_ast::node> &declaration) -> parse_result {
+  // move to get the value
+  donsus_parser_next();
+  parse_result expression = donsus_expr();
+  declaration->children.push_back(expression);
+  return declaration;
 }
 
 auto DonsusParser::donsus_variable_decl() -> parse_result {
@@ -146,16 +160,39 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
   // figure out whether it has a definition
   /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
     return n;*/
+  parse_result declaration = create_variable_declaration(
+      donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
+
+  auto &expression = declaration->get<donsus_ast::variable_decl>();
+  expression.identifier_name = cur_token.value;
+  donsus_parser_next(); // expect next token to be ':'
+
+  if (cur_token.kind == DONSUS_COLO) {
+    donsus_parser_next(); // moves to the type
+    expression.identifier_type = cur_token.kind;
+    donsus_parser_next(); // if the next token is not '=' then its a
+                          // declaration.
+    if (cur_token.kind == DONSUS_EQUAL) {
+      // decl & def
+      return donsus_variable_definition(declaration);
+    } else {
+      // decl only
+      if (cur_token.kind == DONSUS_SEMICOLON) {
+        // end of declaration
+        donsus_parser_next();
+        return declaration;
+      }
+    }
+  }
 }
 
 auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
                                             uint64_t child_count)
-    -> utility::handle<donsus_ast::node> {
+    -> parse_result {
   return donsus_tree->create_node<donsus_ast::number_expr>(type, child_count);
 }
 
 auto DonsusParser::create_variable_declaration(
-    donsus_ast::donsus_node_type type, uint64_t child_count)
-    -> utility::handle<donsus_ast::node> {
+    donsus_ast::donsus_node_type type, uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::variable_decl>(type, child_count);
 }
