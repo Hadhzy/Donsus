@@ -24,7 +24,6 @@ public:
   void add_node(utility::handle<node>);
   auto get_nodes() -> std::vector<utility::handle<node>>;
   auto get_allocator() -> utility::DonsusAllocator;
-
   void allocate_node_list(uint64_t count);
 
   template <typename extra_type = utility::empty_property>

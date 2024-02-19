@@ -18,6 +18,10 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   o << "Line: " << token.line << "\n";
   return o;
 }
+// DEBUG
+void print_ast(utility::handle<donsus_ast::tree> tree) {
+  std::cout << *tree->get_nodes()[0].get();
+}
 
 DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
@@ -78,12 +82,12 @@ auto DonsusParser::donsus_parse() -> end_result {
     }
     }
   }
+#ifdef DEBUG
+  std::cout << "AST: "
+            << "\n";
+  print_ast(donsus_tree);
+#endif
   return donsus_tree;
-  // #ifdef DEBUG
-  // std::cout << "AST: " << "\n";
-  // // print_ast(result);
-  // #endif
-  /*  return donsus_tree;*/
 }
 
 auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {

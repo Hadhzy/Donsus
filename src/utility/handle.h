@@ -19,6 +19,15 @@ public:
   auto operator*() const -> type & { return *m_ptr; }
   auto operator->() const -> type * { return m_ptr; }
 
+  /* // for iterators
+   handle& operator++() {m_ptr++; return *this;}
+   handle operator++(int) { handle tmp = *this; ++(*this); return tmp;}
+
+   // for iterator(range-based for loop)
+   friend bool operator== (const handle& a, const handle& b) { return a.m_ptr ==
+   b.m_ptr; }; friend bool operator!= (const handle& a, const handle& b) {
+   return a.m_ptr != b.m_ptr; };
+ */
   auto get() const -> type * { return m_ptr; }
   auto operator==(const handle &other) const -> bool {
     return m_ptr == other.m_ptr;
