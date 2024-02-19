@@ -14,6 +14,7 @@ namespace donsus_ast {
 struct donsus_node_type {
   enum underlying : int {
     DONSUS_VARIABLE_DECLARATION,
+    DONSUS_VARIABLE_DEFINITION,
     DONSUS_NUMBER_EXPRESSION
   };
 
@@ -23,6 +24,8 @@ struct donsus_node_type {
   [[nodiscard]] auto to_string() const -> std::string;
   underlying type;
 };
+
+std::string de_get_from_donsus_node_type(donsus_node_type type);
 
 struct variable_decl {
   donsus_token_kind identifier_type;
@@ -41,6 +44,19 @@ struct node : node_properties {
   std::vector<utility::handle<donsus_ast::node>>
       children; // size type in the future
   donsus_node_type type;
+
+  // For debugging purposes
+  friend std::ostream &operator<<(std::ostream &o, node &node) {
+    o << "type: " << de_get_from_donsus_node_type(node.type); // type
+    o << "\n";
+
+    // children
+    for (auto n : node.children) {
+      o << "children: ";
+      o << *n; // recursion
+    }
+    return o;
+  }
 };
 } // namespace donsus_ast
 #endif
