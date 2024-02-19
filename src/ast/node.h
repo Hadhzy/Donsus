@@ -14,6 +14,7 @@ namespace donsus_ast {
 struct donsus_node_type {
   enum underlying : int {
     DONSUS_VARIABLE_DECLARATION,
+    DONSUS_VARIABLE_DEFINITION,
     DONSUS_NUMBER_EXPRESSION
   };
 

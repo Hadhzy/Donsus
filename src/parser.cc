@@ -177,7 +177,10 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
     donsus_parser_next(); // if the next token is not '=' then its a
                           // declaration.
     if (cur_token.kind == DONSUS_EQUAL) {
-      // decl & def
+      // def
+      declaration->type =
+          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION; // overwrite
+                                                                    // type
       return donsus_variable_definition(declaration);
     } else {
       // decl only
