@@ -31,7 +31,7 @@ public:
     return ::new (std::malloc(sizeof(type))) type(pargs...);
   }
 
-  template <typename type> auto alloc_node() -> type * {
+  template <typename type> auto alloc() -> type * {
     type *a = (type *)std::malloc(sizeof(type));
     return a;
   }
