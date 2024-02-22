@@ -166,6 +166,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_FUNCTION_DEFINITION_KW:
     return "DONSUS_FUNCTION_DEFINITION_KW";
 
+  case DONSUS_ARROW:
+    return "DONSUS_ARROW";
+
   default:
 
     return "UNKNOWN_TOKEN_KIND";
@@ -424,6 +427,20 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       return cur_token;
 
+    } else if (peek_for_char(parser) == '>') {
+      cur_token.kind = DONSUS_ARROW;
+
+      cur_token.length = 2; // Set length to 2 for +=
+
+      cur_token.value = "->";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
     } else {
       cur_token.precedence = 10; // lower precedence
 
