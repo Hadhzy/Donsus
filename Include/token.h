@@ -42,7 +42,6 @@ typedef enum {
   DONSUS_EXCLAMATION,   // !
   DONSUS_COMMENT,       // #
   DONSUS_SINGLE_QUOTE,  // '
-  DONSUS_DOUBLE_QUOTE,  // "
   DONSUS_THREE_DOTS,    // ...
   DONSUS_NULL_VALUE,
 
@@ -58,6 +57,9 @@ typedef enum {
   DONSUS_BOOL, // bool
   DONSUS_VOID, // void
   DONSUS_CHAR, // 'D'
+
+  // keywords
+  DONSUS_FUNCTION_DEFINITION_KW // def
 } donsus_token_kind;
 
 struct donsus_token {

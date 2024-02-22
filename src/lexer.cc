@@ -11,6 +11,10 @@ std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER{
     {"char", DONSUS_CHAR},
 };
 
+std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
+    {"def", DONSUS_FUNCTION_DEFINITION_KW},
+};
+
 std::string de_get_name_from_token(donsus_token_kind kind) {
 
   switch (kind) {
@@ -38,8 +42,6 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_RSQB:
     return "DONSUS_RSQB";
-
-
 
   case DONSUS_COMM:
     return "DONSUS_COMM";
@@ -110,9 +112,6 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_SINGLE_QUOTE:
     return "DONSUS_SINGLE_QUOTE";
 
-  case DONSUS_DOUBLE_QUOTE:
-    return "DONSUS_DOUBLE_QUOTE";
-
   case DONSUS_THREE_DOTS:
     return "DONSUS_THREE_DOTS";
 
@@ -164,10 +163,19 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_END:
     return "DONSUS_END";
 
+  case DONSUS_FUNCTION_DEFINITION_KW:
+    return "DONSUS_FUNCTION_DEFINITION_KW";
+
   default:
 
     return "UNKNOWN_TOKEN_KIND";
   }
+}
+
+// Function to peek at the next character without consuming it
+char peek_for_char(DonsusParser &parser) {
+  char next_char = parser.lexer.string[parser.lexer.cur_pos + 1];
+  return (next_char == '\0') ? '\0' : next_char;
 }
 
 static bool isstart_identifier(char c) {
@@ -186,6 +194,14 @@ static bool is_type(std::string &s) {
 
   if (DONSUS_TYPES_LEXER.find(s) != DONSUS_TYPES_LEXER.end()) {
 
+    return true;
+  }
+
+  return false;
+}
+
+static bool is_keyword(std::string &s) {
+  if (DONSUS_KEYWORDS.find(s) != DONSUS_KEYWORDS.end()) {
     return true;
   }
 
@@ -279,6 +295,23 @@ static donsus_token make_type(DonsusParser &parser, std::string &value,
   return token;
 }
 
+static donsus_token make_keyword(DonsusParser &parser, std::string &value,
+                                 unsigned int length) {
+
+  // construct keyword token
+  donsus_token token;
+
+  token.line = parser.lexer.cur_line;
+
+  token.kind = DONSUS_KEYWORDS[value];
+
+  token.length = length;
+
+  token.value = value;
+
+  return token;
+}
+
 void consume_spaces(DonsusParser &parser) {
 
   while (std::isspace(parser.lexer.cur_char)) {
@@ -311,67 +344,170 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
   }
 
   case '+': {
+    // Check for +=
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_PLUS_EQUAL;
 
-    cur_token.precedence = 10; // lower precedence
-    cur_token.kind = DONSUS_PLUS;
+      cur_token.length = 2; // Set length to 2 for +=
 
-    cur_token.length = 1;
+      cur_token.value = "+=";
 
-    cur_token.value = "+";
+      cur_token.line = parser.lexer.cur_line;
 
-    cur_token.line = parser.lexer.cur_line;
+      eat(parser); // Consume the '=' character
 
-    eat(parser);
+      eat(parser); // Move to the next character
 
-    return cur_token;
+      return cur_token;
+
+    } else if (peek_for_char(parser) == '+') {
+      cur_token.kind = DONSUS_INCREMENT;
+
+      cur_token.length = 2; // Set length to 2 for +=
+
+      cur_token.value = "++";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+      cur_token.precedence = 10; // lower precedence
+
+      cur_token.kind = DONSUS_PLUS;
+
+      cur_token.length = 1;
+
+      cur_token.value = "+";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
   }
 
   case '-': {
+    // Check for +=
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_MINUS_EQUAL;
 
-    cur_token.precedence = 10; // lower precedence
-    cur_token.kind = DONSUS_MINUS;
+      cur_token.length = 2; // Set length to 2 for +=
 
-    cur_token.length = 1;
+      cur_token.value = "-=";
 
-    cur_token.value = "-";
+      cur_token.line = parser.lexer.cur_line;
 
-    cur_token.line = parser.lexer.cur_line;
+      eat(parser); // Consume the '=' character
 
-    eat(parser);
+      eat(parser); // Move to the next character
 
-    return cur_token;
+      return cur_token;
+
+    } else if (peek_for_char(parser) == '-') {
+      cur_token.kind = DONSUS_DECREMENT;
+
+      cur_token.length = 2; // Set length to 2 for +=
+
+      cur_token.value = "--";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+      cur_token.precedence = 10; // lower precedence
+
+      cur_token.kind = DONSUS_MINUS;
+
+      cur_token.length = 1;
+
+      cur_token.value = "-";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
   }
 
   case '*': {
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_STAR_EQUAL;
 
-    cur_token.precedence = 20; // higher precedence
-    cur_token.kind = DONSUS_STAR;
+      cur_token.length = 2; // Set length to 2 for +=
 
-    cur_token.length = 1;
+      cur_token.value = "*=";
 
-    cur_token.value = "*";
+      cur_token.line = parser.lexer.cur_line;
 
-    cur_token.line = parser.lexer.cur_line;
+      eat(parser); // Consume the '=' character
 
-    eat(parser);
+      eat(parser); // Move to the next character
 
-    return cur_token;
+      return cur_token;
+
+    } else {
+      cur_token.precedence = 20; // higher precedence
+      cur_token.kind = DONSUS_STAR;
+
+      cur_token.length = 1;
+
+      cur_token.value = "*";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+
+      return cur_token;
+    }
   }
 
   case '/': {
 
-    cur_token.precedence = 20; // higher precedence
-    cur_token.kind = DONSUS_SLASH;
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_SLASH_EQUAL;
 
-    cur_token.length = 1;
+      cur_token.length = 2; // Set length to 2 for +=
 
-    cur_token.value = "/";
+      cur_token.value = "/=";
 
-    cur_token.line = parser.lexer.cur_line;
+      cur_token.line = parser.lexer.cur_line;
 
-    eat(parser);
+      eat(parser); // Consume the '=' character
 
-    return cur_token;
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+      cur_token.precedence = 20; // higher precedence
+      cur_token.kind = DONSUS_SLASH;
+
+      cur_token.length = 1;
+
+      cur_token.value = "/";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+
+      return cur_token;
+    }
   }
 
   case '^': {
@@ -391,17 +527,34 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
   case '=': {
 
-    cur_token.kind = DONSUS_EQUAL;
+    if (peek_for_char(parser) == '=') {
 
-    cur_token.length = 1;
+      cur_token.kind = DONSUS_DOUBLE_EQUAL;
 
-    cur_token.value = "=";
+      cur_token.length = 2; // Set length to 2 for ==
 
-    cur_token.line = parser.lexer.cur_line;
+      cur_token.value = "==";
 
-    eat(parser);
+      cur_token.line = parser.lexer.cur_line;
 
-    return cur_token;
+      eat(parser); // Consume the second '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+    } else {
+      cur_token.kind = DONSUS_EQUAL;
+
+      cur_token.length = 1;
+
+      cur_token.value = "=";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
   }
 
   case '(': {
@@ -434,7 +587,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     return cur_token;
   }
 
-  case ':':{
+  case ':': {
     cur_token.kind = DONSUS_COLO;
 
     cur_token.length = 1;
@@ -454,6 +607,256 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.length = 1;
 
     cur_token.value = ")";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '>': {
+
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_GREATER_EQUAL;
+
+      cur_token.length = 2; // Set length to 2 for +=
+
+      cur_token.value = ">=";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+
+      cur_token.kind = DONSUS_GREATER;
+
+      cur_token.length = 1;
+
+      cur_token.value = ">";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
+  }
+
+  case '<': {
+
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_LESS_EQUAL;
+
+      cur_token.length = 2; // Set length to 2 for +=
+
+      cur_token.value = "<=";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+
+      cur_token.kind = DONSUS_LESS;
+
+      cur_token.length = 1;
+
+      cur_token.value = "<";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
+  }
+
+  case ',': {
+    cur_token.kind = DONSUS_COMM;
+
+    cur_token.length = 1;
+
+    cur_token.value = ",";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '{': {
+    cur_token.kind = DONSUS_LBRACE;
+
+    cur_token.length = 1;
+
+    cur_token.value = "{";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '}': {
+    cur_token.kind = DONSUS_RBRACE;
+
+    cur_token.length = 1;
+
+    cur_token.value = "}";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '[': {
+    cur_token.kind = DONSUS_LSQB;
+
+    cur_token.length = 1;
+
+    cur_token.value = "[";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case ']': {
+    cur_token.kind = DONSUS_RSQB;
+
+    cur_token.length = 1;
+
+    cur_token.value = "]";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '.': {
+    if (peek_for_char(parser) == '.' && peek_for_char(parser) == '.') {
+
+      cur_token.kind = DONSUS_THREE_DOTS;
+
+      cur_token.length = 3; // Set length to 3 for ...
+
+      cur_token.value = "...";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the second dot
+
+      eat(parser); // Consume the third dot
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+    } else {
+      cur_token.kind = DONSUS_DOT;
+
+      cur_token.length = 1;
+
+      cur_token.value = ".";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
+  }
+
+  case '%': {
+    cur_token.kind = DONSUS_PERCENT;
+
+    cur_token.length = 1;
+
+    cur_token.value = "%";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '!': {
+    cur_token.kind = DONSUS_EXCLAMATION;
+
+    cur_token.length = 1;
+
+    cur_token.value = "!";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '#': {
+    cur_token.kind = DONSUS_COMMENT;
+
+    cur_token.length = 1;
+
+    cur_token.value = "#";
+
+    cur_token.line = parser.lexer.cur_line;
+
+    eat(parser);
+
+    return cur_token;
+  }
+
+  case '\"': {
+
+    int start_pos = parser.lexer.cur_pos;
+    cur_token.kind = DONSUS_STRING;
+
+    cur_token.length = 0;
+
+    while (eat(parser) && parser.lexer.cur_char != '\"') {
+      cur_token.length++;
+    }
+
+    if (parser.lexer.cur_char == '\"') {
+      eat(parser); // Consume the closing double quote
+      cur_token.value =
+          get_text_between_pos(parser, start_pos + 1, parser.lexer.cur_pos - 1);
+    } else {
+      std::cerr << "Error: Unterminated string literal at line "
+                << cur_token.line << std::endl;
+    }
+
+    cur_token.line = parser.lexer.cur_line;
+
+    return cur_token;
+  }
+
+  case '\'': {
+    cur_token.kind = DONSUS_SINGLE_QUOTE;
+
+    cur_token.length = 1;
+
+    cur_token.value = "'";
 
     cur_token.line = parser.lexer.cur_line;
 
@@ -490,7 +893,11 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       if (is_type(c_value)) {
 
         return make_type(parser, c_value, cur_token.length);
+      }
 
+      if (is_keyword(c_value)) {
+
+        return make_keyword(parser, c_value, cur_token.length);
       }
 
       else {
