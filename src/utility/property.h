@@ -8,6 +8,7 @@ public:
   template <typename type> auto get() -> type & {
     return *static_cast<type *>(m_property);
   }
+
   void set_property(void *value) { m_property = value; }
 
 protected:

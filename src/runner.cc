@@ -1,4 +1,5 @@
 // Running each step in the compiler
+#include "../Include/donsus.h"
 #include "../Include/file.h"
 #include "../Include/parser.h"
 #include "../Include/sema.h"
@@ -23,14 +24,25 @@ int Du_Main(int argc, char **argv) {
   // Parser
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
- /* // Semantic analysis (Construct symbol table)
-  utility::handle<donsus_symtable> symtable_result = donsus_sym(path);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  // nothing currently Todo: catch value and everything(sema_result)
-  DonsusParser::end_result sema_result =
-      donsus_sema(parser_result, file_without_extension);
+  // build symbol table
+  parser_result->traverse(donsus_sym, sym_global);
 
-  // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
-  donsus_codegen_x64(sema_result, symtable_result, file_without_extension);*/
+#ifdef DEBUG
+  std::cout << "\n";
+  std::cout << "SYMBOL TABLE:" << std::endl;
+  std::cout << "GLOBAL: " << std::endl;
+  std::cout << sym_global << std::endl;
+#endif
+  /* // Semantic analysis (Construct symbol table)
+   utility::handle<donsus_symtable> symtable_result = donsus_sym(path);
+
+   // nothing currently Todo: catch value and everything(sema_result)
+   DonsusParser::end_result sema_result =
+       donsus_sema(parser_result, file_without_extension);
+
+   // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
+   donsus_codegen_x64(sema_result, symtable_result, file_without_extension);*/
   return 0;
 }

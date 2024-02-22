@@ -1,9 +1,9 @@
 #include "../Include/symbol_table.h"
 
-std::string DonsusSymTable::add(std::string& short_name){
+std::string DonsusSymTable::add(std::string short_name) {
   /*
-     * add a minimal version of the symbol to the symbol table
-     * */
+   * add a minimal version of the symbol to the symbol table
+   * */
   auto qualified_name = create_qualified_name(short_name);
 
   sym a = get_from_qualified_name(qualified_name);
@@ -24,22 +24,24 @@ std::string DonsusSymTable::add(std::string& short_name){
   return qualified_name;
 }
 
-DonsusSymTable DonsusSymTable::add_sym_table(std::string& qa_sym_ex){
-  DonsusSymTable a;
-  a.qa_sym = qa_sym_ex;
-  sym_table.push_back(a);
-  return a;
+utility::handle<DonsusSymTable>
+DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
+  const utility::handle sym_ptr = allocator.alloc<DonsusSymTable>();
+  sym_ptr->qa_sym = qa_sym_ex;
+  sym_table.push_back(sym_ptr);
+  return sym_ptr;
 }
 
-DonsusSymTable DonsusSymTable::get_sym_table(std::string& qa_sym_ex) {
+utility::handle<DonsusSymTable>
+DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   for (auto n : sym_table) {
-    if (n.qa_sym == qa_sym_ex)
+    if (n->qa_sym == qa_sym_ex)
       return n;
   }
   std::cout << "error";
 }
 
-auto DonsusSymTable::get(std::string& qualified_name) -> sym {
+auto DonsusSymTable::get(std::string qualified_name) -> sym {
   sym b = get_from_qualified_name(qualified_name);
   if (b.mod == -1) {
     // doesn't exist
@@ -49,7 +51,7 @@ auto DonsusSymTable::get(std::string& qualified_name) -> sym {
   return b;
 }
 
-int DonsusSymTable::add_desc(sym& desc){
+int DonsusSymTable::add_desc(sym &desc) {
   if (desc.mod != -1 && desc.kind != sym::SYMBOL_PLACEHOLDER) {
     std::cout << "report error here";
     return 1;
@@ -58,7 +60,8 @@ int DonsusSymTable::add_desc(sym& desc){
   return 0;
 }
 
-auto DonsusSymTable::get_from_qualified_name(std::string& qualified_name) -> sym {
+auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
+    -> sym {
   for (auto n : underlying) {
     if (n.key == qualified_name)
       return n;
@@ -67,6 +70,6 @@ auto DonsusSymTable::get_from_qualified_name(std::string& qualified_name) -> sym
   return n;
 }
 
-std::string DonsusSymTable::create_qualified_name(std::string& short_name) {
+std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
   return this->qa_sym + '.' + short_name;
 }

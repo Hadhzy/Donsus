@@ -1,7 +1,6 @@
 #ifndef UTILITY_HANDLE_H
 #define UTILITY_HANDLE_H
 // wrapper for raw pointers
-
 namespace utility {
 
 template <typename type> class handle {

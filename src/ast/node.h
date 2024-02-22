@@ -13,9 +13,9 @@
 namespace donsus_ast {
 struct donsus_node_type {
   enum underlying : int {
-    DONSUS_VARIABLE_DECLARATION,
-    DONSUS_VARIABLE_DEFINITION,
-    DONSUS_NUMBER_EXPRESSION
+    DONSUS_VARIABLE_DECLARATION, // just the type of the node
+    DONSUS_VARIABLE_DEFINITION,  // just the type of the node
+    DONSUS_NUMBER_EXPRESSION     // just the type of the node
   };
 
   donsus_node_type() = default;
@@ -27,12 +27,13 @@ struct donsus_node_type {
 
 std::string de_get_from_donsus_node_type(donsus_node_type type);
 
+// actual node structure containing extra properties
 struct variable_decl {
   donsus_token_kind identifier_type;
   std::string identifier_name;
   void *identifier_value;
 };
-
+// actual node structure containing extra properties
 struct number_expr {
   donsus_token value;
 };
