@@ -1,6 +1,7 @@
 // Symbol table declaration
 #ifndef DONSUS_SYMBOL_TABLE_H
 #define DONSUS_SYMBOL_TABLE_H
+#include "../Include/donsus.h"
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
 #include <iostream>
@@ -24,16 +25,22 @@ public:
   };
   using sym = DonsusSymTable::sym;
   // Debug print for symbol
-  friend std::ostream &operator<<(std::ostream &o, sym &sma) {
+  friend std::ostream &operator<<(std::ostream &o, sym sma) {
     o << "key: " << sma.key << "\n";
     o << "short_name: " << sma.short_name << "\n";
     o << "index: " << sma.index << "\n";
     return o;
   };
   // Debug print for symbol_table
-  friend std::ostream &operator<<(std::ostream &o, DonsusSymTable &table) {
-    o << "SymbolTable-key: " << table.qa_sym << "\n";
-    o << "SymbolTable-child-count: " << table.sym_table.size();
+  friend std::ostream &operator<<(std::ostream &o,
+                                  utility::handle<DonsusSymTable> &table) {
+    o << "SymbolTable-key: " << table->qa_sym << "\n";
+    o << "SymbolTable-child-count: " << table->sym_table.size() << "\n";
+#ifdef DEBUG
+    for (auto &n : table->underlying) {
+      std::cout << n;
+    }
+#endif
     return o;
   };
 
@@ -54,7 +61,7 @@ public:
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
   // get symbol based on qualified name
-  auto get(std::string &qualified_name) -> sym;
+  auto get(std::string qualified_name) -> sym;
 
 private:
   int add_desc(sym &desc);

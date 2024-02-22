@@ -1,8 +1,8 @@
 // Running each step in the compiler
+#include "../Include/donsus.h"
 #include "../Include/file.h"
 #include "../Include/parser.h"
 #include "../Include/sema.h"
-#include "../Include/donsus.h"
 #include <iostream>
 
 int Du_Main(int argc, char **argv) {
@@ -24,13 +24,16 @@ int Du_Main(int argc, char **argv) {
   // Parser
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
-  utility::handle<DonsusSymTable> sym_global;
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   // build symbol table
   parser_result->traverse(donsus_sym, sym_global);
 
 #ifdef DEBUG
-  std::cout << sym_global.get() << std::endl;
+  std::cout << "\n";
+  std::cout << "SYMBOL TABLE:" << std::endl;
+  std::cout << "GLOBAL: " << std::endl;
+  std::cout << sym_global << std::endl;
 #endif
   /* // Semantic analysis (Construct symbol table)
    utility::handle<donsus_symtable> symtable_result = donsus_sym(path);

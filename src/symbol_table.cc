@@ -41,7 +41,7 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   std::cout << "error";
 }
 
-auto DonsusSymTable::get(std::string &qualified_name) -> sym {
+auto DonsusSymTable::get(std::string qualified_name) -> sym {
   sym b = get_from_qualified_name(qualified_name);
   if (b.mod == -1) {
     // doesn't exist
