@@ -61,6 +61,16 @@ public:
   auto create_variable_declaration(donsus_ast::donsus_node_type type,
                                    u_int64_t child_count) -> parse_result;
 
+  // peeking functions
+  auto peek_function_definition() -> bool;
+  auto peek_for_token() -> donsus_token;
+
+  void EXPECT_CURRENT_TOKEN(donsus_token token) {
+    if (cur_token.value != token.value) {
+      std::cout << "Unexpected token"; // TODO: have an error msg here
+    }
+  }
+
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

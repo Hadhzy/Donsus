@@ -58,27 +58,33 @@ auto DonsusParser::donsus_parse() -> end_result {
 #endif
 
   while (cur_token.kind != DONSUS_END) {
-    switch (cur_token.kind) {
-    case DONSUS_NUMBER: {
-      parse_result result = donsus_number_expr(0);
-      donsus_tree->add_node(result);
-    }
-    case DONSUS_NAME: {
-      /*      case DONSUS_BOOL:
-            case DONSUS_VOID:
-            case DONSUS_CHAR:
-            case DONSUS_BASIC_INT:
-            case DONSUS_I8:
-            case DONSUS_I16:
-            case DONSUS_I32:
-            case DONSUS_I64:
-            case DONSUS_U32:*/
-      /*case DONSUS_U64:*/
+    // switch (cur_token.kind) {
+    // case DONSUS_NUMBER: {
+    //   parse_result result = donsus_number_expr(0);
+    //   donsus_tree->add_node(result);
+    // }
+    // case DONSUS_NAME: {
+    //   /*      case DONSUS_BOOL:
+    //         case DONSUS_VOID:
+    //         case DONSUS_CHAR:
+    //         case DONSUS_BASIC_INT:
+    //         case DONSUS_I8:
+    //         case DONSUS_I16:
+    //         case DONSUS_I32:
+    //         case DONSUS_I64:
+    //         case DONSUS_U32:*/
+    //   /*case DONSUS_U64:*/
+    //   donsus_tree->add_node(donsus_variable_decl());
+    //   break;
+    // }
+    // default: {
+    // }
+    // }
+    if (cur_token.kind == DONSUS_NAME) {
       donsus_tree->add_node(donsus_variable_decl());
-      break;
     }
-    default: {
-    }
+
+    if (peek_function_definition()) {
     }
   }
 #ifdef DEBUG
@@ -190,6 +196,18 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
       }
     }
   }
+}
+
+auto DonsusParser::peek_function_definition() -> bool {
+  if (peek_for_token().kind != DONSUS_NAME) {
+    return false;
+  }
+
+  const bool res = peek_for_token().kind == DONSUS_LPAR;
+}
+auto DonsusParser::peek_for_token() -> donsus_token {
+  donsus_token current_token = donsus_lexer_next(*this);
+  return current_token;
 }
 
 auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
