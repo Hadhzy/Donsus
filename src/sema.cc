@@ -17,6 +17,7 @@
  *     |-----------------------|
  *
  */
+#include "../Include/sema.h"
 #include "../Include/parser.h"
 #include "../src/ast/node.h"
 // Make symbol table
@@ -32,19 +33,8 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
   }
 }
-/*
-utility::handle<DonsusSymTable> donsus_sym(){
-  DonsusSymTable* global =
-}
-*/
 
-/*
- *
-DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
-                                     std::string &file_name) {
-  // TBD:
-  // make sema
-  // donsus_sym(file_name); // ahh, might use it here instead of runner.cc
+DonsusSema::end_result DonsusSema::donsus_sema(DonsusParser::end_result ast,
+                                               std::string &file_name) {
   return ast;
 }
-*/
