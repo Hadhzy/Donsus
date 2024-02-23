@@ -34,8 +34,10 @@ public:
   // Debug print for symbol_table
   friend std::ostream &operator<<(std::ostream &o,
                                   utility::handle<DonsusSymTable> &table) {
-    o << "SymbolTable-key: " << table->qa_sym << "\n";
-    o << "SymbolTable-child-count: " << table->sym_table.size() << "\n";
+    o << "SymbolTable-key: " << table->qa_sym
+      << "\n"; // the name of the current symbol table
+    o << "SymbolTable-child-count: " << table->sym_table.size()
+      << "\n"; // the child symbol tables associated with the symbol table
 #ifdef DEBUG
     for (auto &n : table->underlying) {
       std::cout << n;
