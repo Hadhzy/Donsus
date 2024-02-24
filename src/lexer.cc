@@ -317,8 +317,8 @@ static donsus_token make_keyword(DonsusParser &parser, std::string &value,
 
 void consume_spaces(DonsusParser &parser) {
 
-  while (std::isspace(parser.lexer.cur_char)) {
-
+  while (parser.lexer.cur_char == ' ') {
+    // consume spaces including the space before a newline so we can lex it
     eat(parser);
   }
 }
