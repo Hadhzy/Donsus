@@ -50,7 +50,7 @@ public:
     }
   */
 
-  template <typename type> void *emplace() { return std::malloc(sizeof(type)); }
+  template <typename type> void *emplace() { return new type; }
 
   auto get_block_count() const -> uint64_t;
 
