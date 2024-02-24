@@ -139,7 +139,10 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
 
   auto &expression = node->get<donsus_ast::number_expr>();
-  expression.value = cur_token;
+  expression.value.kind = cur_token.kind;
+  expression.value.value = cur_token.value;
+  expression.value.line = cur_token.line;
+  expression.value.precedence = cur_token.precedence;
 
   donsus_parser_next();
   return node;
@@ -171,15 +174,15 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
   /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
     return n;*/
   parse_result declaration = create_variable_declaration(
-      donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
+      donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 20);
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
+  expression.identifier_type = cur_token.kind;
   expression.identifier_name = cur_token.value;
   donsus_parser_next(); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next(); // moves to the type
-    expression.identifier_type = cur_token.kind;
     donsus_parser_next(); // if the next token is not '=' then its a
                           // declaration.
     if (cur_token.kind == DONSUS_EQUAL) {

@@ -23,14 +23,14 @@ int Du_Main(int argc, char **argv) {
   // Parser
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
- /* // Semantic analysis (Construct symbol table)
-  utility::handle<donsus_symtable> symtable_result = donsus_sym(path);
+  /* // Semantic analysis (Construct symbol table)
+   utility::handle<donsus_symtable> symtable_result = donsus_sym(path);
 
-  // nothing currently Todo: catch value and everything(sema_result)
-  DonsusParser::end_result sema_result =
-      donsus_sema(parser_result, file_without_extension);
+   // nothing currently Todo: catch value and everything(sema_result)
+   DonsusParser::end_result sema_result =
+       donsus_sema(parser_result, file_without_extension);
 
-  // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
-  donsus_codegen_x64(sema_result, symtable_result, file_without_extension);*/
+   // CODE GENERATION(INVOKE DUASM) Todo: use sema_result
+   donsus_codegen_x64(sema_result, symtable_result, file_without_extension);*/
   return 0;
 }

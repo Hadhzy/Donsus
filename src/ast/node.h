@@ -29,7 +29,7 @@ std::string de_get_from_donsus_node_type(donsus_node_type type);
 
 struct variable_decl {
   donsus_token_kind identifier_type;
-  std::string identifier_name;
+  std::string identifier_name = "";
   void *identifier_value;
 };
 
