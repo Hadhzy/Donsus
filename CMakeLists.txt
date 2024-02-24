@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.22)
 
 project(donsus LANGUAGES CXX)
 set(CMAKE_BUILD_TYPE Debug)
+# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+# add_compile_options(-fsanitize=address)
+# add_link_options(-fsanitize=address)
 
 
 add_executable(donsus

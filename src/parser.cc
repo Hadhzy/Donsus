@@ -178,6 +178,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_type = cur_token.kind;
+
   expression.identifier_name = cur_token.value;
   donsus_parser_next(); // expect next token to be ':'
 
