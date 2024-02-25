@@ -1,6 +1,5 @@
 // pratt parser
 #include "../Include/parser.h"
-#include "../Include/donsus.h"
 #include <iostream>
 
 /*
@@ -19,12 +18,11 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
 }
 // DEBUG
 void print_ast(utility::handle<donsus_ast::tree> tree) {
-  for (auto n: tree->get_nodes()){
+  for (auto n : tree->get_nodes()) {
 
     std::cout << n->type.to_string() << "\n";
   }
 }
-
 DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
   donsus_tree = new donsus_ast::tree();

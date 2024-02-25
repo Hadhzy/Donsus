@@ -32,24 +32,9 @@ public:
   }
 
   template <typename type> auto alloc() -> type * {
-    type *a = (type *)std::malloc(sizeof(type));
+    auto a = new type;
     return a;
-  }
-  /*  auto alloc(uint64_t size) -> void *;*/
-  /*  auto alloc_zero(uint64_t size) -> void *;*/
-
-  /*
-    template <typename type> auto alloc() -> type * {
-      return static_cast<type *>(alloc(sizeof(type)));
-    };
-
-    template <typename type, typename... value_types>
-    auto emplace(value_types &&...values) -> type * {
-      return new (alloc(sizeof(type)))
-    type(std::forward<value_types>(values)...);
-    }
-  */
-
+  };
   template <typename type> void *emplace() { return new type; }
 
   auto get_block_count() const -> uint64_t;
@@ -57,7 +42,7 @@ public:
   auto get_block_size() const -> uint64_t;
 
 private:
-  // void alloc_block();
+  void alloc_block();
 
   block *first_block;
   block *current_block;

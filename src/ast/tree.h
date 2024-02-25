@@ -48,7 +48,7 @@ public:
     node_ptr->type = type;
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
-    node_ptr->set_property(allocator.emplace<extra_type>());
+    node_ptr->set_property(allocator.alloc<extra_type>());
     return node_ptr;
   };
 
