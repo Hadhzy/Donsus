@@ -1,11 +1,11 @@
 #ifndef DONSUS_TREE_H
 #define DONSUS_TREE_H
 #include <assert.h>
+#include <functional>
 #include <iostream>
 #include <limits>
-#include <vector>
 #include <stack>
-#include <functional>
+#include <vector>
 
 #include "../utility/handle.h"
 #include "../utility/memory_alloc.h"
@@ -30,7 +30,11 @@ public:
   void allocate_node_list(uint64_t count);
 
   // https://en.wikipedia.org/wiki/Tree_traversal
-  void traverse(std::function<void(utility::handle<node>, utility::handle<DonsusSymTable> table)>visit, utility::handle<DonsusSymTable> sym) const; // implement traverse and use stack
+  void traverse(std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    visit,
+                utility::handle<DonsusSymTable> sym)
+      const; // implement traverse and use stack
 
   template <typename extra_type>
   auto create_node(donsus_node_type type, uint64_t child_count)
@@ -42,7 +46,8 @@ public:
     // initialise the node
     allocate_node_list(child_count);
     node_ptr->type = type;
-    node_ptr->children = nodes;
+    node_ptr->children =
+        {}; // initialise it as an empty vector rather than the nodes
     node_ptr->set_property(allocator.emplace<extra_type>());
     return node_ptr;
   };

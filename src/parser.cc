@@ -81,11 +81,13 @@ auto DonsusParser::donsus_parse() -> end_result {
     // }
     // }
     if (cur_token.kind == DONSUS_NAME) {
-      donsus_tree->add_node(donsus_variable_decl());
+      parse_result result = donsus_variable_decl();
+      donsus_tree->add_node(result);
+      donsus_parser_next();
     }
 
-    if (peek_function_definition()) {
-    }
+    // if (peek_function_definition()) {
+    // }
   }
 #ifdef DEBUG
   std::cout << "AST: "
