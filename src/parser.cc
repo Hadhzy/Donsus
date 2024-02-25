@@ -19,7 +19,10 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
 }
 // DEBUG
 void print_ast(utility::handle<donsus_ast::tree> tree) {
-  std::cout << *tree->get_nodes()[0].get();
+  for (auto n: tree->get_nodes()){
+
+    std::cout << n->type.to_string() << "\n";
+  }
 }
 
 DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
