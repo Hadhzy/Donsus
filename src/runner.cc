@@ -1,4 +1,5 @@
 // Running each step in the compiler
+#include "../Include/codegen.h"
 #include "../Include/donsus.h"
 #include "../Include/file.h"
 #include "../Include/parser.h"
@@ -41,8 +42,10 @@ int Du_Main(int argc, char **argv) {
   DonsusSema::end_result sema_result =
       sema.donsus_sema(parser_result, file_without_extension);
 
-  /*   donsus_codegen_x64(sema_result, symtable_result,
-   * file_without_extension);*/
+  // codegen
+
+  DonsusCodegenEvaluator codegen;
+  codegen.compile(parser_result);
 
   return 0;
 }
