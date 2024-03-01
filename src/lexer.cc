@@ -211,29 +211,6 @@ static bool is_keyword(std::string &s) {
   return false;
 }
 
-/*donsus_lexer peak_for_token(donsus_parser * parser){
-    donsus_lexer result;
-    donsus_lexer old_lexer = parser->lexer;
-    donsus_lexer new_token(parser->lexer.string);
-
-    result = new_token;
-    parser->lexer = old_lexer;
-
-    return result;
-}*/
-
-char peak_for_char(DonsusParser &parser) {
-
-  char next_char = parser.lexer.string[parser.lexer.cur_pos + 1];
-
-  if (next_char == '\0') {
-
-    return '\0';
-  }
-
-  return next_char;
-}
-
 bool eat(DonsusParser &parser) {
 
   if ((parser.lexer.cur_char = parser.lexer.string[++parser.lexer.cur_pos]) !=
@@ -316,10 +293,29 @@ static donsus_token make_keyword(DonsusParser &parser, std::string &value,
 }
 
 void consume_spaces(DonsusParser &parser) {
-
-  while (parser.lexer.cur_char == ' ') {
-    // consume spaces including the space before a newline so we can lex it
-    eat(parser);
+  while (true) {
+    switch (parser.lexer.cur_char) {
+    case ' ': {
+      while (parser.lexer.cur_char == ' ') {
+        eat(parser);
+      }
+      break;
+    }
+    case '#': {
+      auto cur_line = parser.lexer.cur_line;
+      while (parser.lexer.cur_line == cur_line &&
+             parser.lexer.cur_char != '\0') {
+        if (peek_for_char(parser) == '\n') {
+          eat(parser);
+          break;
+        }
+        eat(parser);
+      }
+      break;
+    }
+    default:
+      return;
+    }
   }
 }
 
@@ -345,7 +341,6 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
     return cur_token;
   }
-
   case '+': {
     // Check for +=
     if (peek_for_char(parser) == '=') {
@@ -520,8 +515,6 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser);
-
-      return cur_token;
 
       return cur_token;
     }
@@ -821,20 +814,6 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.length = 1;
 
     cur_token.value = "!";
-
-    cur_token.line = parser.lexer.cur_line;
-
-    eat(parser);
-
-    return cur_token;
-  }
-
-  case '#': {
-    cur_token.kind = DONSUS_COMMENT;
-
-    cur_token.length = 1;
-
-    cur_token.value = "#";
 
     cur_token.line = parser.lexer.cur_line;
 
