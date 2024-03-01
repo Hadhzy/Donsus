@@ -180,7 +180,6 @@ char peek_for_char(DonsusParser &parser) {
   char next_char = parser.lexer.string[parser.lexer.cur_pos + 1];
   return (next_char == '\0') ? '\0' : next_char;
 }
-
 static bool isstart_identifier(char c) {
 
   // entry point of an identifier
@@ -220,6 +219,25 @@ bool eat(DonsusParser &parser) {
   }
 
   return false;
+}
+
+void skip_multi_line_comment(DonsusParser &parser) {
+repeat:
+  if (peek_for_char(parser) == '"')
+    if (peek_for_char(parser) == '"') {
+      eat(parser);
+      eat(parser);
+    }
+
+  while (parser.lexer.cur_char != '"') {
+    eat(parser);
+  }
+
+  if (parser.lexer.cur_char != '"') {
+    return;
+  }
+
+  goto repeat;
 }
 
 static std::string get_text_between_pos(DonsusParser &parser,
@@ -311,6 +329,12 @@ void consume_spaces(DonsusParser &parser) {
         }
         eat(parser);
       }
+      break;
+    }
+    case '"': {
+      // multi line comment
+      skip_multi_line_comment(parser);
+      eat(parser);
       break;
     }
     default:
