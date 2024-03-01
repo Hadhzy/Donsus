@@ -17,10 +17,19 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   return o;
 }
 // DEBUG
+/*void print_node(utility::handle<donsus_ast::node> node){
+  std::cout << node->type.to_string() << std::endl;
+}*/
+
+// DEBUG
 void print_ast(utility::handle<donsus_ast::tree> tree) {
   for (auto n : tree->get_nodes()) {
 
     std::cout << n->type.to_string() << "\n";
+
+    /*    while (!n->children.empty()){
+          print_node(n);
+        }*/
   }
 }
 DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
@@ -57,7 +66,6 @@ auto DonsusParser::donsus_parse() -> end_result {
   print_token();
   *this = save;
 #endif
-
   while (cur_token.kind != DONSUS_END) {
     // switch (cur_token.kind) {
     // case DONSUS_NUMBER: {
@@ -84,9 +92,8 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_NAME) {
       parse_result result = donsus_variable_decl();
       donsus_tree->add_node(result);
-      donsus_parser_next();
     }
-
+    donsus_parser_next();
     // if (peek_function_definition()) {
     // }
   }
