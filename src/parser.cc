@@ -26,13 +26,9 @@ void print_ast(utility::handle<donsus_ast::tree> tree) {
   for (auto n : tree->get_nodes()) {
 
     std::cout << n->type.to_string() << "\n";
-
-    /*    while (!n->children.empty()){
-          print_node(n);
-        }*/
   }
 }
-DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
+DonsusParser::DonsusParser(donsus_lexer &lexer) : lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
   donsus_tree = new donsus_ast::tree();
 }
@@ -93,7 +89,7 @@ auto DonsusParser::donsus_parse() -> end_result {
       parse_result result = donsus_variable_decl();
       donsus_tree->add_node(result);
     }
-    donsus_parser_next();
+    donsus_parser_next(); // move to the next token
     // if (peek_function_definition()) {
     // }
   }
@@ -166,7 +162,7 @@ auto DonsusParser::donsus_expr() -> parse_result {
 auto DonsusParser::donsus_variable_definition(
     utility::handle<donsus_ast::node> &declaration) -> parse_result {
   // move to get the value
-  donsus_parser_next();
+  donsus_parser_except(DONSUS_NUMBER);
   parse_result expression = donsus_expr();
   declaration->children.push_back(expression);
   return declaration;
@@ -184,7 +180,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
-  donsus_parser_next(); // expect next token to be ':'
+  donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next(); // moves to the type
@@ -229,4 +225,16 @@ auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
 auto DonsusParser::create_variable_declaration(
     donsus_ast::donsus_node_type type, uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::variable_decl>(type, child_count);
+}
+
+// Throws exception
+void DonsusParser::donsus_parser_except(donsus_token_kind type) {
+  donsus_token a = donsus_parser_next();
+  if (a.kind != type) {
+    // exception here
+    throw DonsusException(
+        "Expected token:" + de_get_name_from_token(type) +
+        " got instead: " + de_get_name_from_token(cur_token.kind) + "\n" +
+        "at line: " + std::to_string(lexer.cur_line));
+  }
 }

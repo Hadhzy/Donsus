@@ -24,7 +24,8 @@ add_executable(donsus
         src/utility/memory_alloc.h
         src/utility/memory_alloc.cc
         src/utility/slices.h
-
+        src/utility/exception.cc
+        src/utility/exception.h
 
         #ast
         src/ast/node.cc
