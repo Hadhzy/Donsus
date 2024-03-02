@@ -1,12 +1,12 @@
 #ifndef DONSUS_TYPE_H
 #define DONSUS_TYPE_H
-#include <iostream>
 #include "../token.h"
+#include <iostream>
 
-class DONSUS_TYPE{
+class DONSUS_TYPE {
 public:
-  enum kind: int{
-    TYPE_UNKNOWN=0, // handled in type checker
+  enum kind : int {
+    TYPE_UNKNOWN = 0, // handled in type checker
     TYPE_BASIC_INT,
     TYPE_I32,
     TYPE_U64,
@@ -19,22 +19,27 @@ public:
     TYPE_VOID
   };
 
-  kind from_parse(donsus_token_kind type){
-    switch(type){
+  /**
+   *  \brief  Convert token kind(from lexer)
+   * to actual Donsus Type
+   */
+  kind from_parse(donsus_token_kind type) {
+    switch (type) {
     case DONSUS_BASIC_INT:
       return TYPE_BASIC_INT;
 
-    default : {
-
+    default: {
     }
-
     }
-
   }
   kind type_un;
 };
 
-struct NAME_DATA_PAIR{
+/**
+ *  \brief
+ *  identifier:type
+ */
+struct NAME_DATA_PAIR {
   DONSUS_TYPE type;
   std::string identifier;
 };

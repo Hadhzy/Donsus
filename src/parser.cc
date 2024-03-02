@@ -73,6 +73,7 @@ auto DonsusParser::donsus_parse() -> end_result {
     // default: {
     // }
     // }
+    // Doesn't support globals
     if (cur_token.kind == DONSUS_NAME) {
       parse_result result = donsus_function_decl();
       donsus_tree->add_node(result);

@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "../../Include/token.h"
+#include "../Include/Internal/type.h"
 #include "../utility/handle.h"
 #include "../utility/property.h"
 #include "../utility/slices.h"
-#include "../Include/Internal/type.h"
 // Contains ast(node) types that the parser figures out
 
 namespace donsus_ast {
@@ -45,7 +45,8 @@ struct function_decl {
   DONSUS_TYPE return_type; // the return type of the function
 
   // function signature
-  std::vector<NAME_DATA_PAIR> parameters; // parameters inside the function signature
+  std::vector<NAME_DATA_PAIR>
+      parameters; // parameters inside the function signature
 
   std::string func_name; // name of the function
 };

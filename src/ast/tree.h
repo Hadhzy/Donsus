@@ -53,8 +53,6 @@ public:
   };
 
 private:
-  // for AST walking
-  void process_node(utility::handle<node> node) const;
   std::vector<utility::handle<node>> nodes;
   utility::DonsusAllocator allocator;
 };
