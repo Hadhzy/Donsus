@@ -44,7 +44,7 @@ public:
     const utility::handle node_ptr = allocator.alloc<node>();
 
     // initialise the node
-    allocate_node_list(child_count);
+    allocate_node_list(child_count); // reserve space for children
     node_ptr->type = type;
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
