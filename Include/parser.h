@@ -11,6 +11,7 @@
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
+#include "../Include/parser_util.h"
 #include "token.h"
 class DonsusParser;
 
@@ -43,7 +44,14 @@ public:
   // move to the next token and see if the provided type is correct
   void donsus_parser_except(donsus_token_kind type);
 
+  /**
+   *  \brief Parse down:
+   *  function definitions:
+   *      - statements
+   *
+   */
   auto donsus_parse() -> end_result;
+
   void print_token();
   donsus_token donsus_peek();
 
@@ -66,9 +74,17 @@ public:
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
+  // Functions
+  auto donsus_function_decl() -> parse_result;
+  auto create_function_decl(donsus_ast::donsus_node_type type,
+                            u_int64_t child_count) -> parse_result;
+
+  auto donsus_function_definition() ->parse_result;
+
+  auto donsus_function_signature() ->   std::vector<NAME_DATA_PAIR>;
   // peeking functions
-  auto peek_function_definition() -> bool;
-  auto peek_for_token() -> donsus_token;
+  auto peek_is_function_definition() -> bool;
+  auto peek_is_function_declaration() -> bool;
 
   donsus_token cur_token;
   donsus_lexer lexer;
