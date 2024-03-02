@@ -77,6 +77,10 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_NAME) {
       parse_result result = donsus_function_decl();
       donsus_tree->add_node(result);
+      if (cur_token.value == "def"){
+        // function definition
+
+      }
     }
     donsus_parser_next(); // move to the next token
     // if (peek_function_definition()) {
@@ -250,6 +254,14 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
   }
   return a;
 }
+
+auto DonsusParser::donsus_function_definition() -> parse_result {
+  // parse smaller parts such as statements | assignments |
+  donsus_parser_except(DONSUS_NAME);
+  donsus_function_decl();
+
+}
+// Todo: Finish this:
 /*auto DonsusParser::peek_is_function_definition() -> bool {
   if (peek_for_token().kind != DONSUS_NAME) {
     return false;
