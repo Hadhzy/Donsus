@@ -77,9 +77,8 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_NAME) {
       parse_result result = donsus_function_decl();
       donsus_tree->add_node(result);
-      if (cur_token.value == "def"){
+      if (cur_token.value == "def") {
         // function definition
-
       }
     }
     donsus_parser_next(); // move to the next token
@@ -209,7 +208,10 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
   // name'('
   donsus_parser_except(DONSUS_LPAR);
-  expression.parameters = donsus_function_signature();
+  if (donsus_peek().kind == DONSUS_NAME) {
+    // if we have parameters then the next token is DONSUS_NAME
+    expression.parameters = donsus_function_signature(); // parse parameters
+  }
   // name params ')'
   donsus_parser_except(DONSUS_RPAR);
 
@@ -259,7 +261,6 @@ auto DonsusParser::donsus_function_definition() -> parse_result {
   // parse smaller parts such as statements | assignments |
   donsus_parser_except(DONSUS_NAME);
   donsus_function_decl();
-
 }
 // Todo: Finish this:
 /*auto DonsusParser::peek_is_function_definition() -> bool {
