@@ -8,10 +8,10 @@
 #include <variant>
 #include <vector>
 
+#include "../Include/parser_util.h"
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
-#include "../Include/parser_util.h"
 #include "token.h"
 class DonsusParser;
 
@@ -74,14 +74,17 @@ public:
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
-  // Functions
+  // Function declaration
   auto donsus_function_decl() -> parse_result;
   auto create_function_decl(donsus_ast::donsus_node_type type,
                             u_int64_t child_count) -> parse_result;
 
-  auto donsus_function_definition() ->parse_result;
+  // Function definition
+  auto donsus_function_definition() -> parse_result;
+  auto create_function_definition(donsus_ast::donsus_node_type type,
+                                  u_int64_t child_count) -> parse_result;
 
-  auto donsus_function_signature() ->   std::vector<NAME_DATA_PAIR>;
+  auto donsus_function_signature() -> std::vector<NAME_DATA_PAIR>;
   // peeking functions
   auto peek_is_function_definition() -> bool;
   auto peek_is_function_declaration() -> bool;
