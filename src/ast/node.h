@@ -17,6 +17,7 @@ struct donsus_node_type {
     DONSUS_VARIABLE_DECLARATION, // just the type of the node
     DONSUS_VARIABLE_DEFINITION,  // just the type of the node
     DONSUS_FUNCTION_DECL,
+    DONSUS_FUNCTION_DEF,
     DONSUS_NUMBER_EXPRESSION // just the type of the node
   };
 
@@ -28,6 +29,9 @@ struct donsus_node_type {
 };
 
 std::string de_get_from_donsus_node_type(donsus_node_type type);
+
+// Forward declaration of the node structure
+struct node;
 
 // actual node structure containing extra properties
 struct variable_decl {
@@ -49,6 +53,19 @@ struct function_decl {
       parameters; // parameters inside the function signature
 
   std::string func_name; // name of the function
+};
+
+struct function_def {
+  DONSUS_TYPE return_type; // the return type of the function
+
+  // function signature
+  std::vector<NAME_DATA_PAIR>
+      parameters; // parameters inside the function signature
+
+  std::string func_name; // name of the function
+
+  std::vector<utility::handle<donsus_ast::node>>
+      body; // This might be refactored in the future
 };
 
 using node_properties =

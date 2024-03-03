@@ -14,6 +14,8 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_VARIABLE_DEFINITION";
   case DONSUS_FUNCTION_DECL:
     return "DONSUS_FUNCTION_DECLARATION";
+  case DONSUS_FUNCTION_DEF:
+    return "DONSUS_FUNCTION_DEF";
   }
 }
 

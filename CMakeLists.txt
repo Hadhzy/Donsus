@@ -18,6 +18,7 @@ add_executable(donsus
         src/symbol_table.cc
 
         # codegen
+        src/codegen/codegen.cc
 
         #utility
         src/utility/handle.h
@@ -34,4 +35,5 @@ add_executable(donsus
 )
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")
+target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")

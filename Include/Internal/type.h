@@ -28,10 +28,42 @@ public:
     case DONSUS_BASIC_INT:
       return TYPE_BASIC_INT;
 
+    case DONSUS_I32:
+      return TYPE_I32;
+
+    case DONSUS_U64:
+      return TYPE_U64;
+
+    case DONSUS_CHAR:
+      return TYPE_CHAR;
+
+    case DONSUS_I8:
+      return TYPE_I8;
+
+    case DONSUS_I64:
+      return TYPE_I64;
+
+    case DONSUS_BOOL:
+      return TYPE_BOOL;
+
+    case DONSUS_I16:
+      return TYPE_I16;
+
+    case DONSUS_U32:
+      return TYPE_U32;
+
+    case DONSUS_VOID:
+      return TYPE_VOID;
+
     default: {
+      // Handle unknown token kind or other cases
+      std::cerr << "Unhandled token kind in DONSUS_TYPE::from_parse"
+                << std::endl;
+      return TYPE_UNKNOWN;
     }
     }
   }
+
   kind type_un;
 };
 

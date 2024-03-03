@@ -77,10 +77,11 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_NAME) {
       parse_result result = donsus_function_decl();
       donsus_tree->add_node(result);
-      if (cur_token.value == "def"){
-        // function definition
+    }
 
-      }
+    if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
+      parse_result result = donsus_function_definition();
+      donsus_tree->add_node(result);
     }
     donsus_parser_next(); // move to the next token
     // if (peek_function_definition()) {
@@ -209,7 +210,10 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
   // name'('
   donsus_parser_except(DONSUS_LPAR);
-  expression.parameters = donsus_function_signature();
+  if (donsus_peek().kind == DONSUS_NAME) {
+    // if we have parameters then the next token is DONSUS_NAME
+    expression.parameters = donsus_function_signature(); // parse parameters
+  }
   // name params ')'
   donsus_parser_except(DONSUS_RPAR);
 
@@ -222,12 +226,13 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
   // construct type
   expression.return_type = make_type(cur_token.kind);
-  donsus_parser_next();
 
   if (cur_token.kind == DONSUS_SEMICOLON) {
     return declaration;
   } else {
-    // function definition here
+
+    return declaration; // This is only for function definition as it doesnt
+                        // end with semicolon
   }
 }
 auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
@@ -257,10 +262,54 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
 
 auto DonsusParser::donsus_function_definition() -> parse_result {
   // parse smaller parts such as statements | assignments |
-  donsus_parser_except(DONSUS_NAME);
-  donsus_function_decl();
+  donsus_parser_except(DONSUS_NAME); // after "def" we have a DONSUS_NAME
+  parse_result definition = create_function_definition(
+      donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, 10);
 
+  auto &definition_expression = definition->get<donsus_ast::function_def>();
+
+  // since up to the return type function def is the same as function decl
+  // excluding semi colon
+
+  // we can re-use function_decl to parse up to the return type
+  parse_result declaration =
+      donsus_function_decl(); // get the declaration for definition
+  auto &declaration_expression = declaration->get<donsus_ast::function_decl>();
+
+  // They share all of the properties excluding the "body"
+  definition_expression.func_name = declaration_expression.func_name;
+  definition_expression.parameters = declaration_expression.parameters;
+  definition_expression.return_type = declaration_expression.return_type;
+
+  donsus_parser_except(DONSUS_LBRACE); // expect cur_token to be "{"
+  definition_expression.body = donsus_statements();
+  return definition;
 }
+
+auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
+  std::vector<parse_result> body;
+  while (cur_token.kind != DONSUS_RBRACE) {
+    // parse statements
+    if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
+      parse_result result = donsus_function_definition();
+      body.push_back(result);
+    }
+
+    if (cur_token.kind == DONSUS_NAME) {
+      if (donsus_peek().kind == DONSUS_LPAR) {
+        parse_result result = donsus_function_decl();
+        body.push_back(result);
+      } else {
+        parse_result result = donsus_variable_decl();
+        body.push_back(result);
+      }
+    }
+    donsus_parser_next();
+  }
+
+  return body;
+}
+
 // Todo: Finish this:
 /*auto DonsusParser::peek_is_function_definition() -> bool {
   if (peek_for_token().kind != DONSUS_NAME) {
@@ -270,6 +319,7 @@ auto DonsusParser::donsus_function_definition() -> parse_result {
   const bool res = peek_for_token().kind == DONSUS_LPAR;
 }*/
 // Todo: Make it more accurate
+
 auto DonsusParser::peek_is_function_declaration() -> bool {
   if (cur_token.kind != DONSUS_NAME) {
     return false;
@@ -294,6 +344,12 @@ auto DonsusParser::create_variable_declaration(
 auto DonsusParser::create_function_decl(donsus_ast::donsus_node_type type,
                                         u_int64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::function_decl>(type, child_count);
+}
+
+auto DonsusParser::create_function_definition(donsus_ast::donsus_node_type type,
+                                              u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::function_def>(type, child_count);
 }
 
 // Throws exception
