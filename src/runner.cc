@@ -1,5 +1,5 @@
 // Running each step in the compiler
-#include "../Include/codegen.h"
+#include "../Include/codegen/codegen.h"
 #include "../Include/donsus.h"
 #include "../Include/file.h"
 #include "../Include/parser.h"

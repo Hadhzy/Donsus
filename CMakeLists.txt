@@ -33,3 +33,4 @@ add_executable(donsus
 )
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")
+target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
