@@ -2,12 +2,6 @@
 #include "../Include/parser.h"
 #include <iostream>
 
-/*
-// HELPER
-std::unique_ptr<donsus_ast> add_to_result(std::unique_ptr<donsus_ast> current,
-                                          std::unique_ptr<donsus_ast> result) {}
-*/
-
 // DEBUG
 static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   o << "Value: " << token.value << "\n";
@@ -16,23 +10,15 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   o << "Line: " << token.line << "\n";
   return o;
 }
-// DEBUG
-/*void print_node(utility::handle<donsus_ast::node> node){
-  std::cout << node->type.to_string() << std::endl;
-}*/
 
 // DEBUG
 void print_ast(utility::handle<donsus_ast::tree> tree) {
   for (auto n : tree->get_nodes()) {
 
     std::cout << n->type.to_string() << "\n";
-
-    /*    while (!n->children.empty()){
-          print_node(n);
-        }*/
   }
 }
-DonsusParser::DonsusParser(donsus_lexer &lexer) : error(false), lexer(lexer) {
+DonsusParser::DonsusParser(donsus_lexer &lexer) : lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
   donsus_tree = new donsus_ast::tree();
 }
@@ -42,7 +28,6 @@ donsus_token DonsusParser::donsus_parser_next() {
   return cur_token;
 }
 
-// Todo: remove this from class
 void DonsusParser::print_token() {
   while (cur_token.kind != DONSUS_END) {
     std::cout << cur_token << "\n"; // TODO: Implement this properly
@@ -57,7 +42,6 @@ donsus_token DonsusParser::donsus_peek() {
   return result;
 }
 
-// TODO: proper debug for lexer and AST
 auto DonsusParser::donsus_parse() -> end_result {
 #ifdef DEBUG
   std::cout << "LEXER: "
@@ -89,11 +73,16 @@ auto DonsusParser::donsus_parse() -> end_result {
     // default: {
     // }
     // }
+    // Doesn't support globals
     if (cur_token.kind == DONSUS_NAME) {
-      parse_result result = donsus_variable_decl();
+      parse_result result = donsus_function_decl();
       donsus_tree->add_node(result);
+      if (cur_token.value == "def"){
+        // function definition
+
+      }
     }
-    donsus_parser_next();
+    donsus_parser_next(); // move to the next token
     // if (peek_function_definition()) {
     // }
   }
@@ -166,58 +155,129 @@ auto DonsusParser::donsus_expr() -> parse_result {
 auto DonsusParser::donsus_variable_definition(
     utility::handle<donsus_ast::node> &declaration) -> parse_result {
   // move to get the value
-  donsus_parser_next();
+  donsus_parser_except(DONSUS_NUMBER);
   parse_result expression = donsus_expr();
   declaration->children.push_back(expression);
   return declaration;
 }
 
 auto DonsusParser::donsus_variable_decl() -> parse_result {
-  // create an ast node with type DONSUS_DECLARATION
-  // add this ast node to the top level AST
-  // add this to the symbol table
-  // figure out whether it has a definition
-  /*  auto *n = new donsus_math_expr(cur_token, DONSUS_VAR_DECLARATION);
-    return n;*/
+  // Starts with DONSUS_NAME
+  // ENDS with  parsing SEMI_COLON
+  // CALL definition if needed
+  // RETURNS its structure without parsing semi_colon if's called from
+  // variable_decl
   parse_result declaration = create_variable_declaration(
       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
-  donsus_parser_next(); // expect next token to be ':'
+  donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next(); // moves to the type
     expression.identifier_type = cur_token.kind;
-    donsus_parser_next(); // if the next token is not '=' then its a
-                          // declaration.
-    if (cur_token.kind == DONSUS_EQUAL) {
+    /*    donsus_parser_next(); // if the next token is not '=' then its a
+                              // declaration.*/
+    if (donsus_peek().kind == DONSUS_EQUAL) {
       // def
+      donsus_parser_next();
       declaration->type =
           donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION; // overwrite
                                                                     // type
       return donsus_variable_definition(declaration);
     } else {
+
       // decl only
-      if (cur_token.kind == DONSUS_SEMICOLON) {
+      if (donsus_peek().kind == DONSUS_SEMICOLON) {
+        donsus_parser_except(DONSUS_SEMICOLON);
         // end of declaration
-        donsus_parser_next();
+        return declaration;
+      } else {
         return declaration;
       }
     }
   }
 }
 
-auto DonsusParser::peek_function_definition() -> bool {
+auto DonsusParser::donsus_function_decl() -> parse_result {
+  parse_result declaration = create_function_decl(
+      donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL, 10);
+
+  auto &expression = declaration->get<donsus_ast::function_decl>();
+  expression.func_name = cur_token.value;
+
+  // name'('
+  donsus_parser_except(DONSUS_LPAR);
+  expression.parameters = donsus_function_signature();
+  // name params ')'
+  donsus_parser_except(DONSUS_RPAR);
+
+  // ARROW
+  donsus_parser_except(DONSUS_ARROW);
+
+  // ARROW--
+  // parse type here
+  donsus_parser_next();
+
+  // construct type
+  expression.return_type = make_type(cur_token.kind);
+  donsus_parser_next();
+
+  if (cur_token.kind == DONSUS_SEMICOLON) {
+    return declaration;
+  } else {
+    // function definition here
+  }
+}
+auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
+  // e.g (a:int, b:int)
+  // As of now, parameters just variable decls(excluding semi-colon).
+  std::vector<NAME_DATA_PAIR> a;
+
+  while (donsus_peek().kind != DONSUS_RPAR) {
+    NAME_DATA_PAIR pair;
+    donsus_parser_except(DONSUS_NAME);
+    parse_result v_d = donsus_variable_decl(); // catch its value
+    pair.identifier =
+        v_d.get()->get<donsus_ast::variable_decl>().identifier_name;
+    pair.type =
+        make_type(v_d.get()->get<donsus_ast::variable_decl>().identifier_type);
+    a.push_back(pair);
+
+    if (donsus_peek().kind == DONSUS_COMM) {
+      donsus_parser_next();
+      continue;
+    } else {
+      break; // finished
+    }
+  }
+  return a;
+}
+
+auto DonsusParser::donsus_function_definition() -> parse_result {
+  // parse smaller parts such as statements | assignments |
+  donsus_parser_except(DONSUS_NAME);
+  donsus_function_decl();
+
+}
+// Todo: Finish this:
+/*auto DonsusParser::peek_is_function_definition() -> bool {
   if (peek_for_token().kind != DONSUS_NAME) {
     return false;
   }
 
   const bool res = peek_for_token().kind == DONSUS_LPAR;
-}
-auto DonsusParser::peek_for_token() -> donsus_token {
-  donsus_token current_token = donsus_lexer_next(*this);
-  return current_token;
+}*/
+// Todo: Make it more accurate
+auto DonsusParser::peek_is_function_declaration() -> bool {
+  if (cur_token.kind != DONSUS_NAME) {
+    return false;
+  }
+  if (donsus_peek().kind == DONSUS_LPAR && cur_token.kind == DONSUS_NAME) {
+    return true;
+  }
+  return false;
 }
 
 auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
@@ -229,4 +289,21 @@ auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
 auto DonsusParser::create_variable_declaration(
     donsus_ast::donsus_node_type type, uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::variable_decl>(type, child_count);
+}
+
+auto DonsusParser::create_function_decl(donsus_ast::donsus_node_type type,
+                                        u_int64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::function_decl>(type, child_count);
+}
+
+// Throws exception
+void DonsusParser::donsus_parser_except(donsus_token_kind type) {
+  donsus_token a = donsus_parser_next();
+  if (a.kind != type) {
+    // exception here
+    throw DonsusException(
+        "Expected token:" + de_get_name_from_token(type) +
+        " got instead: " + de_get_name_from_token(cur_token.kind) + "\n" +
+        "at line: " + std::to_string(lexer.cur_line));
+  }
 }

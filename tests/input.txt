@@ -1,1 +1,2 @@
-a:int;
+# ONLY WORKS WITH PARAMETERS
+a(a:int) -> int;

@@ -12,7 +12,8 @@ add_executable(donsus
         src/runner.cc
         src/sema.cc
         src/ir.cc
-
+        src/type.cc
+        src/parser_util.cc
         # symtable
         src/symbol_table.cc
 
@@ -25,7 +26,8 @@ add_executable(donsus
         src/utility/memory_alloc.h
         src/utility/memory_alloc.cc
         src/utility/slices.h
-
+        src/utility/exception.cc
+        src/utility/exception.h
 
         #ast
         src/ast/node.cc
@@ -34,3 +36,4 @@ add_executable(donsus
 
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
+target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
