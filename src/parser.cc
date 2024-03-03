@@ -173,6 +173,9 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
+
+  // add stuff to symbol_table
+  sym_global->add(expression.identifier_name);
   donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
@@ -183,9 +186,9 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
     if (donsus_peek().kind == DONSUS_EQUAL) {
       // def
       donsus_parser_next();
-      declaration->type =
-          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION; // overwrite
-                                                                    // type
+      declaration->type = donsus_ast::donsus_node_type::
+          DONSUS_VARIABLE_DEFINITION; // overwrite//
+                                      // type
       return donsus_variable_definition(declaration);
     } else {
 
@@ -204,6 +207,8 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 auto DonsusParser::donsus_function_decl() -> parse_result {
   parse_result declaration = create_function_decl(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL, 10);
+
+  sym_global->add(cur_token.value);
 
   auto &expression = declaration->get<donsus_ast::function_decl>();
   expression.func_name = cur_token.value;
@@ -262,9 +267,13 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
 
 auto DonsusParser::donsus_function_definition() -> parse_result {
   // parse smaller parts such as statements | assignments |
+
   donsus_parser_except(DONSUS_NAME); // after "def" we have a DONSUS_NAME
   parse_result definition = create_function_definition(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, 10);
+
+  // construct sym_table
+  sym_global->add_sym_table(cur_token.value);
 
   auto &definition_expression = definition->get<donsus_ast::function_def>();
 

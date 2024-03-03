@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../Include/parser_util.h"
+#include "../Include/symbol_table.h"
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
@@ -94,6 +95,8 @@ public:
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
 private:
   DonsusException error;
 };

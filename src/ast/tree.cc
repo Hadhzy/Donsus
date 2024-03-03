@@ -12,7 +12,6 @@ void tree::traverse(std::function<void(utility::handle<node>,
                         visit,
                     utility::handle<DonsusSymTable> sym) const {
   std::stack<utility::handle<node>> stack;
-
   for (auto &n : nodes) {
     stack.push(n);
     while (!stack.empty()) {
@@ -23,6 +22,7 @@ void tree::traverse(std::function<void(utility::handle<node>,
       if (!current) {
         continue;
       }
+
       // call visit with node symbol table
       visit(current, sym); // call function donsus_sym in sema.cc
                            // process child
@@ -38,5 +38,5 @@ auto tree::get_nodes() -> std::vector<utility::handle<node>> { return nodes; }
 auto tree::get_allocator() -> utility::DonsusAllocator { return allocator; }
 
 void tree::allocate_node_list(uint64_t count) {
-  //nodes.reserve(count); // reserve memory for a specific count
+  // nodes.reserve(count); // reserve memory for a specific count
 }

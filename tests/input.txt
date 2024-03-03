@@ -1,2 +1,8 @@
-# ONLY WORKS WITH PARAMETERS
-a(a:int) -> int;
+def b() -> int {
+
+};
+
+def c() -> int {
+
+};
+
