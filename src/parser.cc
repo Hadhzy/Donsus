@@ -282,13 +282,32 @@ auto DonsusParser::donsus_function_definition() -> parse_result {
   definition_expression.return_type = declaration_expression.return_type;
 
   donsus_parser_except(DONSUS_LBRACE); // expect cur_token to be "{"
+  definition_expression.body = donsus_statements();
+  return definition;
+}
+
+auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
+  std::vector<parse_result> body;
   while (cur_token.kind != DONSUS_RBRACE) {
-    // parse down "body"/statement blocks
+    // parse statements
+    if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
+      parse_result result = donsus_function_definition();
+      body.push_back(result);
+    }
+
+    if (cur_token.kind == DONSUS_NAME) {
+      if (donsus_peek().kind == DONSUS_LPAR) {
+        parse_result result = donsus_function_decl();
+        body.push_back(result);
+      } else {
+        parse_result result = donsus_variable_decl();
+        body.push_back(result);
+      }
+    }
     donsus_parser_next();
   }
 
-  donsus_parser_except(DONSUS_SEMICOLON);
-  return definition;
+  return body;
 }
 
 // Todo: Finish this:

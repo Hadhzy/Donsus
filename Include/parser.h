@@ -84,6 +84,8 @@ public:
   auto create_function_definition(donsus_ast::donsus_node_type type,
                                   u_int64_t child_count) -> parse_result;
 
+  auto donsus_statements() -> std::vector<parse_result>;
+
   auto donsus_function_signature() -> std::vector<NAME_DATA_PAIR>;
   // peeking functions
   auto peek_is_function_definition() -> bool;

@@ -30,6 +30,9 @@ struct donsus_node_type {
 
 std::string de_get_from_donsus_node_type(donsus_node_type type);
 
+// Forward declaration of the node structure
+struct node;
+
 // actual node structure containing extra properties
 struct variable_decl {
   donsus_token_kind identifier_type;
@@ -52,10 +55,6 @@ struct function_decl {
   std::string func_name; // name of the function
 };
 
-struct statement_node {
-  // This will be filled up once we start parsing statements
-};
-
 struct function_def {
   DONSUS_TYPE return_type; // the return type of the function
 
@@ -65,7 +64,8 @@ struct function_def {
 
   std::string func_name; // name of the function
 
-  std::vector<statement_node> body; // This might be refactored in the future
+  std::vector<utility::handle<donsus_ast::node>>
+      body; // This might be refactored in the future
 };
 
 using node_properties =
