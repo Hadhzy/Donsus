@@ -185,6 +185,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next(); // moves to the type
     expression.identifier_type = cur_token.kind;
+
     /*    donsus_parser_next(); // if the next token is not '=' then its a
                               // declaration.*/
     if (donsus_peek().kind == DONSUS_EQUAL) {
@@ -231,16 +232,27 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   // parse type here
   donsus_parser_next();
 
-  // construct type
-  expression.return_type = make_type(cur_token.kind);
+  /*  if (donsus_peek().kind == DONSUS_LBRACE){
+      expression.return_type.push_back(make_type(cur_token.kind));
+    } else {
+      // construct type
+      while (donsus_peek().kind != DONSUS_LBRACE){
+        expression.return_type.push_back(make_type(cur_token.kind));
+        donsus_parser_except(DONSUS_COMM);
+        donsus_parser_next();
+      }
 
-  if (cur_token.kind == DONSUS_SEMICOLON) {
-    return declaration;
-  } else {
+    }*/
+  expression.return_type.push_back(make_type(cur_token.kind));
 
-    return declaration; // This is only for function definition as it doesnt
-                        // end with semicolon
+  while (donsus_peek().kind != DONSUS_LBRACE &&
+         donsus_peek().kind != DONSUS_SEMICOLON) {
+    donsus_parser_except(DONSUS_COMM);
+    donsus_parser_next();
+    expression.return_type.push_back(make_type(cur_token.kind));
   }
+
+  return declaration;
 }
 auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
   // e.g (a:int, b:int)
