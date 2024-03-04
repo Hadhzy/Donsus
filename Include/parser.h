@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../Include/parser_util.h"
+#include "../Include/symbol_table.h"
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"

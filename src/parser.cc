@@ -178,6 +178,8 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
+
+  // add stuff to symbol_table
   donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
@@ -188,9 +190,9 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
     if (donsus_peek().kind == DONSUS_EQUAL) {
       // def
       donsus_parser_next();
-      declaration->type =
-          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION; // overwrite
-                                                                    // type
+      declaration->type = donsus_ast::donsus_node_type::
+          DONSUS_VARIABLE_DEFINITION; // overwrite//
+                                      // type
       return donsus_variable_definition(declaration);
     } else {
 
@@ -267,21 +269,23 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
 
 auto DonsusParser::donsus_function_definition() -> parse_result {
   // parse smaller parts such as statements | assignments |
-  donsus_parser_except(DONSUS_NAME); // after "def" we have a DONSUS_NAME
+  donsus_parser_except(DONSUS_NAME); // after "def"we have a DONSUS_NAME
   parse_result definition = create_function_definition(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, 10);
+
+  // construct sym_table
 
   auto &definition_expression = definition->get<donsus_ast::function_def>();
 
   // since up to the return type function def is the same as function decl
-  // excluding semi colon
+  // excluding semicolon
 
   // we can re-use function_decl to parse up to the return type
   parse_result declaration =
       donsus_function_decl(); // get the declaration for definition
   auto &declaration_expression = declaration->get<donsus_ast::function_decl>();
 
-  // They share all of the properties excluding the "body"
+  // They share all the properties excluding the "body"
   definition_expression.func_name = declaration_expression.func_name;
   definition_expression.parameters = declaration_expression.parameters;
   definition_expression.return_type = declaration_expression.return_type;

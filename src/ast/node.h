@@ -69,14 +69,13 @@ struct function_def {
 };
 
 using node_properties =
-    utility::property<variable_decl, number_expr, function_decl>;
+    utility::property<variable_decl, number_expr, function_decl, function_def>;
 
 struct node : node_properties {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children; // size type in the future
   donsus_node_type type;
-
   // For debugging purposes
   friend std::ostream &operator<<(std::ostream &o, node &node) {
     o << "type: " << de_get_from_donsus_node_type(node.type); // type

@@ -1,8 +1,6 @@
 // Running each step in the compiler
 #include "../Include/codegen/codegen.h"
-#include "../Include/donsus.h"
 #include "../Include/file.h"
-#include "../Include/parser.h"
 #include "../Include/sema.h"
 #include <iostream>
 
@@ -18,14 +16,14 @@ int Du_Main(int argc, char **argv) {
   std::string file_without_extension =
       base_filename.substr(0, p); // Obtain file without the extension(.du)
 
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
   // Lexer
   donsus_lexer lexer(result); // initialise lexer
   DonsusParser parser(lexer);
 
   // Parser
   DonsusParser::end_result parser_result = parser.donsus_parse();
-
-  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   // build symbol table
   parser_result->traverse(donsus_sym, sym_global);
