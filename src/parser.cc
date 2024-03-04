@@ -75,8 +75,13 @@ auto DonsusParser::donsus_parse() -> end_result {
     // }
     // Doesn't support globals
     if (cur_token.kind == DONSUS_NAME) {
-      parse_result result = donsus_function_decl();
-      donsus_tree->add_node(result);
+      if (donsus_peek().kind == DONSUS_LPAR) {
+        parse_result result = donsus_function_decl();
+        donsus_tree->add_node(result);
+      } else if (donsus_peek().kind == DONSUS_COLO) {
+        parse_result result = donsus_variable_decl();
+        donsus_tree->add_node(result);
+      }
     }
 
     if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
@@ -299,7 +304,7 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
       if (donsus_peek().kind == DONSUS_LPAR) {
         parse_result result = donsus_function_decl();
         body.push_back(result);
-      } else {
+      } else if (donsus_peek().kind == DONSUS_COLO) {
         parse_result result = donsus_variable_decl();
         body.push_back(result);
       }
