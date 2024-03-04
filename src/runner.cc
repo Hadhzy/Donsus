@@ -16,6 +16,8 @@ int Du_Main(int argc, char **argv) {
   std::string file_without_extension =
       base_filename.substr(0, p); // Obtain file without the extension(.du)
 
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
   // Lexer
   donsus_lexer lexer(result); // initialise lexer
   DonsusParser parser(lexer);
@@ -24,13 +26,13 @@ int Du_Main(int argc, char **argv) {
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
   // build symbol table
-  parser_result->traverse(donsus_sym, parser.sym_global);
+  parser_result->traverse(donsus_sym, sym_global);
 
 #ifdef DEBUG
   std::cout << "\n";
   std::cout << "SYMBOL TABLE:" << std::endl;
   std::cout << "GLOBAL: " << std::endl;
-  std::cout << parser.sym_global << std::endl;
+  std::cout << sym_global << std::endl;
 #endif
   // sema
   DonsusSema sema;

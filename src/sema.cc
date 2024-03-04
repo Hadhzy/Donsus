@@ -23,7 +23,7 @@
 // Make symbol table
 void donsus_sym(utility::handle<donsus_ast::node> node,
                 utility::handle<DonsusSymTable> table) {
-  // Construct sym table from assembly
+  //Todo: Loop through top level nodes and then child nodes
   switch (node->type.type) { /*
    case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
      auto &expr = node->get<donsus_ast::variable_decl>();

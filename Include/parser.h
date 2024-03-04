@@ -95,8 +95,6 @@ public:
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes
-  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-
 private:
   DonsusException error;
 };
