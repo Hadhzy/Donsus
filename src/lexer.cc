@@ -312,8 +312,19 @@ void consume_spaces(DonsusParser &parser) {
       }
       break;
     }
+    case '/': {
+      eat(parser); // consume '*'
+      if (parser.lexer.cur_char == '*') {
+        eat(parser); // consume '/'
+        while (parser.lexer.cur_char != '*' && peek_for_char(parser) != '/') {
+          eat(parser); // get next token
+        }
+        eat(parser); // consume '/' after '*'
+        break;
+      }
     default:
       return;
+    }
     }
   }
 }
