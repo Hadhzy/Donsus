@@ -23,18 +23,28 @@
 // Make symbol table
 void donsus_sym(utility::handle<donsus_ast::node> node,
                 utility::handle<DonsusSymTable> table) {
-  // Construct sym table from assembly
-  switch (node->type.type) {
-  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
-    auto &expr = node->get<donsus_ast::variable_decl>();
-    table->add(expr.identifier_name);
-    break;
-  }
-  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
-    auto &expr = node->get<donsus_ast::variable_decl>();
-    table->add(expr.identifier_name);
-    break;
-  }
+  //Todo: Loop through top level nodes and then child nodes
+  switch (node->type.type) { /*
+   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
+     auto &expr = node->get<donsus_ast::variable_decl>();
+     table->add(expr.identifier_name);
+     break;
+   }
+   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
+     auto &expr = node->get<donsus_ast::variable_decl>();
+     table->add(expr.identifier_name);
+     break;
+   }
+   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
+     auto &expr = node->get<donsus_ast::function_decl>();
+     table->add(expr.func_name);
+     break;
+   }
+   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
+     auto &expr = node->get<donsus_ast::function_def>();
+     table->add(expr.func_name);
+     break;
+   }*/
   default: {
   }
   }

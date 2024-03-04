@@ -46,7 +46,7 @@ struct number_expr {
 
 // actual node structure containing extra properties
 struct function_decl {
-  DONSUS_TYPE return_type; // the return type of the function
+  std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
   std::vector<NAME_DATA_PAIR>
@@ -56,7 +56,7 @@ struct function_decl {
 };
 
 struct function_def {
-  DONSUS_TYPE return_type; // the return type of the function
+  std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
   std::vector<NAME_DATA_PAIR>
@@ -69,14 +69,13 @@ struct function_def {
 };
 
 using node_properties =
-    utility::property<variable_decl, number_expr, function_decl>;
+    utility::property<variable_decl, number_expr, function_decl, function_def>;
 
 struct node : node_properties {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children; // size type in the future
   donsus_node_type type;
-
   // For debugging purposes
   friend std::ostream &operator<<(std::ostream &o, node &node) {
     o << "type: " << de_get_from_donsus_node_type(node.type); // type

@@ -178,19 +178,22 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
+
+  // add stuff to symbol_table
   donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
 
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next(); // moves to the type
     expression.identifier_type = cur_token.kind;
+
     /*    donsus_parser_next(); // if the next token is not '=' then its a
                               // declaration.*/
     if (donsus_peek().kind == DONSUS_EQUAL) {
       // def
       donsus_parser_next();
-      declaration->type =
-          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION; // overwrite
-                                                                    // type
+      declaration->type = donsus_ast::donsus_node_type::
+          DONSUS_VARIABLE_DEFINITION; // overwrite//
+                                      // type
       return donsus_variable_definition(declaration);
     } else {
 
@@ -229,16 +232,27 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   // parse type here
   donsus_parser_next();
 
-  // construct type
-  expression.return_type = make_type(cur_token.kind);
+  /*  if (donsus_peek().kind == DONSUS_LBRACE){
+      expression.return_type.push_back(make_type(cur_token.kind));
+    } else {
+      // construct type
+      while (donsus_peek().kind != DONSUS_LBRACE){
+        expression.return_type.push_back(make_type(cur_token.kind));
+        donsus_parser_except(DONSUS_COMM);
+        donsus_parser_next();
+      }
 
-  if (cur_token.kind == DONSUS_SEMICOLON) {
-    return declaration;
-  } else {
+    }*/
+  expression.return_type.push_back(make_type(cur_token.kind));
 
-    return declaration; // This is only for function definition as it doesnt
-                        // end with semicolon
+  while (donsus_peek().kind != DONSUS_LBRACE &&
+         donsus_peek().kind != DONSUS_SEMICOLON) {
+    donsus_parser_except(DONSUS_COMM);
+    donsus_parser_next();
+    expression.return_type.push_back(make_type(cur_token.kind));
   }
+
+  return declaration;
 }
 auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
   // e.g (a:int, b:int)
@@ -267,21 +281,23 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
 
 auto DonsusParser::donsus_function_definition() -> parse_result {
   // parse smaller parts such as statements | assignments |
-  donsus_parser_except(DONSUS_NAME); // after "def" we have a DONSUS_NAME
+  donsus_parser_except(DONSUS_NAME); // after "def"we have a DONSUS_NAME
   parse_result definition = create_function_definition(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, 10);
+
+  // construct sym_table
 
   auto &definition_expression = definition->get<donsus_ast::function_def>();
 
   // since up to the return type function def is the same as function decl
-  // excluding semi colon
+  // excluding semicolon
 
   // we can re-use function_decl to parse up to the return type
   parse_result declaration =
       donsus_function_decl(); // get the declaration for definition
   auto &declaration_expression = declaration->get<donsus_ast::function_decl>();
 
-  // They share all of the properties excluding the "body"
+  // They share all the properties excluding the "body"
   definition_expression.func_name = declaration_expression.func_name;
   definition_expression.parameters = declaration_expression.parameters;
   definition_expression.return_type = declaration_expression.return_type;

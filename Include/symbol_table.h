@@ -40,7 +40,12 @@ public:
       << "\n"; // the child symbol tables associated with the symbol table
 #ifdef DEBUG
     for (auto &n : table->underlying) {
-      std::cout << n;
+      o << n;
+    }
+    o << "\n";
+    o << "CHILDREN-TABLES of " << table->qa_sym << "\n";
+    for (auto &n : table->sym_table) {
+      o << n;
     }
 #endif
     return o;

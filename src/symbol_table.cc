@@ -5,7 +5,6 @@ std::string DonsusSymTable::add(std::string short_name) {
    * add a minimal version of the symbol to the symbol table
    * */
   auto qualified_name = create_qualified_name(short_name);
-
   sym a = get_from_qualified_name(qualified_name);
   if (a.mod != -1) {
     // already exists
@@ -27,7 +26,7 @@ std::string DonsusSymTable::add(std::string short_name) {
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.alloc<DonsusSymTable>();
-  sym_ptr->qa_sym = qa_sym_ex;
+  sym_ptr->qa_sym = create_qualified_name(qa_sym_ex);
   sym_table.push_back(sym_ptr);
   return sym_ptr;
 }
