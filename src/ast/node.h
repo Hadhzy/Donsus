@@ -46,7 +46,7 @@ struct number_expr {
 
 // actual node structure containing extra properties
 struct function_decl {
-  DONSUS_TYPE return_type; // the return type of the function
+  std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
   std::vector<NAME_DATA_PAIR>
@@ -56,7 +56,7 @@ struct function_decl {
 };
 
 struct function_def {
-  DONSUS_TYPE return_type; // the return type of the function
+  std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
   std::vector<NAME_DATA_PAIR>

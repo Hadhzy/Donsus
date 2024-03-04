@@ -221,25 +221,6 @@ bool eat(DonsusParser &parser) {
   return false;
 }
 
-void skip_multi_line_comment(DonsusParser &parser) {
-repeat:
-  if (peek_for_char(parser) == '"')
-    if (peek_for_char(parser) == '"') {
-      eat(parser);
-      eat(parser);
-    }
-
-  while (parser.lexer.cur_char != '"') {
-    eat(parser);
-  }
-
-  if (parser.lexer.cur_char != '"') {
-    return;
-  }
-
-  goto repeat;
-}
-
 static std::string get_text_between_pos(DonsusParser &parser,
                                         unsigned int start, unsigned int end) {
 
@@ -329,12 +310,6 @@ void consume_spaces(DonsusParser &parser) {
         }
         eat(parser);
       }
-      break;
-    }
-    case '"': {
-      // multi line comment
-      skip_multi_line_comment(parser);
-      eat(parser);
       break;
     }
     default:
