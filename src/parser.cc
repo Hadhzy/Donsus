@@ -110,13 +110,15 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
       20); // return AST node with only value
 
-  donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
-
   donsus_parser_next();
 
-  if (cur_token.kind == DONSUS_END) { // CHECK END
-    return left;                      // return whole node
+  donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
+
+  if (cur_token.kind == DONSUS_SEMICOLON) { // CHECK END
+    return left;                            // return whole node
   }
+
+  donsus_parser_next();
 
   while (previous_token.precedence > ptp) {
     right = donsus_number_expr(previous_token.precedence); // recursive call
@@ -130,7 +132,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
     global_node->children.push_back(left);  // [0]
     global_node->children.push_back(right); // [1]
 
-    if (cur_token.kind == DONSUS_END) {
+    if (cur_token.kind == DONSUS_SEMICOLON) {
       return global_node;
     }
   }
@@ -145,7 +147,6 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
   auto &expression = node->get<donsus_ast::number_expr>();
   expression.value = cur_token;
 
-  donsus_parser_next();
   return node;
 }
 
