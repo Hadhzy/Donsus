@@ -60,7 +60,10 @@ typedef enum {
   DONSUS_ARROW, // ->
 
   // keywords
-  DONSUS_FUNCTION_DEFINITION_KW // def
+  DONSUS_FUNCTION_DEFINITION_KW, // def
+  DONSUS_IF_KW,                  // if
+  DONSUS_ELIF_KW,                // elif
+  DONSUS_ELSE_KW                 // else
 } donsus_token_kind;
 
 struct donsus_token {

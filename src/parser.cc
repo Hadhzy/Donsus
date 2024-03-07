@@ -84,8 +84,17 @@ auto DonsusParser::donsus_parse() -> end_result {
       }
     }
 
-    if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
+    if (cur_token.kind == DONSUS_IF_KW) {
+      parse_result result = donsus_if_statement();
+      donsus_tree->add_node(result);
+    }
+
+    else if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
       parse_result result = donsus_function_definition();
+      donsus_tree->add_node(result);
+    } else {
+      // expression
+      parse_result result = donsus_expr();
       donsus_tree->add_node(result);
     }
     donsus_parser_next(); // move to the next token
@@ -326,10 +335,32 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
         body.push_back(result);
       }
     }
+
+    if (cur_token.kind == DONSUS_IF_KW) {
+      parse_result result = donsus_if_statement();
+      body.push_back(result);
+    }
     donsus_parser_next();
   }
 
   return body;
+}
+
+auto DonsusParser::donsus_if_statement() -> parse_result {
+
+  parse_result statement = create_if_statement(
+      donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, 10);
+
+  auto &statement_expression = statement->get<donsus_ast::if_statement>();
+
+  donsus_parser_except(DONSUS_LPAR); // after "if" we have "("
+  // TODO: parse down init_statement_condition
+  donsus_parser_except(
+      DONSUS_RPAR); // after init_statement_condition we have ")"
+
+  donsus_parser_except(DONSUS_LBRACE); // after ")" we have "{"
+  statement_expression.body = donsus_statements();
+  return statement;
 }
 
 // Todo: Finish this:
@@ -368,6 +399,10 @@ auto DonsusParser::create_function_decl(donsus_ast::donsus_node_type type,
   return donsus_tree->create_node<donsus_ast::function_decl>(type, child_count);
 }
 
+auto DonsusParser::create_if_statement(donsus_ast::donsus_node_type type,
+                                       u_int64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::if_statement>(type, child_count);
+}
 auto DonsusParser::create_function_definition(donsus_ast::donsus_node_type type,
                                               u_int64_t child_count)
     -> parse_result {

@@ -92,6 +92,11 @@ public:
   auto peek_is_function_definition() -> bool;
   auto peek_is_function_declaration() -> bool;
 
+  // If statements
+  auto donsus_if_statement() -> parse_result;
+  auto create_if_statement(donsus_ast::donsus_node_type type,
+                           u_int64_t child_count) -> parse_result;
+
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

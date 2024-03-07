@@ -18,6 +18,7 @@ struct donsus_node_type {
     DONSUS_VARIABLE_DEFINITION,  // just the type of the node
     DONSUS_FUNCTION_DECL,
     DONSUS_FUNCTION_DEF,
+    DONSUS_IF_STATEMENT,
     DONSUS_NUMBER_EXPRESSION // just the type of the node
   };
 
@@ -66,6 +67,11 @@ struct function_def {
 
   std::vector<utility::handle<donsus_ast::node>>
       body; // This might be refactored in the future
+};
+
+struct if_statement {
+  std::vector<utility::handle<donsus_ast::node>> body;
+  // we will include something for the init_statement_condition
 };
 
 using node_properties =
