@@ -1,0 +1,85 @@
+# STARTING RULES
+# ==============
+file: [statements] DONSUS_END
+interactive: general_statement+ DONSUS_END
+expression_statements: expr_statement DONSUS_SEMICOLON+
+statements: |general_statement+
+            |expression_statements+
+
+# GENERAL STATEMENTS
+# ====================
+
+statement_newline:
+    | NEWLINE
+    | DONSUS_END
+
+# parse down blocks
+general_statement:
+    | func_def
+
+# r-value statement(prvalue)
+expr_statement:
+    | expressions
+    | var_decl
+    | func_decl
+    | var_def
+    | statement_newline
+
+# functions
+func_decl: DONSUS_NAME DONSUS_LPAR [donsus_function_proto] DONSUS_RPAR DONSUS_ARROW func_return_type
+func_def: DONSUS_NAME DONSUS_LPAR [donsus_function_proto] DONSUS_RPAR DONSUS_ARROW func_return_type DONSUS_LBRACE expression_statements DONSUS_RBRACE
+func_call: DONSUS_NAME DONSUS_LPAR [donsus_function_proto] DONSUS_RPAR # func()
+
+donsus_function_proto: var_decl* [,] [donsus_function_proto]
+func_return_type: donsus_type [,] [func_return_type] # recursion here
+
+# variables
+var_decl: DONSUS_NAME DONSUS_COLON donsus_type
+var_def:  DONSUS_NAME DONSUS_COLON donsus_type  DONSUS_EQUAL expression
+
+# types
+donsus_type:
+  | DONSUS_BASIC_INT,
+  | DONSUS_I8,
+  | DONSUS_I16,
+  | DONSUS_I32,
+  | DONSUS_I64,
+  | DONSUS_U32,
+  | DONSUS_U64,
+
+  | DONSUS_BOOL,
+  | DONSUS_VOID,
+  | DONSUS_CHAR,
+
+# expressions
+
+expressions:
+    | assignment
+    | arithmetic_expression
+
+# assignments
+# the value which can start an assignment
+assignment_start: | DONSUS_NAME
+                  | DONSUS_NUMBER
+                  | func_call
+assignment_op:
+               | DONSUS_PLUS_EQUAL
+               | DONSUS_MINUS_EQUAL
+               | DONSUS_STAR_EQUAL
+               | DONSUS_SLASH_EQUAL
+
+assignment_value:
+    | assignment_start
+    | arithmetic_expression
+
+assignment: | assignment_start assignment_op assignment_value
+
+#  ARITHMETIC expressions
+arithmetic_expression: term | expression '+' term | expression '-' term
+term : factor | term '*' factor | term '/' factor
+factor : number
+number : integer | float
+integer : digit | integer digit
+float : integer '.' integer
+unary : '-' unary | factor
+digit : '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
