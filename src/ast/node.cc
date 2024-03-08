@@ -16,6 +16,8 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_FUNCTION_DECLARATION";
   case DONSUS_FUNCTION_DEF:
     return "DONSUS_FUNCTION_DEFINITION";
+  case DONSUS_IF_STATEMENT:
+    return "DONSUS_IF_STATEMENT";
   }
 }
 
@@ -36,6 +38,9 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
   }
   case donsus_node_type::DONSUS_FUNCTION_DEF: {
     return "DONSUS_FUNCTION_DEFINITION";
+  }
+  case donsus_node_type::DONSUS_IF_STATEMENT: {
+    return "DONSUS_IF_STATEMENT";
   }
 
   default: {

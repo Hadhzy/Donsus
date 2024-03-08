@@ -13,6 +13,8 @@ std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER{
 
 std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"def", DONSUS_FUNCTION_DEFINITION_KW},
+    {"if", DONSUS_IF_KW},
+    {"elif", DONSUS_ELIF_KW},
 };
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
@@ -169,6 +171,14 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_ARROW:
     return "DONSUS_ARROW";
 
+  case DONSUS_IF_KW:
+    return "DONSUS_IF_KW";
+
+  case DONSUS_ELIF_KW:
+    return "DONSUS_ELIF_KW";
+
+  case DONSUS_ELSE_KW:
+    return "DONSUS_ELIF_KW";
   default:
 
     return "UNKNOWN_TOKEN_KIND";
