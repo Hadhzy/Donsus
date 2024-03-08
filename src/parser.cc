@@ -3,6 +3,153 @@
 #include <iostream>
 
 // DEBUG
+class PrintAst {
+public:
+  void print_ast(utility::handle<donsus_ast::tree> tree) {
+    int indent_level = 0;
+
+    for (auto n : tree->get_nodes()) {
+      print_ast_node(n, indent_level);
+    }
+  }
+
+  void print_ast_node(utility::handle<donsus_ast::node> node,
+                      int indent_level) {
+    using type = donsus_ast::donsus_node_type;
+    switch (node->type.type) {
+    case type::DONSUS_VARIABLE_DECLARATION: {
+      print_type(node->type, indent_level);
+      print_var_decl(node->get<donsus_ast::variable_decl>(), indent_level);
+
+      break;
+    }
+
+    case type::DONSUS_VARIABLE_DEFINITION: {
+      print_type(node->type, indent_level);
+      indent_level++;
+      print_var_decl(node->get<donsus_ast::variable_decl>(),
+                     indent_level); // reuse variable decl
+      print_with_newline("children: ", indent_level);
+      for (auto children_expr : node->children) {
+        print_ast_node(children_expr, indent_level + 1);
+      }
+
+      break;
+    }
+
+    case type::DONSUS_NUMBER_EXPRESSION: {
+      print_type(node->type, indent_level);
+      print_number_expr(node->get<donsus_ast::number_expr>(), indent_level);
+      break;
+    }
+
+    case type::DONSUS_FUNCTION_DECL: {
+      print_type(node->type, indent_level);
+      print_function_decl(node->get<donsus_ast::function_decl>(),
+                          indent_level + 1);
+      break;
+    }
+
+    case type::DONSUS_FUNCTION_DEF: {
+      print_type(node->type, indent_level);
+      print_function_def(node->get<donsus_ast::function_def>(),
+                         indent_level + 1);
+      break;
+    }
+
+    case type::DONSUS_IF_STATEMENT: {
+      print_type(node->type, indent_level);
+      print_statement(node->get<donsus_ast::if_statement>(), indent_level);
+      break;
+    }
+
+    default:
+      break;
+    }
+  }
+
+  void print_number_expr(donsus_ast::number_expr &num_expr, int indent_level) {
+    print_with_newline("kind: " + de_get_name_from_token(num_expr.value.kind),
+                       indent_level);
+    print_with_newline("value: " + num_expr.value.value, indent_level);
+    print_with_newline("length: " + std::to_string(num_expr.value.length),
+                       indent_level);
+    print_with_newline("line: " + std::to_string(num_expr.value.line),
+                       indent_level);
+    print_with_newline("precedence: " +
+                           std::to_string(num_expr.value.precedence),
+                       indent_level);
+  }
+
+  void print_type(donsus_ast::donsus_node_type type, int indent_level) {
+    print_with_newline("type: " + type.to_string(), indent_level);
+  }
+
+  void print_function_decl(donsus_ast::function_decl &f_decl,
+                           int indent_level) {
+    print_with_newline("return_types: ", indent_level);
+    for (auto r : f_decl.return_type) {
+      print_with_newline("return_type: " +
+                             de_get_name_from_token(r.to_parse(r.type_un)),
+                         indent_level + 1);
+    }
+
+    print_with_newline("parameters: ", indent_level);
+    for (auto p : f_decl.parameters) {
+      print_with_newline(
+          "type: " + de_get_name_from_token((p.type.to_parse(p.type.type_un))),
+          indent_level + 1);
+      print_with_newline("identifier: " + p.identifier, indent_level + 1);
+    }
+    print_with_newline("func_name: " + f_decl.func_name, indent_level);
+  }
+
+  void print_function_def(donsus_ast::function_def &f_def, int indent_level) {
+    print_with_newline("return_types: ", indent_level);
+    for (auto r : f_def.return_type) {
+      print_with_newline("return_type: " +
+                             de_get_name_from_token(r.to_parse(r.type_un)),
+                         indent_level + 1);
+    }
+
+    print_with_newline("parameters: ", indent_level);
+    for (auto p : f_def.parameters) {
+      print_with_newline(
+          "type: " + de_get_name_from_token((p.type.to_parse(p.type.type_un))),
+          indent_level + 1);
+      print_with_newline("identifier: " + p.identifier, indent_level + 1);
+    }
+    print_with_newline("func_name: " + f_def.func_name, indent_level);
+    print_with_newline("body: ", indent_level);
+    for (auto node : f_def.body) {
+      print_ast_node(node, indent_level + 1);
+    }
+  }
+
+  void print_statement(donsus_ast::if_statement &statement, int indent_level) {
+    print_with_newline("body: ", indent_level);
+    for (auto node : statement.body) {
+      print_ast_node(node, indent_level + 1);
+    }
+  };
+
+  void print_with_newline(const std::string &s, int indent_level) {
+    std::cout << generate_indentation(indent_level) << s << '\n';
+  }
+
+  void print_var_decl(donsus_ast::variable_decl &decl, int indent_level) {
+    print_with_newline("identifier_type: " +
+                           de_get_name_from_token(decl.identifier_type),
+                       indent_level);
+    print_with_newline("identifier_name: " + decl.identifier_name,
+                       indent_level);
+  };
+
+  std::string generate_indentation(int level) {
+    return std::string(2 * level, ' ');
+  }
+};
+
 static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   o << "Value: " << token.value << "\n";
   o << "Kind: " << de_get_name_from_token(token.kind) << "\n";
@@ -11,13 +158,6 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   return o;
 }
 
-// DEBUG
-void print_ast(utility::handle<donsus_ast::tree> tree) {
-  for (auto n : tree->get_nodes()) {
-
-    std::cout << n->type.to_string() << "\n";
-  }
-}
 DonsusParser::DonsusParser(donsus_lexer &lexer) : lexer(lexer) {
   cur_token = donsus_lexer_next(*this);
   donsus_tree = new donsus_ast::tree();
@@ -99,7 +239,9 @@ auto DonsusParser::donsus_parse() -> end_result {
 #ifdef DEBUG
   std::cout << "AST: "
             << "\n";
-  print_ast(donsus_tree);
+  PrintAst print_ast;
+
+  print_ast.print_ast(donsus_tree);
 #endif
   return donsus_tree;
 }
