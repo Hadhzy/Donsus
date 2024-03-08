@@ -64,6 +64,46 @@ public:
     }
   }
 
+  donsus_token_kind to_parse(kind type) {
+    switch (type) {
+    case TYPE_BASIC_INT:
+      return DONSUS_BASIC_INT;
+
+    case TYPE_I32:
+      return DONSUS_I32;
+
+    case TYPE_U64:
+      return DONSUS_U64;
+
+    case TYPE_CHAR:
+      return DONSUS_CHAR;
+
+    case TYPE_I8:
+      return DONSUS_I8;
+
+    case TYPE_I64:
+      return DONSUS_I64;
+
+    case TYPE_BOOL:
+      return DONSUS_BOOL;
+
+    case TYPE_I16:
+      return DONSUS_I16;
+
+    case TYPE_U32:
+      return DONSUS_U32;
+
+    case TYPE_VOID:
+      return DONSUS_VOID;
+
+    default: {
+      // Handle unknown token kind or other cases
+      std::cerr << "Unhandled type in to_parse" << std::endl;
+      return DONSUS_END;
+    }
+    }
+  }
+
   kind type_un;
 };
 
