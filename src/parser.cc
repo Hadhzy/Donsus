@@ -73,7 +73,6 @@ auto DonsusParser::donsus_parse() -> end_result {
     // default: {
     // }
     // }
-    // Doesn't support globals
     if (cur_token.kind == DONSUS_NAME) {
       if (donsus_peek().kind == DONSUS_LPAR) {
         parse_result result = donsus_function_decl();
@@ -91,10 +90,6 @@ auto DonsusParser::donsus_parse() -> end_result {
 
     else if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
       parse_result result = donsus_function_definition();
-      donsus_tree->add_node(result);
-    } else {
-      // expression
-      parse_result result = donsus_expr();
       donsus_tree->add_node(result);
     }
     donsus_parser_next(); // move to the next token
