@@ -31,18 +31,34 @@ public:
                      indent_level); // reuse variable decl
       print_with_newline("children: ", indent_level);
       for (auto children_expr : node->children) {
-        print_ast_node(children_expr, indent_level + 1);
+        print_type(children_expr->type, indent_level);
+        print_ast_node(children_expr, indent_level + 2);
       }
 
       break;
     }
+    case type::DONSUS_ASSIGNMENT: {
+      print_type(node->type, indent_level);
+      indent_level++;
+      print_assignment(node->get<donsus_ast::assignment>(), indent_level);
 
+      print_with_newline("children: ", indent_level);
+      for (auto children_erxpr : node->children) {
+        print_type(children_erxpr->type, indent_level);
+        print_ast_node(children_erxpr, indent_level + 2);
+      }
+      break;
+    }
     case type::DONSUS_NUMBER_EXPRESSION: {
       print_type(node->type, indent_level);
       print_number_expr(node->get<donsus_ast::number_expr>(), indent_level);
       break;
     }
-
+    case type::DONSUS_IDENTIFIER: {
+      print_type(node->type, indent_level);
+      print_identifier(node->get<donsus_ast::identifier>(), indent_level);
+      break;
+    }
     case type::DONSUS_FUNCTION_DECL: {
       print_type(node->type, indent_level);
       print_function_decl(node->get<donsus_ast::function_decl>(),
@@ -81,6 +97,18 @@ public:
                        indent_level);
   }
 
+  void print_identifier(donsus_ast::identifier &identifier, int indent_level) {
+    print_with_newline("identifier_name: " + identifier.identifier_name,
+                       indent_level);
+  }
+
+  void print_assignment(donsus_ast::assignment &assignment, int indent_level) {
+    print_with_newline("identifier_name: " + assignment.identifier_name,
+                       indent_level);
+    print_with_newline("identifier_op: " +
+                           de_get_name_from_token(assignment.op.kind),
+                       indent_level);
+  }
   void print_type(donsus_ast::donsus_node_type type, int indent_level) {
     print_with_newline("type: " + type.to_string(), indent_level);
   }
@@ -259,6 +287,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   donsus_parser_next();
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
+  std::cout << "length of cur_token: " << cur_token.length << "\n";
 
   if (cur_token.kind == DONSUS_SEMICOLON) { // CHECK END
     return left;                            // return whole node
@@ -268,7 +297,6 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
 
   while (previous_token.precedence > ptp) {
     right = donsus_number_expr(previous_token.precedence); // recursive call
-
     global_node = create_number_expression(
         donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
 
@@ -314,6 +342,8 @@ auto DonsusParser::donsus_expr() -> parse_result {
   }
   case DONSUS_NAME: {
     return donsus_identifier();
+  }
+  default: {
   }
   }
 }
@@ -538,8 +568,10 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
         */
       auto next_token = donsus_peek().kind;
       if (next_token == DONSUS_PLUS_EQUAL || next_token == DONSUS_MINUS_EQUAL ||
-          next_token == DONSUS_STAR_EQUAL || next_token == DONSUS_SLASH_EQUAL) {
-        donsus_assignments();
+          next_token == DONSUS_STAR_EQUAL || next_token == DONSUS_SLASH_EQUAL ||
+          next_token == DONSUS_EQUAL) {
+        parse_result result = donsus_assignments();
+        body.push_back(result);
       }
     }
   }
@@ -589,25 +621,33 @@ auto DonsusParser::donsus_assignments() -> parse_result {
   auto &expression = assignment->get<donsus_ast::assignment>();
   expression.identifier_name = cur_token.value;
 
+  donsus_parser_next(); // one of the possible assignment operators
   /*
    | DONSUS_PLUS_EQUAL
    | DONSUS_MINUS_EQUAL
    | DONSUS_STAR_EQUAL
    | DONSUS_SLASH_EQUAL
-   * */
+   | DONSUS_EQUAL
+                       * */
 
-  donsus_parser_next(); // one of the possible assignment operators
   expression.op = cur_token;
   donsus_parser_next();
-  // can't fill up type here
-  parse_result expression_child = donsus_expr();
+  while (cur_token.kind != DONSUS_SEMICOLON) {
+    parse_result expression_child = donsus_expr();
+    assignment->children.push_back(expression_child);
+    if (cur_token.kind == DONSUS_SEMICOLON) {
+      break;
+    }
+    donsus_parser_next();
+    donsus_parser_next(); // operator here
+  }
+
   /*
    assignment_value:
   | assignment_start
   | arithmetic_expression
    * */
 
-  assignment->children.push_back(expression_child);
   return assignment;
 }
 /*auto DonsusParser::peek_is_function_definition() -> bool {
