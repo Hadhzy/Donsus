@@ -107,6 +107,9 @@ public:
   auto donsus_identifier() -> parse_result;
   auto create_identifier(donsus_ast::donsus_node_type type,
                          u_int64_t child_count) -> parse_result;
+
+  auto make_new_num_node(donsus_token prev_token, parse_result &left,
+                         parse_result &right) -> parse_result;
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

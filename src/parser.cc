@@ -274,11 +274,24 @@ auto DonsusParser::donsus_parse() -> end_result {
   return donsus_tree;
 }
 
+auto DonsusParser::make_new_num_node(donsus_token prev_token,
+                                     parse_result &left, parse_result &right)
+    -> parse_result {
+  parse_result new_node;
+  new_node = create_number_expression(
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
+  auto &expression = new_node->get<donsus_ast::number_expr>();
+  expression.value = prev_token;
+  new_node->children.push_back(left);
+  new_node->children.push_back(right);
+
+  return new_node;
+}
+
 auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   // Gt the integer on the left
   parse_result left;
   parse_result right;
-  parse_result global_node;
 
   left = donsus_number_primary(
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
@@ -296,20 +309,13 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   while (previous_token.precedence > ptp) {
     donsus_parser_next();
     right = donsus_number_expr(previous_token.precedence); // recursive call
-    global_node = create_number_expression(
-        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
-
-    auto &expression = global_node->get<donsus_ast::number_expr>();
-    expression.value = previous_token;
-
-    global_node->children.push_back(left);  // [0]
-    global_node->children.push_back(right); // [1]
+    left = make_new_num_node(previous_token, left, right);
 
     if (cur_token.kind == DONSUS_SEMICOLON) {
-      return global_node;
+      return left;
     }
   }
-  return global_node;
+  return left;
 }
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
