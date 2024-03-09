@@ -287,15 +287,14 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   donsus_parser_next();
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
-  std::cout << "length of cur_token: " << cur_token.length << "\n";
+  //   std::cout << "length of cur_token: " << cur_token.length << "\n";
 
   if (cur_token.kind == DONSUS_SEMICOLON) { // CHECK END
     return left;                            // return whole node
   }
 
-  donsus_parser_next();
-
   while (previous_token.precedence > ptp) {
+    donsus_parser_next();
     right = donsus_number_expr(previous_token.precedence); // recursive call
     global_node = create_number_expression(
         donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
