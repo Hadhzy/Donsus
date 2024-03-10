@@ -22,6 +22,8 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_IDENTIFIER";
   case DONSUS_IF_STATEMENT:
     return "DONSUS_IF_STATEMENT";
+  case DONSUS_EXPRESSION:
+    return "DONSUS_EXPRESSION";
   }
 }
 
@@ -51,6 +53,9 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
   }
   case donsus_node_type::DONSUS_ASSIGNMENT: {
     return "DONSUS_ASSIGNMENT";
+  }
+  case donsus_node_type::DONSUS_EXPRESSION: {
+    return "DONSUS_EXPRESSION";
   }
 
   default: {

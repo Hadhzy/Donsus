@@ -323,14 +323,18 @@ void consume_spaces(DonsusParser &parser) {
       break;
     }
     case '/': {
-      eat(parser); // consume '*'
-      if (parser.lexer.cur_char == '*') {
+      if (peek_for_char(parser) == '*') {
+        eat(parser); // consume '*'
         eat(parser); // consume '/'
         while (parser.lexer.cur_char != '*' && peek_for_char(parser) != '/') {
           eat(parser); // get next token
         }
         eat(parser); // consume '/' after '*'
+        eat(parser); // consume '/' after '*'
         break;
+      } else {
+        // It's a divisor(DONSUS_SLASH) operator and not a comment
+        return;
       }
     default:
       return;
@@ -502,13 +506,10 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       eat(parser);
 
       return cur_token;
-
-      return cur_token;
     }
   }
 
   case '/': {
-
     if (peek_for_char(parser) == '=') {
       cur_token.kind = DONSUS_SLASH_EQUAL;
 

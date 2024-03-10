@@ -21,7 +21,8 @@ struct donsus_node_type {
     DONSUS_IF_STATEMENT,         // just the type of the node
     DONSUS_ASSIGNMENT,           // just the type of the node
     DONSUS_IDENTIFIER,
-    DONSUS_NUMBER_EXPRESSION // just the type of the node
+    DONSUS_NUMBER_EXPRESSION, // just the type of the node
+    DONSUS_EXPRESSION
   };
 
   donsus_node_type() = default;
@@ -86,6 +87,10 @@ struct assignment {
 
 struct identifier {
   std::string identifier_name; //  name of lvalue
+};
+
+struct expression {
+  donsus_token value;
 };
 
 using node_properties =
