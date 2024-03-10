@@ -58,7 +58,12 @@ public:
 
   // create node
   // parsing expression
-  auto donsus_expr() -> parse_result;
+  auto donsus_expr(int ptp) -> parse_result;
+  auto match_expressions(int ptp) -> parse_result;
+  auto create_expression(donsus_ast::donsus_node_type type,
+                         u_int64_t child_count) -> parse_result;
+  auto make_new_expr_node(donsus_token prev_token, parse_result &left,
+                          parse_result &right) -> parse_result;
   // parsing number expressions
   auto donsus_number_expr(unsigned int ptp) -> parse_result;
   auto donsus_number_primary(donsus_ast::donsus_node_type type,
@@ -108,6 +113,7 @@ public:
   auto create_identifier(donsus_ast::donsus_node_type type,
                          u_int64_t child_count) -> parse_result;
 
+  // this is only for number expressions
   auto make_new_num_node(donsus_token prev_token, parse_result &left,
                          parse_result &right) -> parse_result;
   donsus_token cur_token;
