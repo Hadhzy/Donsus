@@ -75,6 +75,11 @@ struct function_def {
 struct if_statement {
   std::vector<utility::handle<donsus_ast::node>> body;
   // we will include something for the init_statement_condition
+  // the children represents the condition
+  // the body represents the block when the condition evaluates to true
+  std::vector<utility::handle<donsus_ast::if_statement>>
+      alternate; // this represents the block to be executed if the condition
+                 // evaluates as false(else or else if statement)
 };
 
 /*

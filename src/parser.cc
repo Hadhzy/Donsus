@@ -83,6 +83,15 @@ public:
     case type::DONSUS_IF_STATEMENT: {
       print_type(ast_node->type, indent_level);
       print_statement(ast_node->get<donsus_ast::if_statement>(), indent_level);
+      if (ast_node->children.size() == 0) {
+        print_with_newline("condition: {}", indent_level);
+      } else {
+        print_with_newline("condition: ", indent_level);
+        for (auto children : ast_node->children) {
+          print_ast_node(children, indent_level + 1);
+          print_with_newline(" ", indent_level);
+        }
+      }
       break;
     }
 
@@ -411,7 +420,8 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
 
-  if (cur_token.kind == DONSUS_SEMICOLON) {
+  if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
+    // DONSUS_RPAR is for the condition of an if statement
     return left;
   }
 
@@ -420,7 +430,8 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
     right = match_expressions(previous_token.precedence);
     left = make_new_expr_node(previous_token, left, right);
 
-    if (cur_token.kind == DONSUS_SEMICOLON) {
+    if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
+      // DONSUS_RPAR is for the condition of an if statement
       return left;
     }
   }
@@ -667,8 +678,12 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
   auto &statement_expression = statement->get<donsus_ast::if_statement>();
 
   donsus_parser_except(DONSUS_LPAR); // after "if" we have "("
-  donsus_parser_except(
-      DONSUS_RPAR); // after init_statement_condition we have ")"
+  donsus_parser_next(); // go to next token which will be an expression
+
+  while (cur_token.kind != DONSUS_RPAR) {
+    parse_result condition_expression = donsus_expr(0);
+    statement->children.push_back(condition_expression);
+  }
 
   donsus_parser_except(DONSUS_LBRACE); // after ")" we have "{"
   statement_expression.body = donsus_statements();
