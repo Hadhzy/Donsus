@@ -655,6 +655,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.value = ">=";
 
+      cur_token.precedence = 1; // lowest precedence
+
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser); // Consume the '=' character
@@ -670,6 +672,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.length = 1;
 
       cur_token.value = ">";
+
+      cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
 
@@ -688,6 +692,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.value = "<=";
 
+      cur_token.precedence = 1; // lowest precedence
+
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser); // Consume the '=' character
@@ -703,6 +709,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.length = 1;
 
       cur_token.value = "<";
+
+      cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
 
