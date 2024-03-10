@@ -19,7 +19,7 @@ DonsusAllocator::~DonsusAllocator() {
     const block *temp = first_block;
     first_block = first_block->next;
     delete temp; // call block destructor
-  };
+  }
 }
 
 /*template <typename type>
