@@ -336,17 +336,23 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   parse_result left;
   parse_result right;
 
-  left = donsus_number_primary(
-      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
-      20); // return AST node with only value
+  if (cur_token.kind == DONSUS_LPAR) {
+    // Handle open parenthesis
+    donsus_parser_next(); // Move past the open parenthesis
+    left = donsus_number_expr(0);
+  } else {
+    left = donsus_number_primary(
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+        20); // return AST node with only value
+  }
 
   donsus_parser_next();
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
-  //   std::cout << "length of cur_token: " << cur_token.length << "\n";
 
-  if (cur_token.kind == DONSUS_SEMICOLON) { // CHECK END
-    return left;                            // return whole node
+  if (cur_token.kind == DONSUS_SEMICOLON ||
+      cur_token.kind == DONSUS_RPAR) { // CHECK END
+    return left;                       // return whole node
   }
 
   while (previous_token.precedence > ptp) {
@@ -354,7 +360,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
     right = donsus_number_expr(previous_token.precedence); // recursive call
     left = make_new_num_node(previous_token, left, right);
 
-    if (cur_token.kind == DONSUS_SEMICOLON) {
+    if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
       return left;
     }
   }
@@ -385,6 +391,7 @@ expressions:
 auto DonsusParser::match_expressions(int ptp) -> parse_result {
   // number expressions, string expressions etc.
   switch (cur_token.kind) {
+  case DONSUS_LPAR:
   case DONSUS_NUMBER: {
     return donsus_number_expr(ptp);
   }
@@ -415,8 +422,16 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
   parse_result left;
   parse_result right;
 
-  left = match_expressions(ptp);
+  if (cur_token.kind == DONSUS_LPAR) {
+    // Handle open paranthesis
+    donsus_parser_next(); // Move past the open paranthesis
+    left = donsus_expr(ptp);
+  } else {
+    left = match_expressions(ptp);
+  }
 
+  if (cur_token.kind == DONSUS_SEMICOLON)
+    return left; // If there is only one expression
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
 
@@ -687,6 +702,8 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
 
   donsus_parser_except(DONSUS_LBRACE); // after ")" we have "{"
   statement_expression.body = donsus_statements();
+  donsus_parser_next(); // get next token potential elif, else
+
   return statement;
 }
 

@@ -79,7 +79,7 @@ struct if_statement {
   // the body represents the block when the condition evaluates to true
   std::vector<utility::handle<donsus_ast::if_statement>>
       alternate; // this represents the block to be executed if the condition
-                 // evaluates as false(else or else if statement)
+                 // evaluates as false(else or elif statement)
 };
 
 /*
