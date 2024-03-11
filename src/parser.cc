@@ -703,6 +703,10 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
   donsus_parser_except(DONSUS_LBRACE); // after ")" we have "{"
   statement_expression.body = donsus_statements();
   donsus_parser_next(); // get next token potential elif, else
+  if (cur_token.kind == DONSUS_ELIF_KW) {
+    parse_result result = donsus_if_statement();
+    statement_expression.alternate.push_back(result);
+  }
 
   return statement;
 }
