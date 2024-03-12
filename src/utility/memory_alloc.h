@@ -4,52 +4,28 @@
 #include <cstdint>
 #include <iostream>
 
+// Arena allocator:https://github.com/mtrebi/memory-allocators/tree/master
+
 namespace utility {
 class DonsusAllocator {
-  // one particular block
-  struct block {
-    // free(block) the memory
-    block(uint64_t *memory);
-    ~block();
-    uint64_t *memory;
-    uint64_t position;
-    block *next = nullptr; // next block
-  };
-
 public:
   DonsusAllocator() = default;
-  DonsusAllocator(uint64_t block_size);
+  DonsusAllocator(std::size_t block_size);
   // free(all) the memory
   ~DonsusAllocator();
 
-  void print_used() const;
-
-  // Allocate uninitialised object and set up the constructor
-
-  template <typename type, typename... params>
-  auto alloc_constructor(params... pargs) -> type * {
-    return ::new (std::malloc(sizeof(type))) type(pargs...);
+  template <typename type> auto r_alloc() -> type * {
+    auto a = new (allocate(sizeof(type), 2 * sizeof(void *))) type;
+    return a;
   }
 
-  template <typename type> auto alloc() -> type * {
-    auto a = new type;
-    return a;
-  };
-  template <typename type> void *emplace() { return new type; }
-
-  auto get_block_count() const -> uint64_t;
-
-  auto get_block_size() const -> uint64_t;
-
 private:
-  void alloc_block();
+  void *allocate(std::size_t size, std::size_t alignment = 0);
+  std::size_t calculate_padding(std::size_t address, std::size_t alignment);
+  std::size_t total_size;
 
-  block *first_block;
-  block *current_block;
-
-  uint64_t block_size;
-  uint64_t block_count = 0;
+  void *start_ptr;
+  std::size_t offset;
 };
 } // namespace utility
-
 #endif

@@ -1,5 +1,7 @@
 #include "../Include/symbol_table.h"
 
+DonsusSymTable::DonsusSymTable() : allocator(1024) {}
+
 std::string DonsusSymTable::add(std::string short_name) {
   /*
    * add a minimal version of the symbol to the symbol table
@@ -25,7 +27,7 @@ std::string DonsusSymTable::add(std::string short_name) {
 
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
-  const utility::handle sym_ptr = allocator.alloc<DonsusSymTable>();
+  const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();
   sym_ptr->qa_sym = create_qualified_name(qa_sym_ex);
   sym_table.push_back(sym_ptr);
   return sym_ptr;
