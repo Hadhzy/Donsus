@@ -60,8 +60,8 @@ expressions:
 # assignments
 # the value which can start an assignment
 assignment_start: | DONSUS_NAME
-                  | DONSUS_NUMBER
-                  | func_call
+                  | DONSUS_NUMBER # doesn't make sense
+                  | func_call # doesnt make sense
 assignment_op:
                | DONSUS_PLUS_EQUAL
                | DONSUS_MINUS_EQUAL
@@ -70,13 +70,14 @@ assignment_op:
                | DONSUS_EQUAL # support a = a + 1, eg
 
 assignment_value:
-    | assignment_start
-    | arithmetic_expression
+    | assignment_start # eg identifier
+    | arithmetic_expression # arithmetic operators
 
 assignment: | assignment_start assignment_op assignment_value+
 
 #  ARITHMETIC expressions
-arithmetic_expression: term | expression '+' term | expression '-' term
+arithmetic_expression: [(].arithmetic_expression_low
+arithmetic_expression_low: term | expression '+' term | expression '-' term
 term : factor | term '*' factor | term '/' factor
 factor : number
 number : integer | float

@@ -50,8 +50,7 @@ public:
 #endif
     return o;
   };
-
-  DonsusSymTable() = default;
+  DonsusSymTable();
   /*
    * Add a minimal symbol representation to the current table
    * */
