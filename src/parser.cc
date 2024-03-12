@@ -82,7 +82,25 @@ public:
 
     case type::DONSUS_IF_STATEMENT: {
       print_type(ast_node->type, indent_level);
+      if (ast_node->children.size() == 0) {
+        print_with_newline("condition: {}", indent_level);
+      } else {
+        print_with_newline("condition: ", indent_level);
+        for (auto children : ast_node->children) {
+          print_ast_node(children, indent_level + 1);
+          print_with_newline(" ", indent_level);
+        }
+      }
+
       print_statement(ast_node->get<donsus_ast::if_statement>(), indent_level);
+
+      break;
+    }
+
+    case type::DONSUS_ELSE_STATEMENT: {
+      print_type(ast_node->type, indent_level);
+      print_else_statement(ast_node->get<donsus_ast::else_statement>(),
+                           indent_level);
       break;
     }
 
@@ -98,6 +116,8 @@ public:
           print_with_newline(" ", indent_level);
         }
       }
+
+      break;
     }
 
     default:
@@ -180,7 +200,23 @@ public:
     for (auto node : statement.body) {
       print_ast_node(node, indent_level + 1);
     }
+    if (statement.alternate.size() == 0) {
+      print_with_newline("alternate: {}", indent_level);
+    } else {
+      for (auto node : statement.alternate) {
+        print_with_newline("alternate: ", indent_level);
+        print_ast_node(node, indent_level + 1);
+      }
+    }
   };
+
+  void print_else_statement(donsus_ast::else_statement &statement,
+                            int indent_level) {
+    print_with_newline("body: ", indent_level);
+    for (auto node : statement.body) {
+      print_ast_node(node, indent_level + 1);
+    }
+  }
 
   void print_expression(donsus_ast::expression &expression, int indent_level) {
     print_with_newline("kind: " + de_get_name_from_token(expression.value.kind),
@@ -330,17 +366,23 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
   parse_result left;
   parse_result right;
 
-  left = donsus_number_primary(
-      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
-      20); // return AST node with only value
+  if (cur_token.kind == DONSUS_LPAR) {
+    // Handle open parenthesis
+    donsus_parser_next(); // Move past the open parenthesis
+    left = donsus_number_expr(0);
+  } else {
+    left = donsus_number_primary(
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+        20); // return AST node with only value
+  }
 
   donsus_parser_next();
 
   donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
-  //   std::cout << "length of cur_token: " << cur_token.length << "\n";
 
-  if (cur_token.kind == DONSUS_SEMICOLON) { // CHECK END
-    return left;                            // return whole node
+  if (cur_token.kind == DONSUS_SEMICOLON ||
+      cur_token.kind == DONSUS_RPAR) { // CHECK END
+    return left;                       // return whole node
   }
 
   while (previous_token.precedence > ptp) {
@@ -348,7 +390,7 @@ auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
     right = donsus_number_expr(previous_token.precedence); // recursive call
     left = make_new_num_node(previous_token, left, right);
 
-    if (cur_token.kind == DONSUS_SEMICOLON) {
+    if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
       return left;
     }
   }
@@ -379,6 +421,7 @@ expressions:
 auto DonsusParser::match_expressions(int ptp) -> parse_result {
   // number expressions, string expressions etc.
   switch (cur_token.kind) {
+  case DONSUS_LPAR:
   case DONSUS_NUMBER: {
     return donsus_number_expr(ptp);
   }
@@ -409,12 +452,21 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
   parse_result left;
   parse_result right;
 
-  left = match_expressions(ptp);
+  if (cur_token.kind == DONSUS_LPAR) {
+    // Handle open paranthesis
+    donsus_parser_next(); // Move past the open paranthesis
+    left = donsus_expr(ptp);
+  } else {
+    left = match_expressions(ptp);
+  }
 
+  if (cur_token.kind == DONSUS_SEMICOLON)
+    return left; // If there is only one expression
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
 
-  if (cur_token.kind == DONSUS_SEMICOLON) {
+  if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
+    // DONSUS_RPAR is for the condition of an if statement
     return left;
   }
 
@@ -423,7 +475,8 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
     right = match_expressions(previous_token.precedence);
     left = make_new_expr_node(previous_token, left, right);
 
-    if (cur_token.kind == DONSUS_SEMICOLON) {
+    if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
+      // DONSUS_RPAR is for the condition of an if statement
       return left;
     }
   }
@@ -670,12 +723,39 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
   auto &statement_expression = statement->get<donsus_ast::if_statement>();
 
   donsus_parser_except(DONSUS_LPAR); // after "if" we have "("
-  donsus_parser_except(
-      DONSUS_RPAR); // after init_statement_condition we have ")"
+  donsus_parser_next(); // go to next token which will be an expression
+
+  while (cur_token.kind != DONSUS_RPAR) {
+    parse_result condition_expression = donsus_expr(0);
+    statement->children.push_back(condition_expression);
+  }
 
   donsus_parser_except(DONSUS_LBRACE); // after ")" we have "{"
   statement_expression.body = donsus_statements();
+  donsus_parser_next(); // get next token potential elif, else
+  if (cur_token.kind == DONSUS_ELIF_KW) {
+    parse_result result = donsus_if_statement();
+    statement_expression.alternate.push_back(result);
+  }
+
+  if (cur_token.kind == DONSUS_ELSE_KW) {
+    parse_result result = donsus_else_statement();
+    statement_expression.alternate.push_back(result);
+  }
+
   return statement;
+}
+
+auto DonsusParser::donsus_else_statement() -> parse_result {
+  parse_result else_statement = create_else_statement(
+      donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT, 10);
+
+  auto &expression = else_statement->get<donsus_ast::else_statement>();
+
+  donsus_parser_except(DONSUS_LBRACE); // expect cur_token to be "{"
+  expression.body = donsus_statements();
+
+  return else_statement;
 }
 
 auto DonsusParser::donsus_identifier() -> parse_result {
@@ -771,6 +851,14 @@ auto DonsusParser::create_if_statement(donsus_ast::donsus_node_type type,
                                        u_int64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::if_statement>(type, child_count);
 }
+
+auto DonsusParser::create_else_statement(donsus_ast::donsus_node_type type,
+                                         u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::else_statement>(type,
+                                                              child_count);
+}
+
 auto DonsusParser::create_function_definition(donsus_ast::donsus_node_type type,
                                               u_int64_t child_count)
     -> parse_result {

@@ -15,6 +15,7 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"def", DONSUS_FUNCTION_DEFINITION_KW},
     {"if", DONSUS_IF_KW},
     {"elif", DONSUS_ELIF_KW},
+    {"else", DONSUS_ELSE_KW},
 };
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
@@ -176,6 +177,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_ELIF_KW:
     return "DONSUS_ELIF_KW";
+
+  case DONSUS_NOT_EQUAL:
+    return "DONSUS_NOT_EQUAL";
 
   case DONSUS_ELSE_KW:
     return "DONSUS_ELIF_KW";
@@ -566,6 +570,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.value = "==";
 
+      cur_token.precedence = 1; // lowest precedence
+
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser); // Consume the second '=' character
@@ -655,6 +661,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.value = ">=";
 
+      cur_token.precedence = 1; // lowest precedence
+
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser); // Consume the '=' character
@@ -670,6 +678,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.length = 1;
 
       cur_token.value = ">";
+
+      cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
 
@@ -688,6 +698,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.value = "<=";
 
+      cur_token.precedence = 1; // lowest precedence
+
       cur_token.line = parser.lexer.cur_line;
 
       eat(parser); // Consume the '=' character
@@ -703,6 +715,8 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.length = 1;
 
       cur_token.value = "<";
+
+      cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
 
@@ -830,17 +844,36 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
   }
 
   case '!': {
-    cur_token.kind = DONSUS_EXCLAMATION;
+    if (peek_for_char(parser) == '=') {
+      cur_token.kind = DONSUS_NOT_EQUAL;
 
-    cur_token.length = 1;
+      cur_token.length = 2;
 
-    cur_token.value = "!";
+      cur_token.value = "!=";
 
-    cur_token.line = parser.lexer.cur_line;
+      cur_token.precedence = 1; // lowest precedence
 
-    eat(parser);
+      cur_token.line = parser.lexer.cur_line;
 
-    return cur_token;
+      eat(parser); // Consume the '=' character
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else {
+      cur_token.kind = DONSUS_EXCLAMATION;
+
+      cur_token.length = 1;
+
+      cur_token.value = "!";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser);
+
+      return cur_token;
+    }
   }
 
   case '\"': {

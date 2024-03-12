@@ -32,6 +32,7 @@ typedef enum {
   DONSUS_GREATER_EQUAL, // x >= y
   DONSUS_EQUAL,         // =
   DONSUS_DOUBLE_EQUAL,  // ==
+  DONSUS_NOT_EQUAL,     // !=
   DONSUS_DOT,           // .
   DONSUS_PERCENT,       // %
   DONSUS_LBRACE,        // {

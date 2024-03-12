@@ -22,7 +22,8 @@ struct donsus_node_type {
     DONSUS_ASSIGNMENT,           // just the type of the node
     DONSUS_IDENTIFIER,
     DONSUS_NUMBER_EXPRESSION, // just the type of the node
-    DONSUS_EXPRESSION
+    DONSUS_EXPRESSION,
+    DONSUS_ELSE_STATEMENT
   };
 
   donsus_node_type() = default;
@@ -75,6 +76,15 @@ struct function_def {
 struct if_statement {
   std::vector<utility::handle<donsus_ast::node>> body;
   // we will include something for the init_statement_condition
+  // the children represents the condition
+  // the body represents the block when the condition evaluates to true
+  std::vector<utility::handle<donsus_ast::node>>
+      alternate; // this represents the block to be executed if the condition
+                 // evaluates as false(else or elif statement)
+};
+
+struct else_statement {
+  std::vector<utility::handle<donsus_ast::node>> body;
 };
 
 /*
