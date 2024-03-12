@@ -15,6 +15,7 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"def", DONSUS_FUNCTION_DEFINITION_KW},
     {"if", DONSUS_IF_KW},
     {"elif", DONSUS_ELIF_KW},
+    {"else", DONSUS_ELSE_KW},
 };
 
 std::string de_get_name_from_token(donsus_token_kind kind) {

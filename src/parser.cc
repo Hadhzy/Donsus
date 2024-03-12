@@ -82,7 +82,6 @@ public:
 
     case type::DONSUS_IF_STATEMENT: {
       print_type(ast_node->type, indent_level);
-      print_statement(ast_node->get<donsus_ast::if_statement>(), indent_level);
       if (ast_node->children.size() == 0) {
         print_with_newline("condition: {}", indent_level);
       } else {
@@ -92,6 +91,16 @@ public:
           print_with_newline(" ", indent_level);
         }
       }
+
+      print_statement(ast_node->get<donsus_ast::if_statement>(), indent_level);
+
+      break;
+    }
+
+    case type::DONSUS_ELSE_STATEMENT: {
+      print_type(ast_node->type, indent_level);
+      print_else_statement(ast_node->get<donsus_ast::else_statement>(),
+                           indent_level);
       break;
     }
 
@@ -107,6 +116,8 @@ public:
           print_with_newline(" ", indent_level);
         }
       }
+
+      break;
     }
 
     default:
@@ -189,7 +200,23 @@ public:
     for (auto node : statement.body) {
       print_ast_node(node, indent_level + 1);
     }
+    if (statement.alternate.size() == 0) {
+      print_with_newline("alternate: {}", indent_level);
+    } else {
+      for (auto node : statement.alternate) {
+        print_with_newline("alternate: ", indent_level);
+        print_ast_node(node, indent_level + 1);
+      }
+    }
   };
+
+  void print_else_statement(donsus_ast::else_statement &statement,
+                            int indent_level) {
+    print_with_newline("body: ", indent_level);
+    for (auto node : statement.body) {
+      print_ast_node(node, indent_level + 1);
+    }
+  }
 
   void print_expression(donsus_ast::expression &expression, int indent_level) {
     print_with_newline("kind: " + de_get_name_from_token(expression.value.kind),
@@ -708,7 +735,24 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
     statement_expression.alternate.push_back(result);
   }
 
+  if (cur_token.kind == DONSUS_ELSE_KW) {
+    parse_result result = donsus_else_statement();
+    statement_expression.alternate.push_back(result);
+  }
+
   return statement;
+}
+
+auto DonsusParser::donsus_else_statement() -> parse_result {
+  parse_result else_statement = create_else_statement(
+      donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT, 10);
+
+  auto &expression = else_statement->get<donsus_ast::else_statement>();
+
+  donsus_parser_except(DONSUS_LBRACE); // expect cur_token to be "{"
+  expression.body = donsus_statements();
+
+  return else_statement;
 }
 
 auto DonsusParser::donsus_identifier() -> parse_result {
@@ -804,6 +848,14 @@ auto DonsusParser::create_if_statement(donsus_ast::donsus_node_type type,
                                        u_int64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::if_statement>(type, child_count);
 }
+
+auto DonsusParser::create_else_statement(donsus_ast::donsus_node_type type,
+                                         u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::else_statement>(type,
+                                                              child_count);
+}
+
 auto DonsusParser::create_function_definition(donsus_ast::donsus_node_type type,
                                               u_int64_t child_count)
     -> parse_result {

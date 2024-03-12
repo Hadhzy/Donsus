@@ -103,6 +103,10 @@ public:
   auto create_if_statement(donsus_ast::donsus_node_type type,
                            u_int64_t child_count) -> parse_result;
 
+  auto donsus_else_statement() -> parse_result;
+  auto create_else_statement(donsus_ast::donsus_node_type type,
+                             u_int64_t child_count) -> parse_result;
+
   // assignments
   auto donsus_assignments() -> parse_result;
   auto create_assignments(donsus_ast::donsus_node_type type,
