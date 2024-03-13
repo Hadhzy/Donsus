@@ -40,15 +40,14 @@ public:
   auto create_node(donsus_node_type type, uint64_t child_count)
       -> utility::handle<node> {
     assert(child_count <= std::numeric_limits<uint64_t>::max());
-    // Todo: think about this
-    const utility::handle node_ptr = allocator.alloc<node>();
+    const utility::handle node_ptr = allocator.r_alloc<node>();
 
     // initialise the node
     allocate_node_list(child_count); // reserve space for children
     node_ptr->type = type;
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
-    node_ptr->set_property(allocator.alloc<extra_type>());
+    node_ptr->set_property(allocator.r_alloc<extra_type>());
     return node_ptr;
   };
 

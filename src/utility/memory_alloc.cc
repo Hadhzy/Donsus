@@ -1,58 +1,47 @@
 // Donsus memory allocator
 #include "memory_alloc.h"
 
+// Arena allocator
 namespace utility {
-DonsusAllocator::block::block(uint64_t *memory) : memory(memory), position(0) {}
-// free one particular memory
-DonsusAllocator::block::~block() {
-  // "delete temp"
-  std::free(memory);
+DonsusAllocator::DonsusAllocator(std::size_t total_size)
+    : total_size(total_size) {
+  start_ptr = std::malloc(total_size);
+  offset = 0;
 }
-
-DonsusAllocator::DonsusAllocator(uint64_t block_size) : block_size(block_size) {
-  // alloc_block(); // allocate the first block
-  first_block = current_block;
-};
 
 DonsusAllocator::~DonsusAllocator() {
-  while (first_block) {
-    const block *temp = first_block;
-    first_block = first_block->next;
-    delete temp; // call block destructor
-  };
+  free(start_ptr);
+  start_ptr = nullptr;
 }
 
-/*template <typename type>
-auto DonsusAllocator::alloc() -> type* {
-*//*  assert(size <= block_size); // memory alignment
-  if (size == 0) {
+void *DonsusAllocator::allocate(std::size_t size, std::size_t alignment) {
+  std::size_t padding = 0;
+  std::size_t curr_address = (std::size_t)start_ptr + (std::size_t)offset;
+
+  if (alignment != 0 && offset % alignment != 0) {
+    // requires alignment, either because of a custom alignment or because the
+    // alignment doesn't match the offset
+    padding = calculate_padding(curr_address, alignment);
+  }
+  if (offset + padding + size > total_size) {
     return nullptr;
-  }*//*
-
-  *//*if (current_block->position + size >= block_size) {
-    alloc_block();
-  }*//*
-  auto a = new type;
-  return a;
-*//*  alloc_block();
-  void *memory = current_block->memory +
-                 current_block->position; // end of the current block
-  current_block->position += sizeof(type);
-
-  return (type*)memory;*//*
-}*/
-
-void DonsusAllocator::alloc_block() {
-  auto memory =
-      static_cast<uint64_t *>(std::malloc(static_cast<size_t>(block_size)));
-
-  auto new_block = new block(memory);
-
-  if (current_block) {
-    current_block->next = new_block;
   }
 
-  current_block = new_block;
-  block_count++;
+  offset += padding;
+
+  std::size_t nextAddress =
+      curr_address + padding; // the proper address with padding
+
+  offset += size;             // occupy the needed memory
+  return (void *)nextAddress; // cast it back to void*
 }
+
+std::size_t DonsusAllocator::calculate_padding(std::size_t address,
+                                               std::size_t alignment) {
+  std::size_t multiplier = (address / alignment) + 1;
+  std::size_t alignedAddress = multiplier * alignment;
+  std::size_t padding = alignedAddress - address;
+  return padding;
+}
+
 } // namespace utility
