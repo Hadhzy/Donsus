@@ -40,7 +40,7 @@ public:
   auto create_node(donsus_node_type type, uint64_t child_count)
       -> utility::handle<node> {
     assert(child_count <= std::numeric_limits<uint64_t>::max());
-    const utility::handle node_ptr = allocator.r_alloc<node>();
+    const utility::handle<node> node_ptr = allocator.r_alloc<node>();
 
     // initialise the node
     allocate_node_list(child_count); // reserve space for children

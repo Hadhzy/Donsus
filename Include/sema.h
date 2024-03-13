@@ -22,8 +22,7 @@ class DonsusSema {
 public:
   DonsusSema() = default;
   using end_result = DonsusParser::end_result;
-  auto donsus_sema(DonsusParser::end_result ast, std::string &file_name)
-      -> DonsusSema::end_result;
+  auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
 
 private:
   bool error;

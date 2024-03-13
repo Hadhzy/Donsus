@@ -26,6 +26,8 @@ int Du_Main(int argc, char **argv) {
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
   // build symbol table
+  // sema and typecheck
+  // see sema.cc for further information
   parser_result->traverse(donsus_sym, sym_global);
 
 #ifdef DEBUG
@@ -35,10 +37,6 @@ int Du_Main(int argc, char **argv) {
   std::cout << sym_global << std::endl;
 #endif
   // sema
-  DonsusSema sema;
-
-  DonsusSema::end_result sema_result =
-      sema.donsus_sema(parser_result, file_without_extension);
 
   // codegen
 
