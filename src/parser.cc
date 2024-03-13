@@ -260,8 +260,7 @@ DonsusParser::DonsusParser(donsus_lexer &lexer)
     : lexer(lexer), allocator(1024) {
   cur_token = donsus_lexer_next(*this);
   // Todo: causes invalid read for some reaons in valgrind
-  /*donsus_tree = allocator.r_alloc<donsus_ast::tree>();*/
-  donsus_tree = new donsus_ast::tree();
+  donsus_tree = allocator.r_alloc<donsus_ast::tree>();
 }
 
 donsus_token DonsusParser::donsus_parser_next() {

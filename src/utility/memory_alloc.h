@@ -15,7 +15,9 @@ public:
   ~DonsusAllocator();
 
   template <typename type> auto r_alloc() -> type * {
-    auto a = new (allocate(sizeof(type), 2 * sizeof(void *))) type;
+    /*    auto a = new (allocate(sizeof(type), 2 * sizeof(void *))) type;*/
+    auto a = new type;
+
     return a;
   }
 
