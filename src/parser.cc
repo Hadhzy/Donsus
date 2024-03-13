@@ -260,8 +260,7 @@ DonsusParser::DonsusParser(donsus_lexer &lexer)
     : lexer(lexer), allocator(1024) {
   cur_token = donsus_lexer_next(*this);
   // Todo: causes invalid read for some reaons in valgrind
-  /*donsus_tree = allocator.r_alloc<donsus_ast::tree>();*/
-  donsus_tree = new donsus_ast::tree();
+  donsus_tree = allocator.r_alloc<donsus_ast::tree>();
 }
 
 donsus_token DonsusParser::donsus_parser_next() {
@@ -490,7 +489,7 @@ var_def:  DONSUS_NAME DONSUS_COLON donsus_type  DONSUS_EQUAL expression
 auto DonsusParser::donsus_variable_definition(
     utility::handle<donsus_ast::node> &declaration) -> parse_result {
   // move to get the value
-  donsus_parser_except(DONSUS_NUMBER);
+  donsus_parser_next();
   parse_result expression = donsus_expr(0);
   declaration->children.push_back(expression);
   return declaration;
