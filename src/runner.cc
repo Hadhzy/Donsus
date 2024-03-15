@@ -42,6 +42,6 @@ int Du_Main(int argc, char **argv) {
 
   DonsusCodegenEvaluator codegen;
   codegen.compile(parser_result);
-  delete sym_global.get();
+  /*  delete sym_global.get();*/
   return 0;
 }

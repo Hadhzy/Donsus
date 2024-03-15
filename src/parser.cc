@@ -97,6 +97,12 @@ public:
       break;
     }
 
+    case type::DONSUS_FUNCTION_CALL: {
+      print_type(ast_node->type, indent_level);
+      print_function_call(ast_node->get<donsus_ast::function_call>(),
+                          indent_level);
+      break;
+    }
     case type::DONSUS_ELSE_STATEMENT: {
       print_type(ast_node->type, indent_level);
       print_else_statement(ast_node->get<donsus_ast::else_statement>(),
@@ -122,6 +128,15 @@ public:
 
     default:
       break;
+    }
+  }
+
+  void print_function_call(donsus_ast::function_call &f_call,
+                           int indent_level) {
+    print_with_newline("func_name: " + f_call.func_name, indent_level);
+    print_with_newline("parameters: ", indent_level);
+    for (auto p : f_call.arguments) {
+      print_with_newline("name: " + p.identifier, indent_level + 1);
     }
   }
 
@@ -275,11 +290,14 @@ void DonsusParser::print_token() {
   }
 }
 
-donsus_token DonsusParser::donsus_peek() {
+donsus_token DonsusParser::donsus_peek(int loop) {
   donsus_lexer save = lexer;
-  donsus_token result = donsus_lexer_next(*this);
+  donsus_token result_main;
+  for (int i = 0; i < loop; i++) {
+    result_main = donsus_lexer_next(*this);
+  }
   lexer = save;
-  return result;
+  return result_main;
 }
 
 auto DonsusParser::donsus_parse() -> end_result {
@@ -550,12 +568,28 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
   auto &expression = declaration->get<donsus_ast::function_decl>();
   expression.func_name = cur_token.value;
-
+  donsus_token name;
   // name'('
+  name = cur_token;
   donsus_parser_except(DONSUS_LPAR);
-  if (donsus_peek().kind == DONSUS_NAME) {
+
+  /*  if (cur_token.kind == DONSUS_NAME) {
+      return donsus_function_call();
+    }*/
+  if (donsus_peek().kind == DONSUS_NAME && donsus_peek(2).kind == DONSUS_COLO) {
     // if we have parameters then the next token is DONSUS_NAME
     expression.parameters = donsus_function_signature(); // parse parameters
+  } else if (donsus_peek().kind == DONSUS_NAME &&
+             donsus_peek(2).kind == DONSUS_COMM) {
+    // make sure it is a function call
+    return donsus_function_call(name);
+  }
+
+  // check if it is
+  DONSUS_TYPE tmp{};
+  if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN) {
+    // without parameters
+    return donsus_function_call(name);
   }
   // name params ')'
   donsus_parser_except(DONSUS_RPAR);
@@ -590,6 +624,18 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   return declaration;
 }
 
+auto DonsusParser::donsus_function_call(donsus_token &name) -> parse_result {
+  parse_result function_call = create_function_call(
+      donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL, 10);
+
+  auto &expression = function_call->get<donsus_ast::function_call>();
+  expression.func_name = name.value;
+  expression.arguments = donsus_function_args();
+
+  donsus_parser_except(DONSUS_RPAR);
+
+  return function_call;
+}
 /*
 donsus_function_proto: var_decl* [,] [donsus_function_proto]
  */
@@ -613,6 +659,24 @@ auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
       continue;
     } else {
       break; // finished
+    }
+  }
+  return a;
+}
+
+auto DonsusParser::donsus_function_args() -> std::vector<NAME_OR_DATA_PAIR> {
+  std::vector<NAME_OR_DATA_PAIR> a;
+  while (donsus_peek().kind != DONSUS_RPAR) {
+    NAME_OR_DATA_PAIR pair;
+    donsus_parser_except(DONSUS_NAME);
+    pair.identifier = cur_token.value;
+    a.push_back(pair);
+
+    if (donsus_peek().kind == DONSUS_COMM) {
+      donsus_parser_next();
+      continue;
+    } else {
+      break;
     }
   }
   return a;
@@ -878,6 +942,11 @@ auto DonsusParser::create_identifier(donsus_ast::donsus_node_type type,
 auto DonsusParser::create_expression(donsus_ast::donsus_node_type type,
                                      u_int64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::expression>(type, child_count);
+}
+
+auto DonsusParser::create_function_call(donsus_ast::donsus_node_type type,
+                                        u_int64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::function_call>(type, child_count);
 }
 // Throws exception
 void DonsusParser::donsus_parser_except(donsus_token_kind type) {

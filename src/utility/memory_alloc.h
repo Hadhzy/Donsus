@@ -12,7 +12,7 @@ public:
   DonsusAllocator() = default;
   DonsusAllocator(std::size_t block_size);
   // free(all) the memory
-  ~DonsusAllocator();
+  /*  ~DonsusAllocator();*/
 
   template <typename type> auto r_alloc() -> type * {
     /*    auto a = new (allocate(sizeof(type), 2 * sizeof(void *))) type;*/

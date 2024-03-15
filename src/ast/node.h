@@ -20,10 +20,11 @@ struct donsus_node_type {
     DONSUS_FUNCTION_DEF,         // just the type of the node
     DONSUS_IF_STATEMENT,         // just the type of the node
     DONSUS_ASSIGNMENT,           // just the type of the node
-    DONSUS_IDENTIFIER,
-    DONSUS_NUMBER_EXPRESSION, // just the type of the node
-    DONSUS_EXPRESSION,
-    DONSUS_ELSE_STATEMENT
+    DONSUS_IDENTIFIER,           // just the type of the node
+    DONSUS_NUMBER_EXPRESSION,    // just the type of the node
+    DONSUS_EXPRESSION,           // just the type of the node
+    DONSUS_FUNCTION_CALL,
+    DONSUS_ELSE_STATEMENT, // just the type of the node
   };
 
   donsus_node_type() = default;
@@ -51,6 +52,7 @@ struct number_expr {
 
 // actual node structure containing extra properties
 struct function_decl {
+  //
   std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
@@ -71,6 +73,14 @@ struct function_def {
 
   std::vector<utility::handle<donsus_ast::node>>
       body; // This might be refactored in the future
+};
+
+struct function_call {
+  // test(1,2,3,4,5,6)
+  // test ->func_name
+  // (1,2,3,4,5,6) ->arguments
+  std::string func_name;
+  std::vector<NAME_OR_DATA_PAIR> arguments;
 };
 
 struct if_statement {
