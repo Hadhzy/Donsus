@@ -477,7 +477,7 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
     left = match_expressions(ptp);
   }
 
-  if (cur_token.kind == DONSUS_SEMICOLON)
+  if (cur_token.kind == DONSUS_SEMICOLON || donsus_peek().kind == DONSUS_LBRACE)
     return left; // If there is only one expression
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
