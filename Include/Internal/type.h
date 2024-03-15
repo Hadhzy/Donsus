@@ -57,8 +57,8 @@ public:
 
     default: {
       // Handle unknown token kind or other cases
-      std::cerr << "Unhandled token kind in DONSUS_TYPE::from_parse"
-                << std::endl;
+      /*      std::cerr << "Unhandled token kind in DONSUS_TYPE::from_parse"
+                      << std::endl;*/
       return TYPE_UNKNOWN;
     }
     }
@@ -109,10 +109,18 @@ public:
 
 /**
  *  \brief
- *  identifier:type
+ *  identifier:type in function prototype when defining it
  */
 struct NAME_DATA_PAIR {
   DONSUS_TYPE type;
+  std::string identifier;
+};
+
+/**
+ *  \brief
+ *  identifier:type or just simply identifier in function calls when calling it
+ */
+struct NAME_OR_DATA_PAIR {
   std::string identifier;
 };
 #endif

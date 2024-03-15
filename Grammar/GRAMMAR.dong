@@ -16,6 +16,24 @@ statement_newline:
 # parse down blocks
 general_statement:
     | func_def
+    | if_statement
+
+# include if, elif, else
+# conditions statements
+
+# if statement
+if_statement: | DONSUS_IF_KW DONSUS_LPAR expressions DONSUS_RPAR DONSUS_LSQB
+               general_statement DONSUS_RSQB elif_statement
+
+              | DONSUS_IF_KW DONSUS_LPAR expressions DONSUS_RPAR DONSUS_LSQB
+                               general_statement DONSUS_RSQB [else_statement]
+
+# elif
+elif_statement: | DONSUS_ELIF_KW DONSUS_LPAR expressions DONSUS_RPAR DONSUS_LSQB general_statement DONSUS_RQSB elif_statement
+                | DONSUS_ELIF_KW DONSUS_LPAR expressions DONSUS_RPAR DONSUS_LSQB general_statement DONSUS_RQSB [else_block]
+
+#else
+else_statement: DONSUS_ELSE_KW DONSUS_LSQB general_statement DONSUS_RSQB
 
 # r-value statement(prvalue)
 expr_statement:
@@ -74,6 +92,7 @@ assignment_value:
     | arithmetic_expression # arithmetic operators
 
 assignment: | assignment_start assignment_op assignment_value+
+
 
 #  ARITHMETIC expressions
 arithmetic_expression: [(].arithmetic_expression_low

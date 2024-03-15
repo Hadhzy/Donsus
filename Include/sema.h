@@ -1,5 +1,6 @@
 #ifndef DONSUS_SEMA_H
 #define DONSUS_SEMA_H
+#include "../Include/Internal/type.h"
 #include "../Include/symbol_table.h"
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
@@ -22,7 +23,14 @@ class DonsusSema {
 public:
   DonsusSema() = default;
   using end_result = DonsusParser::end_result;
+  using donsus_type = DONSUS_TYPE::kind;
+  // BASIC SEMA
   auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
+  auto donsus_sema_is_defined(donsus_type ast, utility::handle<DonsusSymTable>)
+      -> void;
+  // TYPECHECK
+  auto donsus_typecheck_is_integer() -> bool;
+  auto donsus_typecheck_is_compatible() -> bool;
 
 private:
   bool error;
