@@ -589,6 +589,12 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   DONSUS_TYPE tmp{};
   if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN) {
     // without parameters
+    /*
+      donsus_peek(3) returns the place where the type is supposed to be if we
+      can't match any type and the type is unknown(note: the type is not
+      unknown, the type just simply doesn't exist, because that place is left
+      empty) then we found a function_call().
+    */
     return donsus_function_call(name);
   }
   // name params ')'
@@ -668,7 +674,7 @@ auto DonsusParser::donsus_function_args() -> std::vector<NAME_OR_DATA_PAIR> {
   std::vector<NAME_OR_DATA_PAIR> a;
   while (donsus_peek().kind != DONSUS_RPAR) {
     NAME_OR_DATA_PAIR pair;
-    donsus_parser_except(DONSUS_NAME);
+    donsus_parser_next(); // move to the next arg/param
     pair.identifier = cur_token.value;
     a.push_back(pair);
 
