@@ -9,10 +9,10 @@ DonsusAllocator::DonsusAllocator(std::size_t total_size)
   offset = 0;
 }
 
-DonsusAllocator::~DonsusAllocator() {
+/*DonsusAllocator::~DonsusAllocator() {
   free(start_ptr);
   start_ptr = nullptr;
-}
+}*/
 
 void *DonsusAllocator::allocate(std::size_t size, std::size_t alignment) {
   std::size_t padding = 0;
