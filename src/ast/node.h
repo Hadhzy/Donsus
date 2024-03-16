@@ -25,6 +25,7 @@ struct donsus_node_type {
     DONSUS_EXPRESSION,           // just the type of the node
     DONSUS_FUNCTION_CALL,
     DONSUS_ELSE_STATEMENT, // just the type of the node
+    DONSUS_RETURN_STATEMENT,
   };
 
   donsus_node_type() = default;
@@ -96,6 +97,8 @@ struct if_statement {
 struct else_statement {
   std::vector<utility::handle<donsus_ast::node>> body;
 };
+
+struct return_kw {};
 
 /*
 assignment: | assignment_start assignment_op assignment_value+
