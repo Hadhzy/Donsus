@@ -9,8 +9,8 @@
 #include "../utility/handle.h"
 #include "../utility/property.h"
 #include "../utility/slices.h"
-// Contains ast(node) types that the parser figures out
 
+// Contains ast(node) types that the parser figures out
 namespace donsus_ast {
 struct donsus_node_type {
   enum underlying : int {
@@ -119,20 +119,9 @@ using node_properties =
 struct node : node_properties {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
-      children; // size type in the future
-  donsus_node_type type;
-  // For debugging purposes
-  friend std::ostream &operator<<(std::ostream &o, node &node) {
-    o << "type: " << de_get_from_donsus_node_type(node.type); // type
-    o << "\n";
-
-    // children
-    for (auto n : node.children) {
-      o << "children: ";
-      o << *n; // recursion
-    }
-    return o;
-  }
+      children;          // size type in the future
+  donsus_node_type type; // This is the node's type
+  DONSUS_TYPE real_type; // This type is assigned during type checking
 };
 } // namespace donsus_ast
 #endif

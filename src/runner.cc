@@ -4,6 +4,15 @@
 #include "../Include/sema.h"
 #include <iostream>
 
+DonsusParser::end_result Du_Parse(std::string result) {
+  // Lexer
+  donsus_lexer lexer(result); // initialise lexer
+  DonsusParser parser(lexer);
+  // Parser
+  DonsusParser::end_result parser_result = parser.donsus_parse();
+  return parser_result;
+}
+
 int Du_Main(int argc, char **argv) {
 
   std::string result = handle_file(argv);
@@ -18,12 +27,7 @@ int Du_Main(int argc, char **argv) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  // Lexer
-  donsus_lexer lexer(result); // initialise lexer
-  DonsusParser parser(lexer);
-
-  // Parser
-  DonsusParser::end_result parser_result = parser.donsus_parse();
+  DonsusParser::end_result parser_result = Du_Parse(result);
 
   // build symbol table
   // sema and typecheck
