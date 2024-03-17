@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(donsus LANGUAGES CXX)
-set(CMAKE_BUILD_TYPE Debug)
-
-
-add_executable(donsus
+add_library(donsus STATIC
         src/main.cc
         src/handle_file.cc
-        src/parser.cc
         src/lexer.cc
         src/runner.cc
         src/sema.cc
         src/ir.cc
+
+        # type
         src/type.cc
+
+        #parser
         src/parser_util.cc
+        src/parser.cc
+
         # symtable
         src/symbol_table.cc
 
@@ -34,6 +35,10 @@ add_executable(donsus
         src/ast/tree.cc
 )
 
+set(CMAKE_BUILD_TYPE Debug)
+
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
 target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
+
+add_subdirectory(donsus_test)

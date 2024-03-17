@@ -14,6 +14,8 @@
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
 #include "token.h"
+
+#define DEBUG 1 // debug
 class DonsusParser;
 
 extern std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER;
@@ -136,4 +138,5 @@ private:
 };
 // debug
 std::string de_get_name_from_token(donsus_token_kind kind);
+DonsusParser::end_result Du_Parse(std::string result);
 #endif // PARSER_H
