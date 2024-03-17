@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-add_library(donsus STATIC
-        src/main.cc
+add_library(donsus_lib STATIC
         src/handle_file.cc
         src/lexer.cc
         src/runner.cc
@@ -37,8 +36,13 @@ add_library(donsus STATIC
 
 set(CMAKE_BUILD_TYPE Debug)
 
-target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include")
-target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
-target_include_directories(donsus PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
+target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include")
+target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
+target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
+
+add_executable(donsus src/main.cc)
+
+target_link_libraries(donsus PUBLIC donsus_lib)
 
 add_subdirectory(donsus_test)
+
