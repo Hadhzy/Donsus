@@ -22,5 +22,5 @@ gtest_discover_tests(donsus_test)
 
 target_link_libraries(donsus_test PUBLIC
                         GTest::gtest_main
-                        donsus
+                        donsus_lib
                         )
