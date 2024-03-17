@@ -10,15 +10,11 @@ std::size_t get_file_size(std::ifstream &file) {
   return size;
 }
 
-std::string handle_file(char **argv) {
-
-  std::string path = argv[1]; // get the path of the file
-  std::ifstream in(path, std::ifstream::in);
+std::string handle_file(const char* path_base) {
+  std::ifstream in(path_base);
 
   if (!in) {
-
-    std::cout << "FILE NOT FOUND AT THIS PATH" << std::endl;
-
+    std::cout << "FILE NOT FOUND AT THIS PATH: " << path_base << std::endl;
     exit(1);
   }
 

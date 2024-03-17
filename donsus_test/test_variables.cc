@@ -1,9 +1,17 @@
 #include <gtest/gtest.h>
+#include "../Include/parser.h"
+#include "../Include/file.h"
+
 #include <iostream>
 
-TEST(HelloTest, BasicAssertions) {
-  // Expect two strings not to be equal.
-  EXPECT_STRNE("hello", "hello");
-  // Expect equality.
-  EXPECT_EQ(7 * 6, 42);
+TEST(VariableTest, VariableDefinition) {
+  std::string a = R"(
+    def f() -> int {
+        a:int = 32;
+      }
+)";
+
+  DonsusParser::end_result result = Du_Parse(a);
+
+
 }
