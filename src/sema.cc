@@ -49,10 +49,12 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
         make_type(node->get<donsus_ast::variable_decl>().identifier_type)
             .type_un,
         table);
+    break;
   }
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
     // make sure it is not defined already
     // make sure the type is correct
+    break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
@@ -62,6 +64,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     sema.donsus_typecheck_type_is_bool_conversion(node->children[0]);
     // see if the operations are supported
     sema.donsus_typecheck_support_between_types(node->children[0]);
+    break;
   }
 
   default: {
