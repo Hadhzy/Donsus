@@ -1,10 +1,1 @@
-# decl
-a() -> int; # decl1
-a(a: char) -> int; # function decl
-
-def a() -> int{
-    def b() -> char{ # another function inside function
-    };
-    d() -> char; # function decl inside function
-    f: char; # var decl inside function
-};
+test(1);
