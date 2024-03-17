@@ -67,7 +67,6 @@ public:
   auto make_new_expr_node(donsus_token prev_token, parse_result &left,
                           parse_result &right) -> parse_result;
   // parsing number expressions
-  auto donsus_number_expr(unsigned int ptp) -> parse_result;
   auto donsus_number_primary(donsus_ast::donsus_node_type type,
                              uint64_t child_count) -> parse_result;
 
@@ -128,6 +127,11 @@ public:
   // this is only for number expressions
   auto make_new_num_node(donsus_token prev_token, parse_result &left,
                          parse_result &right) -> parse_result;
+
+  // return statement
+  auto donsus_return_statement() -> parse_result;
+  auto create_return_statement(donsus_ast::donsus_node_type type,
+                               u_int64_t child_count) -> parse_result;
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

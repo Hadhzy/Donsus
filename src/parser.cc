@@ -126,6 +126,20 @@ public:
       break;
     }
 
+    case type::DONSUS_RETURN_STATEMENT: {
+      print_type(ast_node->type, indent_level);
+      if (ast_node->children.size() == 0) {
+        print_with_newline("children: {}", indent_level);
+      } else {
+        print_with_newline("children: ", indent_level);
+        for (auto children : ast_node->children) {
+          print_ast_node(children, indent_level + 1);
+          print_with_newline(" ", indent_level);
+        }
+      }
+      break;
+    }
+
     default:
       break;
     }
@@ -378,42 +392,6 @@ auto DonsusParser::make_new_num_node(donsus_token prev_token,
   return new_node;
 }
 
-auto DonsusParser::donsus_number_expr(unsigned int ptp) -> parse_result {
-  // Gt the integer on the left
-  parse_result left;
-  parse_result right;
-
-  if (cur_token.kind == DONSUS_LPAR) {
-    // Handle open parenthesis
-    donsus_parser_next(); // Move past the open parenthesis
-    left = donsus_number_expr(0);
-  } else {
-    left = donsus_number_primary(
-        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
-        20); // return AST node with only value
-  }
-
-  donsus_parser_next();
-
-  donsus_token previous_token = cur_token; // SAVE CUR_TOKEN
-
-  if (cur_token.kind == DONSUS_SEMICOLON ||
-      cur_token.kind == DONSUS_RPAR) { // CHECK END
-    return left;                       // return whole node
-  }
-
-  while (previous_token.precedence > ptp) {
-    donsus_parser_next();
-    right = donsus_number_expr(previous_token.precedence); // recursive call
-    left = make_new_num_node(previous_token, left, right);
-
-    if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
-      return left;
-    }
-  }
-  return left;
-}
-
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
   const parse_result node = create_number_expression(
@@ -440,7 +418,8 @@ auto DonsusParser::match_expressions(int ptp) -> parse_result {
   switch (cur_token.kind) {
   case DONSUS_LPAR:
   case DONSUS_NUMBER: {
-    return donsus_number_expr(ptp);
+    return donsus_number_primary(
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 20);
   }
   case DONSUS_NAME: {
     return donsus_identifier();
@@ -477,19 +456,15 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
     left = match_expressions(ptp);
   }
 
-  if (cur_token.kind == DONSUS_SEMICOLON)
-    return left; // If there is only one expression
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
 
-  if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
-    // DONSUS_RPAR is for the condition of an if statement
-    return left;
-  }
+  if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR)
+    return left; // If there is only one expression
 
   while (previous_token.precedence > ptp) {
     donsus_parser_next();
-    right = match_expressions(previous_token.precedence);
+    right = donsus_expr(previous_token.precedence);
     left = make_new_expr_node(previous_token, left, right);
 
     if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR) {
@@ -589,6 +564,12 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   DONSUS_TYPE tmp{};
   if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN) {
     // without parameters
+    /*
+      donsus_peek(3) returns the place where the type is supposed to be if we
+      can't match any type and the type is unknown(note: the type is not
+      unknown, the type just simply doesn't exist, because that place is left
+      empty) then we found a function_call().
+    */
     return donsus_function_call(name);
   }
   // name params ')'
@@ -668,7 +649,7 @@ auto DonsusParser::donsus_function_args() -> std::vector<NAME_OR_DATA_PAIR> {
   std::vector<NAME_OR_DATA_PAIR> a;
   while (donsus_peek().kind != DONSUS_RPAR) {
     NAME_OR_DATA_PAIR pair;
-    donsus_parser_except(DONSUS_NAME);
+    donsus_parser_next(); // move to the next arg/param
     pair.identifier = cur_token.value;
     a.push_back(pair);
 
@@ -773,6 +754,11 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
         body.push_back(result);
       }
     }
+
+    if (cur_token.kind == DONSUS_RETURN_KW) {
+      parse_result result = donsus_return_statement();
+      body.push_back(result);
+    }
   }
 
   return body;
@@ -821,6 +807,8 @@ auto DonsusParser::donsus_else_statement() -> parse_result {
   return else_statement;
 }
 
+// auto DonsusParser::donsus_return_statement() -> {}
+
 auto DonsusParser::donsus_identifier() -> parse_result {
   parse_result result =
       create_identifier(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, 10);
@@ -828,6 +816,16 @@ auto DonsusParser::donsus_identifier() -> parse_result {
   expression.identifier_name = cur_token.value;
   return result;
 }
+
+auto DonsusParser::donsus_return_statement() -> parse_result {
+  parse_result return_statement = create_return_statement(
+      donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT, 10);
+  donsus_parser_next();
+  parse_result return_expression = donsus_expr(0);
+  return_statement->children.push_back(return_expression);
+  return return_statement;
+}
+
 /*
 assignment: | assignment_start assignment_op assignment_value
 assignment_op:
@@ -932,6 +930,13 @@ auto DonsusParser::create_assignments(donsus_ast::donsus_node_type type,
                                       u_int64_t child_count) -> parse_result {
 
   return donsus_tree->create_node<donsus_ast::assignment>(type, child_count);
+}
+
+auto DonsusParser::create_return_statement(donsus_ast::donsus_node_type type,
+                                           u_int64_t child_count)
+    -> parse_result {
+
+  return donsus_tree->create_node<donsus_ast::return_kw>(type, child_count);
 }
 
 auto DonsusParser::create_identifier(donsus_ast::donsus_node_type type,
