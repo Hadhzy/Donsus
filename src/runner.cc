@@ -14,8 +14,7 @@ DonsusParser::end_result Du_Parse(std::string result) {
 }
 
 int Du_Main(int argc, char **argv) {
-
-  std::string result = handle_file(argv);
+  std::string result = handle_file(argv[1]);
   std::string path = argv[1]; // Obtain path
   std::string base_filename =
       path.substr(path.find_last_of("/\\") + 1); // Obtain file name from path
