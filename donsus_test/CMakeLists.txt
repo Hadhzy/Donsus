@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 
 project(donsus_test)
 
@@ -15,7 +15,11 @@ enable_testing()
 
 
 add_executable(donsus_test
-                test_variables.cc)
+                test_variables.cc
+                test_functions.cc
+                test_if_statements.cc
+                test_expressions.cc
+                )
 
 include(GoogleTest)
 gtest_discover_tests(donsus_test)
