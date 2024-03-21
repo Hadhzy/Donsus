@@ -7,12 +7,6 @@ std::string DonsusSymTable::add(std::string short_name) {
    * add a minimal version of the symbol to the symbol table
    * */
   auto qualified_name = create_qualified_name(short_name);
-  sym a = get_from_qualified_name(qualified_name);
-  if (a.mod != -1) {
-    // already exists
-    std::cout << "symbol already exists: " << a;
-  }
-
   // mymodule.short_name
   sym t_symbol = {
       .index = underlying.size(),
@@ -46,7 +40,6 @@ auto DonsusSymTable::get(std::string qualified_name) -> sym {
   sym b = get_from_qualified_name(qualified_name);
   if (b.mod == -1) {
     // doesn't exist
-    std::cout << "doesn't exist";
     return b; // empty
   }
   return b;
@@ -63,10 +56,21 @@ int DonsusSymTable::add_desc(sym &desc) {
 
 auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
     -> sym {
+  sym a;
+  int found = 0;
   for (auto n : underlying) {
-    if (n.key == qualified_name)
-      return n;
+    if (n.key == create_qualified_name(qualified_name)) {
+      a = n;
+      ++found;
+    }
   }
+  if (found >= 2) {
+    a.duplicated = true;
+    return a;
+  } else if (found == 1) {
+    return a;
+  }
+
   sym n{.mod = -1};
   return n;
 }

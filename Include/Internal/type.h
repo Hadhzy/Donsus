@@ -25,10 +25,10 @@ public:
 
   kind type_un;
 
-  bool operator==(DONSUS_TYPE &rhs) const {
-    if (this->type_un == rhs.type_un) {
+  bool operator==(const DONSUS_TYPE &rhs) const {
+    if (this->type_un == rhs.type_un)
       return true;
-    }
+
     return false;
   }
   auto to_string() const -> std::string;

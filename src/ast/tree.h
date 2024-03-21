@@ -30,10 +30,11 @@ public:
   void allocate_node_list(uint64_t count);
 
   // https://en.wikipedia.org/wiki/Tree_traversal
-  void traverse(std::function<void(utility::handle<node>,
-                                   utility::handle<DonsusSymTable> table)>
-                    visit,
-                utility::handle<DonsusSymTable> sym)
+  void traverse(
+      const std::function<void(utility::handle<node>,
+                               utility::handle<DonsusSymTable> table)> &visit,
+      const std::function<void(utility::handle<node>)> &assign_node,
+      utility::handle<DonsusSymTable> sym)
       const; // implement traverse and use stack
 
   template <typename extra_type>

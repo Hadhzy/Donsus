@@ -19,20 +19,76 @@
  */
 /*
  Type checking TODOS:
-  - check whether var decl and def has the same type
-  if the value is not a constant literal we could just check for the function.
   - check if the number of return values matches the one in the function
  prototype
-  - check if the if statement's init statement condition evaluates to bool
-  - don't allow redefinition
-
   unsigned long int a = 12 + "sdfsd" + func_call();
   - figure out if the if statement is true
- */
+  -see whether parameters/arguments have the correct type.
+  - add symbol table recursion
+  - return statement check
+  - typecheck assignments
+  */
 
 #include "../Include/sema.h"
 
 DonsusSema sema;
+auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void;
+
+auto process_donsus_expression(utility::handle<donsus_ast::node> node) -> void {
+  for (auto n : node->children) {
+    if (n->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+      process_donsus_expression(n);
+    } else {
+      assign_type_to_node(n);
+    }
+  }
+}
+
+auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
+  switch (node->type.type) {
+
+  case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
+    // we can't figure out the type here.
+    node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
+
+    node->real_type.type_un =
+        make_type(node->get<donsus_ast::variable_decl>().identifier_type)
+            .type_un;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
+    process_donsus_expression(node);
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
+    // first type here
+    // loop through children here
+    sema.donsus_typecheck_support_between_types(node->children[0]);
+    auto type_a = sema.donsus_typecheck_type_expr(node->children[0]);
+
+    node->get<donsus_ast::return_kw>().types.push_back(type_a);
+  }
+  default: {
+  }
+  }
+}
+
+auto DonsusSema::donsus_typecheck_is_valid_operator(donsus_token_kind kind)
+    -> bool {
+  switch (kind) {
+  case DONSUS_PLUS:
+  case DONSUS_MINUS:
+  case DONSUS_STAR:
+  case DONSUS_SLASH:
+    return true;
+  default: {
+  }
+  }
+  return false;
+}
 
 // utility
 
@@ -46,27 +102,82 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
     sema.donsus_sema_is_defined(
-        make_type(node->get<donsus_ast::variable_decl>().identifier_type)
-            .type_un,
-        table);
+        node->get<donsus_ast::variable_decl>().identifier_name, table);
     break;
   }
+
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
     // make sure it is not defined already
     // make sure the type is correct
+    /*    sema.donsus_typecheck_assign_type_to_node(node);*/
+
+    // ODR
+    sema.donsus_sema_is_defined(
+        node->get<donsus_ast::variable_decl>().identifier_name, table);
+
+    utility::handle<donsus_ast::node> a =
+        sema.donsus_typecheck_support_between_types(node);
+
+    DONSUS_TYPE type_of_var_def =
+        sema.donsus_typecheck_type_expr(node->children[0]);
+
+    // match against the definition type
+    sema.donsus_typecheck_is_compatible(node->real_type, type_of_var_def);
     break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
-    // (a<4+5)
-    node->real_type = sema.donsus_typecheck_type_from_node(node->type);
+    // we can't assign types to an if statement
+    // we can only assign types to its init statement condition
+    // this is as of now not possible since this code runs before we would
+    // assign types
+    /*    sema.donsus_typecheck_assign_type_to_node(node);*/
 
     sema.donsus_typecheck_type_is_bool_conversion(node->children[0]);
+    node->children[0]->real_type.type_un = DONSUS_TYPE::kind::TYPE_BOOL;
+
     // see if the operations are supported
     sema.donsus_typecheck_support_between_types(node->children[0]);
     break;
   }
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
+    sema.donsus_sema_is_defined(
+        node->get<donsus_ast::function_decl>().func_name, table);
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
+    sema.donsus_sema_is_defined(node->get<donsus_ast::function_def>().func_name,
+                                table);
+    // loop through the function, assign types and then come back
+    // need to call this later
+    sema.donsus_typecheck_is_return_type_valid(node);
+    // check for function def specific stuff then just recursion
+    break;
+  }
 
+  case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
+    break;
+  }
+  case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
+    // assign type
+    /*    sema.donsus_typecheck_assign_type_to_node(node->children[0]);*/
+    return;
+  }
   default: {
   }
   }
@@ -76,26 +187,29 @@ void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
   // Entry Point
 }
 
-auto DonsusSema::donsus_sema_is_defined(donsus_type ast,
+auto DonsusSema::donsus_sema_is_defined(std::string &name,
                                         utility::handle<DonsusSymTable> table)
     -> void {
   // check if the
+  DonsusSymTable::sym result = table->get(name);
+  if (result.duplicated) {
+    throw DonsusException(name + " has been already defined/declared!");
+  }
 }
 
 /**
  * \brief Checks if the 2 types are compatible.
  */
-auto DonsusSema::donsus_typecheck_is_compatible(
-    utility::handle<donsus_ast::node> first,
-    utility::handle<donsus_ast::node> second) -> bool {
+auto DonsusSema::donsus_typecheck_is_compatible(DONSUS_TYPE first,
+                                                DONSUS_TYPE second) -> void {
 
   // call == overload
-  if (first->real_type == second->real_type) {
-    return true;
+  if (first == second) {
+    return;
   }
-  throw DonsusException("Operation between: " + first->real_type.to_string() +
-                        " and:" + second->real_type.to_string() +
-                        "are not supported");
+
+  throw DonsusException("Operation between: " + first.to_string() +
+                        " and:" + first.to_string() + "are not supported");
 }
 
 /**
@@ -126,7 +240,9 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
  * \brief Returns the type of the expr.
  */
 auto DonsusSema::donsus_typecheck_type_expr(
-    utility::handle<donsus_ast::node> node) -> DONSUS_TYPE {}
+    utility::handle<donsus_ast::node> node) -> DONSUS_TYPE {
+  return node->real_type;
+}
 
 /**
  * \brief Check if the operators are supported between operands.
@@ -134,36 +250,51 @@ auto DonsusSema::donsus_typecheck_type_expr(
 auto DonsusSema::donsus_typecheck_support_between_types(
     // get the highest node
     // see if its children are compatible move to next children
+    // int a = 10;
     utility::handle<donsus_ast::node> node, int level)
     -> utility::handle<donsus_ast::node> {
 
-  utility::handle<donsus_ast::node> middle;
-  if (!node->children[0]) {
+  utility::handle<donsus_ast::node> lhs;
+  utility::handle<donsus_ast::node> rhs;
+
+  if (node->children.empty()) {
+    // scalar
     return node;
   }
 
-  if (level == 0) {
-    level++;
-    middle = node->children[0];
-  } else {
-    middle = node;
+  if (!node->children[0]) {
+    // stop recursion
+    return node;
   }
 
-  donsus_typecheck_is_compatible(middle, middle->children[0]);
-  donsus_typecheck_is_compatible(middle, middle->children[1]);
+  node = node->children[0];
+  // if node operator call with left and right
+  if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+    lhs = node->children[0];
+    rhs = node->children[1];
+  } else {
+    return node;
+  }
+
+  level++;
+  lhs = donsus_typecheck_support_between_types(lhs, level);
+  rhs = donsus_typecheck_support_between_types(rhs, level);
+
+  donsus_typecheck_is_compatible(lhs->real_type, rhs->real_type);
+  return node;
 }
 
-auto DonsusSema::donsus_typecheck_type_from_node(
-    donsus_ast::donsus_node_type type) -> DONSUS_TYPE {
-  DONSUS_TYPE type_to_node{};
+auto DonsusSema::donsus_typecheck_is_return_type_valid(
+    utility::handle<donsus_ast::node> node) -> void {
+  std::vector<DONSUS_TYPE> expect =
+      node->get<donsus_ast::function_def>().return_type;
 
-  switch (type.type) {
-  case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
-    type_to_node.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
+  for (auto n : node->get<donsus_ast::function_def>().body) {
+    if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
+      // examine it here
+      if (n->get<donsus_ast::return_kw>().types == expect)
+        return;
+    }
   }
-
-  default: {
-  }
-  }
-  return type_to_node;
+  throw DonsusException("Return statement is not correct, TBD!");
 }
