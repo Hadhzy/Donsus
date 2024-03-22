@@ -84,6 +84,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
     auto type_a = sema.donsus_typecheck_type_expr(node->children[0]);
 
     node->get<donsus_ast::return_kw>().types.push_back(type_a);
+    break;
   }
   default: {
   }
