@@ -17,11 +17,12 @@ void tree::add_node(utility::handle<node> node) { nodes.push_back(node); }
 
 // Recursion is not possible
 // AST WALKER
-void tree::traverse(
-    const std::function<void(utility::handle<node>,
-                             utility::handle<DonsusSymTable> table)> &visit,
-    const std::function<void(utility::handle<node>)> &assign_node,
-    utility::handle<DonsusSymTable> sym) const {
+void tree::traverse(std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        visit,
+                    std::function<void(utility::handle<node>)> assign_node,
+                    utility::handle<DonsusSymTable> sym) const {
+
   std::stack<utility::handle<node>> stack_first;
   std::stack<utility::handle<node>> stack_second;
 

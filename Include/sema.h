@@ -32,7 +32,7 @@ public:
   // TYPECHECK
   auto donsus_typecheck_is_integer() -> bool;
   auto donsus_typecheck_is_compatible(DONSUS_TYPE first, DONSUS_TYPE second)
-      -> void;
+      -> bool;
   auto donsus_typecheck_type_is_bool_conversion(
       utility::handle<donsus_ast::node>) -> bool;
   auto donsus_typecheck_type_expr(utility::handle<donsus_ast::node> node)

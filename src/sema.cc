@@ -27,6 +27,16 @@
   - add symbol table recursion
   - return statement check
   - typecheck assignments
+
+DONSUS_EXPRESSION:
+  Call donsus_typecheck_support_between_types to see whether operators between
+operands are supported
+  - Assign type of DONSUS_EXPRESSION by assigning type to each of its nodes,
+  and then pick the closest one(from children - process_donsus_expression) to
+determine the expression type -Obtaining the type happens in
+donsus_typecheck_type_expr.
+  - Then just simply match it against the type defined in the variable
+definition a:int - here int is the type.
   */
 
 #include "../Include/sema.h"
@@ -42,6 +52,7 @@ auto process_donsus_expression(utility::handle<donsus_ast::node> node) -> void {
       assign_type_to_node(n);
     }
   }
+  // go until find a proper type
 }
 
 auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
@@ -50,6 +61,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
     // we can't figure out the type here.
     node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
+    break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
@@ -57,10 +69,12 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
     node->real_type.type_un =
         make_type(node->get<donsus_ast::variable_decl>().identifier_type)
             .type_un;
+    break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node);
+    break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
@@ -118,11 +132,22 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     utility::handle<donsus_ast::node> a =
         sema.donsus_typecheck_support_between_types(node);
 
+    assign_type_to_node(node->children[0]);
+
     DONSUS_TYPE type_of_var_def =
         sema.donsus_typecheck_type_expr(node->children[0]);
 
-    // match against the definition type
-    sema.donsus_typecheck_is_compatible(node->real_type, type_of_var_def);
+    // type of the definition based on the signature
+    auto local_type =
+        make_type(node->get<donsus_ast::variable_decl>().identifier_type);
+
+    bool is_compatible =
+        sema.donsus_typecheck_is_compatible(local_type, type_of_var_def);
+
+    if (!is_compatible)
+      throw DonsusException("Operation between: " + local_type.to_string() +
+                            "and " + type_of_var_def.to_string() +
+                            " are not supported");
     break;
   }
 
@@ -192,24 +217,21 @@ auto DonsusSema::donsus_sema_is_defined(std::string &name,
     -> void {
   // check if the
   DonsusSymTable::sym result = table->get(name);
-  if (result.duplicated) {
+
+  if (result.duplicated)
     throw DonsusException(name + " has been already defined/declared!");
-  }
 }
 
 /**
  * \brief Checks if the 2 types are compatible.
  */
 auto DonsusSema::donsus_typecheck_is_compatible(DONSUS_TYPE first,
-                                                DONSUS_TYPE second) -> void {
+                                                DONSUS_TYPE second) -> bool {
 
   // call == overload
-  if (first == second) {
-    return;
-  }
-
-  throw DonsusException("Operation between: " + first.to_string() +
-                        " and:" + first.to_string() + "are not supported");
+  if (first == second)
+    return true;
+  return false;
 }
 
 /**
@@ -241,6 +263,14 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
  */
 auto DonsusSema::donsus_typecheck_type_expr(
     utility::handle<donsus_ast::node> node) -> DONSUS_TYPE {
+
+  if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+    for (auto n : node->children) {
+      if (n->type.type != donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+        return n->real_type;
+      }
+    }
+  }
   return node->real_type;
 }
 
@@ -280,7 +310,14 @@ auto DonsusSema::donsus_typecheck_support_between_types(
   lhs = donsus_typecheck_support_between_types(lhs, level);
   rhs = donsus_typecheck_support_between_types(rhs, level);
 
-  donsus_typecheck_is_compatible(lhs->real_type, rhs->real_type);
+  auto is_compatible =
+      donsus_typecheck_is_compatible(lhs->real_type, rhs->real_type);
+
+  if (!is_compatible)
+    throw DonsusException("Operation between: " + lhs->real_type.to_string() +
+                          " and:" + rhs->real_type.to_string() +
+                          "are not supported");
+
   return node;
 }
 

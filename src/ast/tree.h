@@ -31,9 +31,9 @@ public:
 
   // https://en.wikipedia.org/wiki/Tree_traversal
   void traverse(
-      const std::function<void(utility::handle<node>,
-                               utility::handle<DonsusSymTable> table)> &visit,
-      const std::function<void(utility::handle<node>)> &assign_node,
+      std::function<void(utility::handle<node>,
+                         utility::handle<DonsusSymTable> table)> visit,
+      std::function<void(utility::handle<node>)> assign_node,
       utility::handle<DonsusSymTable> sym)
       const; // implement traverse and use stack
 
