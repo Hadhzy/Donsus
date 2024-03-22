@@ -78,9 +78,10 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
   }
 
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
-    // first type here
-    // loop through children here
+    // just a single child support
     sema.donsus_typecheck_support_between_types(node->children[0]);
+
+    assign_type_to_node(node->children[0]);
     auto type_a = sema.donsus_typecheck_type_expr(node->children[0]);
 
     node->get<donsus_ast::return_kw>().types.push_back(type_a);

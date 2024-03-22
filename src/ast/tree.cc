@@ -99,10 +99,14 @@ void tree::traverse(std::function<void(utility::handle<node>,
         continue;
       }
 
-      // call visit with node symbol table
-      assign_node(current); // call function donsus_sym in sema.cc
-                            // process child
-      // if(
+      // if it is a function def go through its body
+      assign_node(current);
+
+      if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
+        for (auto c : current->get<function_def>().body) {
+          stack_first.push(c);
+        }
+      }
       for (auto c : current->children) {
         stack_first.push(c);
       }
