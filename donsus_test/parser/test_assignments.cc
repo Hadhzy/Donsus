@@ -5,7 +5,7 @@
 
 /** \brief Check for assignment's name
  * */
-TEST(AssignmentsTest, AssignmentName) {
+TEST(AssignmentName, AssignmentName) {
   std::string a = R"(
   def a() -> void{
   a = a + 1;
@@ -23,7 +23,7 @@ TEST(AssignmentsTest, AssignmentName) {
 
 /** \brief Check for assignment's operator
  * */
-TEST(AssignmentsTest, AssignmentOperator) {
+TEST(AssignmentOperator, AssignmentsTest) {
   std::string a = R"(
   def a() -> void{
   a = a + 1;
@@ -41,7 +41,7 @@ TEST(AssignmentsTest, AssignmentOperator) {
 
 /** \brief Check for assignment value's type
  * */
-TEST(AssignmentsTest, AssignmentValueType) {
+TEST(AssignmentValueType, AssignmentsTest) {
   std::string a = R"(
   def a() -> void{
   a = a + 1;
