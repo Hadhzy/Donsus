@@ -27,8 +27,12 @@ public:
   using donsus_type = DONSUS_TYPE::kind;
   // BASIC SEMA
   auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
+  // true if its duplicated
   auto donsus_sema_is_defined(std::string &name,
-                              utility::handle<DonsusSymTable> table) -> void;
+                              utility::handle<DonsusSymTable> table) -> bool;
+  // true if its exist only once
+  auto donsus_sema_is_exist(std::string &name,
+                            utility::handle<DonsusSymTable> table) -> bool;
   // TYPECHECK
   auto donsus_typecheck_is_integer() -> bool;
   auto donsus_typecheck_is_compatible(DONSUS_TYPE first, DONSUS_TYPE second)

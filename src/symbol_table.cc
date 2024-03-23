@@ -2,13 +2,14 @@
 
 DonsusSymTable::DonsusSymTable() : allocator(1024) {}
 
-std::string DonsusSymTable::add(std::string short_name) {
+std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type) {
   /*
    * add a minimal version of the symbol to the symbol table
    * */
   auto qualified_name = create_qualified_name(short_name);
   // mymodule.short_name
   sym t_symbol = {
+      .type = type,
       .index = underlying.size(),
       .key = qualified_name,
       .short_name = short_name,
@@ -19,6 +20,19 @@ std::string DonsusSymTable::add(std::string short_name) {
   return qualified_name;
 }
 
+std::string DonsusSymTable::add(std::string short_name,
+                                std::vector<DONSUS_TYPE> &types) {
+  auto qualified_name = create_qualified_name(short_name);
+  sym t_symbol = {
+      .types = types,
+      .index = underlying.size(),
+      .key = qualified_name,
+      .short_name = short_name,
+      .kind = sym::SYMBOL_PLACEHOLDER,
+  };
+  underlying.push_back(t_symbol);
+  return qualified_name;
+}
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();

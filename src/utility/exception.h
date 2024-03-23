@@ -39,4 +39,10 @@ public:
   ReDefinitionException(const std::string &message)
       : DonsusException(message) {}
 };
+class DonsusUndefinedException : public DonsusException {
+public:
+  DonsusUndefinedException() = default;
+  DonsusUndefinedException(const std::string &message)
+      : DonsusException(message) {}
+};
 #endif

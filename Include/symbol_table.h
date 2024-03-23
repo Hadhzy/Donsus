@@ -1,6 +1,7 @@
 // Symbol table declaration
 #ifndef DONSUS_SYMBOL_TABLE_H
 #define DONSUS_SYMBOL_TABLE_H
+#include "../Include/Internal/type.h"
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
 #include <iostream>
@@ -15,6 +16,8 @@ public:
   std::string qa_sym = "global";
   struct sym {
     int mod;
+    DONSUS_TYPE type;
+    std::vector<DONSUS_TYPE> types; // if they are stored as a group
     bool duplicated = false;
     std::size_t index;      // the order in which the addition happened
     std::string key;        // qualified_name
@@ -56,8 +59,9 @@ public:
   /*
    * Add a minimal symbol representation to the current table
    * */
-  std::string add(std::string short_name);
+  std::string add(std::string short_name, DONSUS_TYPE type);
 
+  std::string add(std::string short_name, std::vector<DONSUS_TYPE> &type);
   /*
    * Add symbol table to global.
    * */

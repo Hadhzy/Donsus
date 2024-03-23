@@ -23,9 +23,8 @@
  prototype
   unsigned long int a = 12 + "sdfsd" + func_call();
   - figure out if the if statement is true
+
   -see whether parameters/arguments have the correct type.
-  - add symbol table recursion
-  - return statement check
   - typecheck assignments
 
 DONSUS_EXPRESSION:
@@ -119,8 +118,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   switch (node->type.type) {
 
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
-    sema.donsus_sema_is_defined(
+    auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
+
+    bool is_declared = sema.donsus_sema_is_defined(
         node->get<donsus_ast::variable_decl>().identifier_name, table);
+
+    if (is_declared)
+      throw ReDefinitionException(decl_name + " has been already declared!");
     break;
   }
 
@@ -130,8 +134,11 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     /*    sema.donsus_typecheck_assign_type_to_node(node);*/
 
     // ODR
-    sema.donsus_sema_is_defined(
-        node->get<donsus_ast::variable_decl>().identifier_name, table);
+    auto def_name = node->get<donsus_ast::variable_decl>().identifier_name;
+    bool is_defined = sema.donsus_sema_is_defined(def_name, table);
+
+    if (is_defined)
+      throw ReDefinitionException(def_name + " has been already defined!");
 
     utility::handle<donsus_ast::node> a =
         sema.donsus_typecheck_support_between_types(node);
@@ -170,13 +177,21 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
-    sema.donsus_sema_is_defined(
-        node->get<donsus_ast::function_decl>().func_name, table);
+    auto func_name = node->get<donsus_ast::function_decl>().func_name;
+    bool is_func_declared = sema.donsus_sema_is_defined(func_name, table);
+
+    if (is_func_declared)
+      throw ReDefinitionException(func_name + "has been already declared");
+
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
-    sema.donsus_sema_is_defined(node->get<donsus_ast::function_def>().func_name,
-                                table);
+    auto func_name = node->get<donsus_ast::function_def>().func_name;
+    bool is_defined = sema.donsus_sema_is_defined(func_name, table);
+
+    if (is_defined)
+      throw ReDefinitionException(func_name + "has been already declared");
+
     // loop through the function, assign types and then come back
     // need to call this later
     sema.donsus_typecheck_is_return_type_valid(node);
@@ -185,8 +200,22 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
 
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
+    auto assignment_name = node->get<donsus_ast::assignment>().identifier_name;
+    std::cout << node->get<donsus_ast::assignment>().identifier_name;
+
+    bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
+
+    if (!is_defined)
+      throw DonsusUndefinedException(assignment_name + " is not defined");
+
+    sema.donsus_typecheck_support_between_types(node);
+    DONSUS_TYPE t = sema.donsus_typecheck_type_expr(node->children[0]);
+
+    sema.donsus_typecheck_is_compatible(table->get(assignment_name).type, t);
+
     break;
   }
+
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     break;
   }
@@ -216,14 +245,24 @@ void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
   // Entry Point
 }
 
+// check if its duplicated(true)
 auto DonsusSema::donsus_sema_is_defined(std::string &name,
                                         utility::handle<DonsusSymTable> table)
-    -> void {
+    -> bool {
   // check if the
   DonsusSymTable::sym result = table->get(name);
 
   if (result.duplicated)
-    throw ReDefinitionException(name + " has been already defined/declared!");
+    return true;
+  return false;
+}
+auto DonsusSema::donsus_sema_is_exist(std::string &name,
+                                      utility::handle<DonsusSymTable> table)
+    -> bool {
+  DonsusSymTable::sym result = table->get(name);
+  if (result.mod != -1)
+    return true;
+  return false;
 }
 
 /**
