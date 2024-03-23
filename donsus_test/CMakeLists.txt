@@ -15,13 +15,18 @@ enable_testing()
 
 
 add_executable(donsus_test
-                test_variables.cc
-                test_functions.cc
-                test_if_statements.cc
-                test_expressions.cc
-                test_function_call.cc
-                test_return.cc
-                test_assignments.cc)
+        parser/test_variables.cc
+        parser/test_functions.cc
+        parser/test_if_statements.cc
+        parser/test_expressions.cc
+        parser/test_function_call.cc
+        parser/test_return.cc
+        parser/test_assignments.cc
+
+        # typecheck
+        typecheck/test_return.cc
+        typecheck/test_variables.cc
+        typecheck/test_function.cc)
 
 
 include(GoogleTest)

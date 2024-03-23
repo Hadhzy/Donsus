@@ -6,6 +6,7 @@
 #include "../src/utility/memory_alloc.h"
 #include "parser.h"
 
+auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void;
 void donsus_sym(utility::handle<donsus_ast::node> node,
                 utility::handle<DonsusSymTable> table);
 
@@ -26,23 +27,28 @@ public:
   using donsus_type = DONSUS_TYPE::kind;
   // BASIC SEMA
   auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
-  auto donsus_sema_is_defined(donsus_type ast, utility::handle<DonsusSymTable>)
-      -> void;
+  // true if its duplicated
+  auto donsus_sema_is_defined(std::string &name,
+                              utility::handle<DonsusSymTable> table) -> bool;
+  // true if its exist only once
+  auto donsus_sema_is_exist(std::string &name,
+                            utility::handle<DonsusSymTable> table) -> bool;
   // TYPECHECK
   auto donsus_typecheck_is_integer() -> bool;
-  auto donsus_typecheck_is_compatible(utility::handle<donsus_ast::node> first,
-                                      utility::handle<donsus_ast::node> second)
+  auto donsus_typecheck_is_compatible(DONSUS_TYPE first, DONSUS_TYPE second)
       -> bool;
   auto donsus_typecheck_type_is_bool_conversion(
       utility::handle<donsus_ast::node>) -> bool;
   auto donsus_typecheck_type_expr(utility::handle<donsus_ast::node> node)
       -> DONSUS_TYPE;
-  auto donsus_typecheck_type_from_node(donsus_ast::donsus_node_type type)
-      -> DONSUS_TYPE;
   auto
   donsus_typecheck_support_between_types(utility::handle<donsus_ast::node> node,
                                          int level = 0)
       -> utility::handle<donsus_ast::node>;
+  auto donsus_typecheck_is_valid_operator(donsus_token_kind kind) -> bool;
+  auto
+  donsus_typecheck_is_return_type_valid(utility::handle<donsus_ast::node> node)
+      -> void;
 
 private:
   bool error;

@@ -50,3 +50,9 @@ While keeping the language high-level.
 (49) - some of the cpp proposals
 (50) - it should be able to execute c++ and c code similar to zig
 (51) - using an explicit suffix to indicate the type, like rust does for example
+(52) - DO NOT HAVE SUPPORT FOR IMPLICIT CONVERSIONS
+(53) - STATIC ANALYSIS
+(54) - POINTERS ARE COMPLICATED(https://www.ralfj.de/blog/2020/12/14/provenance.html)
+(55) - NO UNDEFINED BEHAVIOUR
+
+

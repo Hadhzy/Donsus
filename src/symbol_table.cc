@@ -2,19 +2,14 @@
 
 DonsusSymTable::DonsusSymTable() : allocator(1024) {}
 
-std::string DonsusSymTable::add(std::string short_name) {
+std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type) {
   /*
    * add a minimal version of the symbol to the symbol table
    * */
   auto qualified_name = create_qualified_name(short_name);
-  sym a = get_from_qualified_name(qualified_name);
-  if (a.mod != -1) {
-    // already exists
-    std::cout << "symbol already exists: " << a;
-  }
-
   // mymodule.short_name
   sym t_symbol = {
+      .type = type,
       .index = underlying.size(),
       .key = qualified_name,
       .short_name = short_name,
@@ -25,6 +20,19 @@ std::string DonsusSymTable::add(std::string short_name) {
   return qualified_name;
 }
 
+std::string DonsusSymTable::add(std::string short_name,
+                                std::vector<DONSUS_TYPE> &types) {
+  auto qualified_name = create_qualified_name(short_name);
+  sym t_symbol = {
+      .types = types,
+      .index = underlying.size(),
+      .key = qualified_name,
+      .short_name = short_name,
+      .kind = sym::SYMBOL_PLACEHOLDER,
+  };
+  underlying.push_back(t_symbol);
+  return qualified_name;
+}
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();
@@ -46,7 +54,6 @@ auto DonsusSymTable::get(std::string qualified_name) -> sym {
   sym b = get_from_qualified_name(qualified_name);
   if (b.mod == -1) {
     // doesn't exist
-    std::cout << "doesn't exist";
     return b; // empty
   }
   return b;
@@ -63,10 +70,21 @@ int DonsusSymTable::add_desc(sym &desc) {
 
 auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
     -> sym {
+  sym a;
+  int found = 0;
   for (auto n : underlying) {
-    if (n.key == qualified_name)
-      return n;
+    if (n.key == create_qualified_name(qualified_name)) {
+      a = n;
+      ++found;
+    }
   }
+  if (found >= 2) {
+    a.duplicated = true;
+    return a;
+  } else if (found == 1) {
+    return a;
+  }
+
   sym n{.mod = -1};
   return n;
 }

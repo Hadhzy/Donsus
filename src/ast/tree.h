@@ -10,16 +10,16 @@
 #include "../utility/handle.h"
 #include "../utility/memory_alloc.h"
 #include "node.h"
+#include "parser_util.h"
 #include "symbol_table.h"
-
 // Holds top level ast nodes
 /* (old version)
  * std::vector<std::variant<donsus_math_expr*, donsus_variable_decl*>> body;
  *
  * *\
  */
-
 namespace donsus_ast {
+
 class tree {
 public:
   tree();
@@ -29,13 +29,24 @@ public:
   auto get_allocator() -> utility::DonsusAllocator;
   void allocate_node_list(uint64_t count);
 
+  // -------------------------------------------------------
   // https://en.wikipedia.org/wiki/Tree_traversal
   void traverse(std::function<void(utility::handle<node>,
                                    utility::handle<DonsusSymTable> table)>
                     visit,
-                utility::handle<DonsusSymTable> sym)
-      const; // implement traverse and use stack
+                std::function<void(utility::handle<node>)> assign_node,
+                utility::handle<DonsusSymTable> sym,
+                utility::handle<node> curr_node = nullptr);
+  // implement traverse and use stack
+  void traverse_nodes(std::function<void(utility::handle<node>,
+                                         utility::handle<DonsusSymTable> table)>
+                          visit,
+                      std::function<void(utility::handle<node>)> assign_node,
+                      utility::handle<DonsusSymTable> sym,
+                      utility::handle<node> curr_node = nullptr);
 
+  void init_traverse();
+  // -------------------------------------------------------
   template <typename extra_type>
   auto create_node(donsus_node_type type, uint64_t child_count)
       -> utility::handle<node> {
@@ -55,6 +66,8 @@ public:
 private:
   std::vector<utility::handle<node>> nodes;
   utility::DonsusAllocator allocator;
+  std::stack<utility::handle<node>> stack_assign; // traverse
+  std::stack<utility::handle<node>> stack_visit;  // traverse
 };
 } // namespace donsus_ast
 

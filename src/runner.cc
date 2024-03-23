@@ -31,7 +31,8 @@ int Du_Main(int argc, char **argv) {
   // build symbol table
   // sema and typecheck
   // see sema.cc for further information
-  parser_result->traverse(donsus_sym, sym_global);
+  parser_result->init_traverse();
+  parser_result->traverse(donsus_sym, assign_type_to_node, sym_global);
 
 #ifdef DEBUG
   std::cout << "\n";

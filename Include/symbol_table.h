@@ -1,12 +1,14 @@
 // Symbol table declaration
 #ifndef DONSUS_SYMBOL_TABLE_H
 #define DONSUS_SYMBOL_TABLE_H
-#include "../Include/donsus.h"
+#include "../Include/Internal/type.h"
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
 #include <iostream>
 #include <string>
 #include <vector>
+
+#define DEBUG_SYMBOL_TABLE 1
 
 class DonsusSymTable {
 public:
@@ -14,6 +16,9 @@ public:
   std::string qa_sym = "global";
   struct sym {
     int mod;
+    DONSUS_TYPE type;
+    std::vector<DONSUS_TYPE> types; // if they are stored as a group
+    bool duplicated = false;
     std::size_t index;      // the order in which the addition happened
     std::string key;        // qualified_name
     std::string short_name; // the name from which the qualified_name obtained
@@ -38,7 +43,7 @@ public:
       << "\n"; // the name of the current symbol table
     o << "SymbolTable-child-count: " << table->sym_table.size()
       << "\n"; // the child symbol tables associated with the symbol table
-#ifdef DEBUG
+#ifdef DEBUG_SYMBOL_TABLE
     for (auto &n : table->underlying) {
       o << n;
     }
@@ -54,8 +59,9 @@ public:
   /*
    * Add a minimal symbol representation to the current table
    * */
-  std::string add(std::string short_name);
+  std::string add(std::string short_name, DONSUS_TYPE type);
 
+  std::string add(std::string short_name, std::vector<DONSUS_TYPE> &type);
   /*
    * Add symbol table to global.
    * */

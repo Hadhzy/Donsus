@@ -1,11 +1,11 @@
-#include "../Include/parser.h"
+#include "parser.h"
 #include <gtest/gtest.h>
 #include <iostream>
 
 TEST(IfStatements, IfStatementsNodeType) {
   std::string a = R"(
         def a() -> int {
-            if() {};
+            if() {}
         };
     )";
 
@@ -21,8 +21,8 @@ TEST(IfStatements, IfStatementsNodeType) {
 TEST(IfStatements, IfStatementsCondition) {
   std::string a = R"(
         def a() -> int {
-            if(a > 10) {};
-        };
+            if(a > 10) {}
+        }
     )";
 
   DonsusParser::end_result result = Du_Parse(a);
@@ -55,8 +55,8 @@ TEST(IfStatements, IfStatementsAlternateCase) {
 
             } else {
 
-            };
-        };
+            }
+        }
     )";
 
   DonsusParser::end_result result = Du_Parse(a);
@@ -78,8 +78,8 @@ TEST(IfStatements, IfStatementsElifCase) {
 
             } elif(a < 10) {
 
-            };
-        };
+            }
+        }
     )";
 
   DonsusParser::end_result result = Du_Parse(a);
