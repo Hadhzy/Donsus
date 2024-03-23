@@ -4,7 +4,7 @@
 #include <iostream>
 
 /**
- *  \brief Represents the base expception class
+ *  \brief Represents the base exception class
  */
 class DonsusException : public std::exception {
 private:
@@ -18,5 +18,25 @@ public:
   [[nodiscard]] virtual const char *what() const throw() {
     return error_message.c_str();
   }
+};
+
+class ReturnTypeException : public DonsusException {
+public:
+  ReturnTypeException() = default;
+  ReturnTypeException(const std::string &message) : DonsusException(message) {}
+};
+
+class InCompatibleTypeException : public DonsusException {
+public:
+  InCompatibleTypeException() = default;
+  InCompatibleTypeException(const std::string &message)
+      : DonsusException(message) {}
+};
+
+class ReDefinitionException : public DonsusException {
+public:
+  ReDefinitionException() = default;
+  ReDefinitionException(const std::string &message)
+      : DonsusException(message) {}
 };
 #endif
