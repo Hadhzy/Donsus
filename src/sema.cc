@@ -329,6 +329,7 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
     utility::handle<donsus_ast::node> node) -> void {
   std::vector<DONSUS_TYPE> expect =
       node->get<donsus_ast::function_def>().return_type;
+  std::cout << std::to_string(expect.size());
 
   for (auto n : node->get<donsus_ast::function_def>().body) {
     if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
