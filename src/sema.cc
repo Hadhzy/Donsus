@@ -87,6 +87,8 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
     node->get<donsus_ast::return_kw>().types.push_back(type_a);
     break;
   }
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+  }
   default: {
   }
   }
@@ -147,9 +149,9 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
         sema.donsus_typecheck_is_compatible(local_type, type_of_var_def);
 
     if (!is_compatible)
-      throw DonsusException("Operation between: " + local_type.to_string() +
-                            "and " + type_of_var_def.to_string() +
-                            " are not supported");
+      throw InCompatibleTypeException(
+          "Operation between: " + local_type.to_string() + "and " +
+          type_of_var_def.to_string() + " are not supported");
     break;
   }
 
@@ -221,7 +223,7 @@ auto DonsusSema::donsus_sema_is_defined(std::string &name,
   DonsusSymTable::sym result = table->get(name);
 
   if (result.duplicated)
-    throw DonsusException(name + " has been already defined/declared!");
+    throw ReDefinitionException(name + " has been already defined/declared!");
 }
 
 /**
@@ -316,9 +318,9 @@ auto DonsusSema::donsus_typecheck_support_between_types(
       donsus_typecheck_is_compatible(lhs->real_type, rhs->real_type);
 
   if (!is_compatible)
-    throw DonsusException("Operation between: " + lhs->real_type.to_string() +
-                          " and:" + rhs->real_type.to_string() +
-                          "are not supported");
+    throw InCompatibleTypeException(
+        "Operation between: " + lhs->real_type.to_string() +
+        " and:" + rhs->real_type.to_string() + "are not supported");
 
   return node;
 }
@@ -335,5 +337,5 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
         return;
     }
   }
-  throw DonsusException("Return statement is not correct, TBD!");
+  throw ReturnTypeException("Return statement is not correct, TBD!");
 }
