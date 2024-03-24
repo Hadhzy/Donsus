@@ -120,7 +120,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
     auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_defined(
+    bool is_declared = sema.donsus_sema_is_duplicated(
         node->get<donsus_ast::variable_decl>().identifier_name, table);
 
     if (is_declared)
@@ -135,9 +135,9 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     // ODR
     auto def_name = node->get<donsus_ast::variable_decl>().identifier_name;
-    bool is_defined = sema.donsus_sema_is_defined(def_name, table);
+    bool is_exist = sema.donsus_sema_is_duplicated(def_name, table);
 
-    if (is_defined)
+    if (is_exist)
       throw ReDefinitionException(def_name + " has been already defined!");
 
     utility::handle<donsus_ast::node> a =
@@ -178,7 +178,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
     auto func_name = node->get<donsus_ast::function_decl>().func_name;
-    bool is_func_declared = sema.donsus_sema_is_defined(func_name, table);
+    bool is_func_declared = sema.donsus_sema_is_duplicated(func_name, table);
 
     if (is_func_declared)
       throw ReDefinitionException(func_name + "has been already declared");
@@ -187,7 +187,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     auto func_name = node->get<donsus_ast::function_def>().func_name;
-    bool is_defined = sema.donsus_sema_is_defined(func_name, table);
+    bool is_defined = sema.donsus_sema_is_duplicated(func_name, table);
 
     if (is_defined)
       throw ReDefinitionException(func_name + "has been already declared");
@@ -211,8 +211,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     sema.donsus_typecheck_support_between_types(node);
     DONSUS_TYPE t = sema.donsus_typecheck_type_expr(node->children[0]);
 
-    sema.donsus_typecheck_is_compatible(table->get(assignment_name).type, t);
-
+    bool are_the_same = sema.donsus_typecheck_is_compatible(
+        table->get(assignment_name).type, t);
+    if (!are_the_same) {
+      throw InCompatibleTypeException(
+          "Operation between: " + table->get(assignment_name).type.to_string() +
+          " and " + t.to_string() + " are not supported");
+    }
     break;
   }
 
@@ -246,12 +251,10 @@ void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
 }
 
 // check if its duplicated(true)
-auto DonsusSema::donsus_sema_is_defined(std::string &name,
-                                        utility::handle<DonsusSymTable> table)
-    -> bool {
+auto DonsusSema::donsus_sema_is_duplicated(
+    std::string &name, utility::handle<DonsusSymTable> table) -> bool {
   // check if the
   DonsusSymTable::sym result = table->get(name);
-
   if (result.duplicated)
     return true;
   return false;
@@ -271,6 +274,8 @@ auto DonsusSema::donsus_sema_is_exist(std::string &name,
 auto DonsusSema::donsus_typecheck_is_compatible(DONSUS_TYPE first,
                                                 DONSUS_TYPE second) -> bool {
 
+  std::cout << "first: " << first.to_string();
+  std::cout << "second: " << second.to_string();
   // call == overload
   if (first == second)
     return true;
