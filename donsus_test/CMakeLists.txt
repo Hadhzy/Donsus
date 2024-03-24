@@ -26,7 +26,8 @@ add_executable(donsus_test
         # typecheck
         typecheck/test_return.cc
         typecheck/test_variables.cc
-        typecheck/test_function.cc)
+        typecheck/test_function.cc
+        typecheck/test_assignment_type.cc)
 
 
 include(GoogleTest)

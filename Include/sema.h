@@ -28,7 +28,7 @@ public:
   // BASIC SEMA
   auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
   // true if its duplicated
-  auto donsus_sema_is_defined(std::string &name,
+  auto donsus_sema_is_duplicated(std::string &name,
                               utility::handle<DonsusSymTable> table) -> bool;
   // true if its exist only once
   auto donsus_sema_is_exist(std::string &name,
