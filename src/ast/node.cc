@@ -30,6 +30,8 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_FUNCTION_CALL";
   case DONSUS_RETURN_STATEMENT:
     return "DONSUS_RETURN_STATEMENT";
+  case DONSUS_STRING_EXPRESSION:
+    return "DONSUS_STRING_EXPRESSION";
   }
 }
 
@@ -74,6 +76,10 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
 
   case donsus_node_type::DONSUS_RETURN_STATEMENT: {
     return "DONSUS_RETURN_STATEMENT";
+  }
+
+  case donsus_node_type::DONSUS_STRING_EXPRESSION: {
+    return "DONSUS_STRING_EXPRESSION";
   }
 
   default: {

@@ -26,6 +26,7 @@ struct donsus_node_type {
     DONSUS_FUNCTION_CALL,        // just the type of the node
     DONSUS_ELSE_STATEMENT,       // just the type of the node
     DONSUS_RETURN_STATEMENT,     // just the type of the node
+    DONSUS_STRING_EXPRESSION,
   };
 
   donsus_node_type() = default;
@@ -81,7 +82,7 @@ struct function_call {
   // test ->func_name
   // (1,2,3,4,5,6) ->arguments
   std::string func_name;
-  std::vector<NAME_OR_DATA_PAIR> arguments;
+  std::vector<utility::handle<donsus_ast::node>> arguments;
 };
 
 struct if_statement {
@@ -100,6 +101,8 @@ struct else_statement {
 
 struct return_kw {
   std::vector<DONSUS_TYPE> types; // only if the main type is not long enough
+  int order = -1; // This will relate to the return type of the function in
+                  // which it is used in
 };
 
 /*
@@ -112,6 +115,10 @@ struct assignment {
 
 struct identifier {
   std::string identifier_name; //  name of lvalue
+};
+
+struct string_expr {
+  donsus_token value;
 };
 
 struct expression {
