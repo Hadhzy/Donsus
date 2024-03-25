@@ -46,6 +46,7 @@ public:
   donsus_token donsus_parser_next();
   // move to the next token and see if the provided type is correct
   void donsus_parser_except(donsus_token_kind type);
+  void donsus_parser_except_current(donsus_token_kind type);
 
   /**
    *  \brief Parse down:
@@ -86,6 +87,11 @@ public:
   auto create_function_decl(donsus_ast::donsus_node_type type,
                             u_int64_t child_count) -> parse_result;
 
+  // parsing string expressions
+  auto string_expression() -> parse_result;
+  auto create_string_expression(donsus_ast::donsus_node_type type,
+                                u_int64_t child_count) -> parse_result;
+
   // Function definition
   auto donsus_function_definition() -> parse_result;
   auto create_function_definition(donsus_ast::donsus_node_type type,
@@ -94,7 +100,7 @@ public:
   auto donsus_statements() -> std::vector<parse_result>;
 
   auto donsus_function_signature() -> std::vector<NAME_DATA_PAIR>;
-  auto donsus_function_args() -> std::vector<NAME_OR_DATA_PAIR>;
+  auto donsus_function_args() -> std::vector<utility::handle<donsus_ast::node>>;
 
   // peeking functions
   auto peek_is_function_definition() -> bool;

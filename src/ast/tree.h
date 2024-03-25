@@ -44,6 +44,12 @@ public:
                       std::function<void(utility::handle<node>)> assign_node,
                       utility::handle<DonsusSymTable> sym,
                       utility::handle<node> curr_node = nullptr);
+  void evaluate(std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    visit,
+                std::function<void(utility::handle<node>)> assign_node,
+                utility::handle<DonsusSymTable> sym,
+                utility::handle<node> curr_node = nullptr);
 
   void init_traverse();
   // -------------------------------------------------------

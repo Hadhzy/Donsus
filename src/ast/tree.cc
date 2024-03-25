@@ -39,6 +39,22 @@ void tree::traverse(std::function<void(utility::handle<node>,
       traverse_nodes(visit, assign_node, sym, n);
     }
   }
+
+  if (curr_node) {
+    if (curr_node->type.type ==
+        donsus_node_type::underlying::DONSUS_FUNCTION_DEF) {
+      for (auto &n : curr_node->get<donsus_ast::function_def>().body) {
+        evaluate(visit, assign_node, sym, n);
+      }
+    } else {
+      for (auto &n : curr_node->children)
+        evaluate(visit, assign_node, sym, n);
+    }
+  } else {
+    for (auto &n : nodes) {
+      evaluate(visit, assign_node, sym, n);
+    }
+  }
 }
 
 void tree::traverse_nodes(
@@ -79,7 +95,14 @@ void tree::traverse_nodes(
   default: {
   }
   }
+}
 
+void tree::evaluate(
+    std::function<void(utility::handle<node>,
+                       utility::handle<DonsusSymTable> table)>
+        visit,
+    std::function<void(utility::handle<node>)> assign_type_to_node,
+    utility::handle<DonsusSymTable> sym, utility::handle<node> curr_node) {
   while (!stack_assign.empty()) {
     auto current = stack_assign.top();
     stack_assign.pop();
