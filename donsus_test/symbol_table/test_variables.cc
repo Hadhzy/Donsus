@@ -3,6 +3,9 @@
 #include "../Include/symbol_table.h"
 #include <gtest/gtest.h>
 
+/*
+ This checks whether a simple variable is correctly added to the symbol_table
+ * */
 TEST(SymbolTableCheckScalar, SymbolTableVariable) {
   std::string a = R"(
     a: int = 12 + 7 / 2;
@@ -65,6 +68,10 @@ TEST(SymbolTableCheckScalarInFunction, SymbolTableVariable) {
 }
 
 
+/*
+
+This checks whether a symbol is duplicated in a symbol-table.
+ * */
 TEST(SymbolTableDuplicated, SymbolTableVariable) {
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 

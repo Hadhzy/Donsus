@@ -85,8 +85,8 @@ public:
   auto get(std::string qualified_name) -> sym;
 
   // for debugging purposes
-  bool operator==(DonsusSymTable const &rhs) {
-    return underlying == rhs.underlying;
+  bool operator==(DonsusSymTable const &rhs) const{
+    return underlying == rhs.underlying && sym_table == rhs.sym_table;
   }
 
 private:
