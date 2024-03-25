@@ -33,6 +33,13 @@ std::string DonsusSymTable::add(std::string short_name,
   underlying.push_back(t_symbol);
   return qualified_name;
 }
+
+std::string DonsusSymTable::add_symbol(DonsusSymTable::sym symbol) {
+  underlying.push_back(symbol);
+  auto qualified_name = create_qualified_name(symbol.short_name);
+  return qualified_name;
+}
+
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();

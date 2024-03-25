@@ -27,13 +27,18 @@ add_executable(donsus_test
         typecheck/test_return.cc
         typecheck/test_variables.cc
         typecheck/test_function.cc
-        typecheck/test_assignment_type.cc)
+        typecheck/test_assignment_type.cc
+
+        #symbol table
+        symbol_table/test_variables.cc
+        symbol_table/test_functions.cc
+)
 
 
 include(GoogleTest)
 gtest_discover_tests(donsus_test)
 
 target_link_libraries(donsus_test PUBLIC
-                        GTest::gtest_main
-                        donsus_lib
-                        )
+        GTest::gtest_main
+        donsus_lib
+)
