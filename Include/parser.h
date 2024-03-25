@@ -71,11 +71,6 @@ public:
   auto donsus_number_primary(donsus_ast::donsus_node_type type,
                              uint64_t child_count) -> parse_result;
 
-  // parsing string expressions
-  auto string_expression() -> parse_result;
-  auto create_string_expression(donsus_ast::donsus_node_type type,
-                                u_int64_t child_count) -> parse_result;
-
   // parsing variable declaration
   auto donsus_variable_decl() -> parse_result;
   auto create_variable_declaration(donsus_ast::donsus_node_type type,
