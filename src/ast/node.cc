@@ -77,6 +77,9 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
   case donsus_node_type::DONSUS_RETURN_STATEMENT: {
     return "DONSUS_RETURN_STATEMENT";
   }
+  case donsus_node_type::DONSUS_STRING_EXPRESSION: {
+    return "DONSUS_STRING_EXPRESSION";
+  }
 
   case donsus_node_type::DONSUS_STRING_EXPRESSION: {
     return "DONSUS_STRING_EXPRESSION";
