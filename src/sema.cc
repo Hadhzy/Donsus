@@ -87,8 +87,17 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
     node->get<donsus_ast::return_kw>().types.push_back(type_a);
     break;
   }
-  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+
+  case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
+    // decide whether it's a string or single char
+    node->real_type.type_un = DONSUS_TYPE::TYPE_CHAR; // not entirely correct
+    break;
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+    break;
+  }
+
   default: {
   }
   }
@@ -158,7 +167,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (!is_compatible)
       throw InCompatibleTypeException(
-          "Operation between: " + local_type.to_string() + "and " +
+          "Operation between: " + local_type.to_string() + " and" +
           type_of_var_def.to_string() + " are not supported");
     break;
   }
@@ -375,9 +384,17 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
   for (auto n : node->get<donsus_ast::function_def>().body) {
     if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
       // examine it here
+      // if the type is void
+      if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
+        throw ReturnTypeException("Return is not possible when  type is void");
+      }
       if (n->get<donsus_ast::return_kw>().types == expect)
         return;
     }
+  }
+  // if its void just terminate
+  if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
+    return;
   }
   throw ReturnTypeException("Return statement is not correct, TBD!");
 }

@@ -65,7 +65,9 @@ typedef enum {
   DONSUS_IF_KW,                  // if
   DONSUS_ELIF_KW,                // elif
   DONSUS_ELSE_KW,                // else
-  DONSUS_RETURN_KW               // return
+  DONSUS_RETURN_KW,               // return
+  DONSUS_PRINT_KW                // print
+
 } donsus_token_kind;
 
 struct donsus_token {

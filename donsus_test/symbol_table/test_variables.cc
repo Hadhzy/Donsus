@@ -98,6 +98,8 @@ TEST(SymbolTableDuplicated, SymbolTableVariable) {
 
 /*
 Test if the symbols have proper types.
+As of now any number expression evaluates to a DONSUS_BASIC_INT
+meaning all the other types must be compatible with them.
  */
 TEST(SymbolType, SymbolTableVariable) {
   std::string a = R"(
@@ -133,4 +135,23 @@ TEST(SymbolType, SymbolTableVariable) {
 
   std::cout << "here: "
             << "\n";
+}
+
+/*
+ These types should not be equal
+ * */
+TEST(SymbolTypeNotEqual, SymbolTableVariable) {
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  DONSUS_TYPE type1;
+  DONSUS_TYPE type2;
+
+  type1.type_un = DONSUS_TYPE::TYPE_I32;
+  type2.type_un = DONSUS_TYPE::TYPE_U64;
+
+  DonsusSymTable::sym symbol1;
+  DonsusSymTable::sym symbol2;
+
+  symbol1.type = type1;
+  symbol2.type = type2;
+  EXPECT_NE(symbol1, symbol2);
 }

@@ -44,6 +44,14 @@ public:
       break;
     }
 
+    case type::DONSUS_PRINT_EXPRESSION: {
+      print_type(ast_node->type, indent_level);
+      indent_level++;
+      print_with_newline("expression: ", indent_level);
+      print_ast_node(ast_node->children[0], indent_level + 1);
+      break;
+    }
+
     case type::DONSUS_ASSIGNMENT: {
       print_type(ast_node->type, indent_level);
       indent_level++;
@@ -161,6 +169,11 @@ public:
       print_ast_node(p, indent_level + 1);
       print_with_newline(" ", indent_level);
     }
+  }
+
+  void print_print_expression(utility::handle<donsus_ast::node> &ast_node,
+                              int indent_level) {
+    print_ast_node(ast_node, indent_level + 1);
   }
 
   void print_number_expr(donsus_ast::number_expr &num_expr, int indent_level) {
@@ -386,7 +399,11 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       donsus_tree->add_node(result);
+    }
 
+    if (cur_token.kind == DONSUS_PRINT_KW) {
+      parse_result result = donsus_print();
+      donsus_tree->add_node(result);
     }
 
     else if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
@@ -899,6 +916,23 @@ auto DonsusParser::string_expression() -> parse_result {
   return result;
 }
 
+auto DonsusParser::donsus_print() -> parse_result {
+  parse_result print = create_donsus_print(
+      donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION, 10);
+  donsus_parser_except(DONSUS_LPAR);
+
+  donsus_parser_next(); // move to expression
+  while (cur_token.kind != DONSUS_RPAR) {
+    parse_result expression = donsus_expr(0);
+    print->children.push_back(expression);
+  }
+
+  donsus_parser_except_current(DONSUS_RPAR);
+  donsus_parser_except(DONSUS_SEMICOLON);
+
+  return print;
+}
+
 auto DonsusParser::donsus_return_statement() -> parse_result {
   parse_result return_statement = create_return_statement(
       donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT, 10);
@@ -985,6 +1019,11 @@ auto DonsusParser::create_string_expression(donsus_ast::donsus_node_type type,
                                             uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::string_expr>(type, child_count);
+}
+
+auto DonsusParser::create_donsus_print(donsus_ast::donsus_node_type type,
+                                       uint64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::print_expr>(type, child_count);
 }
 
 auto DonsusParser::create_variable_declaration(

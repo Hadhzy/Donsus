@@ -82,6 +82,11 @@ public:
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
+  // print expression
+  auto donsus_print() -> parse_result;
+  auto create_donsus_print(donsus_ast::donsus_node_type type,
+u_int64_t child_count) -> parse_result;
+
   // Function declaration
   auto donsus_function_decl() -> parse_result;
   auto create_function_decl(donsus_ast::donsus_node_type type,

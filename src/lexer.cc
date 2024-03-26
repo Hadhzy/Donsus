@@ -17,7 +17,7 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"elif", DONSUS_ELIF_KW},
     {"else", DONSUS_ELSE_KW},
     {"return", DONSUS_RETURN_KW},
-};
+    {"print", DONSUS_PRINT_KW}};
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
 
@@ -187,6 +187,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_RETURN_KW:
     return "DONSUS_RETURN_KW";
+
+  case DONSUS_PRINT_KW:
+    return "DONSUS_PRINT_KW";
   default:
 
     return "UNKNOWN_TOKEN_KIND";
