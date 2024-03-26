@@ -1,19 +1,10 @@
+/*
+ Codegen for the DONSUS COMPILER
+Todo:
+- build vtable: https://itanium-cxx-abi.github.io/cxx-abi/abi.html#vtable
+- visit each of the ast nodes
+- optimisation is not needed as the IR builder already constant one
+- IRBuilder
+
+ */
 #include "../../Include/codegen/codegen.h"
-
-void DonsusCodeGenerator::compile_donsus_expr(DonsusParser::end_result &ast) {
-
-  for (const auto &node : ast->get_nodes()) {
-    // fix this so the types are not stacked onto each other
-    switch (node->type.type) {
-    case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
-      // add codegeneration for var decl using the library
-    }
-    }
-  }
-};
-
-void DonsusCodegenEvaluator::compile(DonsusParser::end_result &ast) {
-  // compile expression by passing it down to the DonsusCodegenerator
-
-  compile_donsus_expr(ast);
-}

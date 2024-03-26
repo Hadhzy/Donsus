@@ -1,5 +1,9 @@
 #ifndef UTILITY_HANDLE_H
 #define UTILITY_HANDLE_H
+#include <cassert>
+
+#define assertm(exp, msg) assert(((void)msg, exp))
+
 // wrapper for raw pointers
 namespace utility {
 
@@ -29,8 +33,12 @@ public:
  */
   auto get() const -> type * { return m_ptr; }
   auto operator==(const handle &other) const -> bool {
-    return m_ptr == other.m_ptr;
+    assertm(m_ptr, "Failed pointer is null");
+    assertm(other.m_ptr, "Failed pointer is null");
+
+    return *m_ptr == *other.m_ptr;
   }
+
   operator bool() const noexcept { return m_ptr != nullptr; }
 
 protected:

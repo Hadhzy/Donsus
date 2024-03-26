@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
+
+find_package(LLVM REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
 add_library(donsus_lib STATIC
         src/handle_file.cc
         src/lexer.cc
@@ -32,7 +38,18 @@ add_library(donsus_lib STATIC
         #ast
         src/ast/node.cc
         src/ast/tree.cc
+
+        # optimisation
+        src/optimisation_ast.cc
 )
+
+
+include_directories(${LLVM_INCLUDE_DIRS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
+
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -42,7 +59,9 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 add_executable(donsus src/main.cc)
 
+target_link_libraries(donsus PUBLIC ${llvm_libs})
 target_link_libraries(donsus PUBLIC donsus_lib)
+
 
 add_subdirectory(donsus_test)
 

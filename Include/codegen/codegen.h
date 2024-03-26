@@ -1,4 +1,6 @@
 #include "../parser.h"
+#ifndef CODEGEN_H
+#define CODEGEN_H
 
 class DonsusCodeGenerator {
   // destination driven code generating system
@@ -10,3 +12,5 @@ class DonsusCodegenEvaluator : public DonsusCodeGenerator {
 public:
   void compile(DonsusParser::end_result &ast);
 };
+
+#endif
