@@ -92,3 +92,13 @@ auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
 std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
   return this->qa_sym + '.' + short_name;
 }
+
+std::string DonsusSymTable::apply_scope(std::string &name) {
+  if (name.empty()) {
+    // Handle empty string case
+    return "";
+  }
+  // Return substring excluding the last character
+  std::string result = this->qa_sym.substr(0, this->qa_sym.size() - 1) + name;
+  return result;
+}

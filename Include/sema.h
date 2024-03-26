@@ -29,10 +29,12 @@ public:
   auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
   // true if its duplicated
   auto donsus_sema_is_duplicated(std::string &name,
-                              utility::handle<DonsusSymTable> table) -> bool;
+                                 utility::handle<DonsusSymTable> table) -> bool;
   // true if its exist only once
   auto donsus_sema_is_exist(std::string &name,
                             utility::handle<DonsusSymTable> table) -> bool;
+  auto donsus_is_function_exist(std::string &name,
+                                utility::handle<DonsusSymTable> table) -> bool;
   // TYPECHECK
   auto donsus_typecheck_is_integer() -> bool;
   auto donsus_typecheck_is_compatible(DONSUS_TYPE first, DONSUS_TYPE second)

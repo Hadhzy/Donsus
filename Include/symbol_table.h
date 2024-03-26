@@ -68,6 +68,11 @@ public:
   utility::handle<DonsusSymTable> add_sym_table(std::string qa_sym_ex);
 
   /*
+   * Compare function's name in function call
+   */
+  std::string apply_scope(std::string &name);
+
+  /*
    * Obtain symbol table based on name
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
