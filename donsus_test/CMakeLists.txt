@@ -15,6 +15,7 @@ enable_testing()
 
 
 add_executable(donsus_test
+        # parser
         parser/test_variables.cc
         parser/test_functions.cc
         parser/test_if_statements.cc
@@ -22,6 +23,7 @@ add_executable(donsus_test
         parser/test_function_call.cc
         parser/test_return.cc
         parser/test_assignments.cc
+        parser/test_print.cc
 
         # typecheck
         typecheck/test_return.cc
