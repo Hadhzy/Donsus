@@ -114,3 +114,13 @@ auto DONSUS_TYPE::to_string() const -> std::string {
   }
   }
 }
+
+auto DONSUS_TYPE::is_integer() const -> bool {
+  if (this->type_un == TYPE_BASIC_INT || this->type_un == TYPE_I32 ||
+      this->type_un == TYPE_U64 || this->type_un == TYPE_I8 ||
+      this->type_un == TYPE_I64 || this->type_un == TYPE_I16 ||
+      this->type_un == TYPE_U32) {
+    return true;
+  } else
+    return false;
+}
