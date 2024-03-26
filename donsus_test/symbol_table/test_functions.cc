@@ -61,4 +61,20 @@ TEST(SymbolTableCheckDifferentTableStructures, SymbolTableCheckFunction) {
   EXPECT_EQ(sym_global, sym_global2);
 }
 
-// Check for symbol type here in every cases
+/*
+TEST(SymbolTableMultipleFUnctions, SymbolTableCheckFunction) {
+  std::string a = R"(
+    def func() -> int{
+    return 5;
+    }
+
+  def func2() -> int {
+    a: int;
+    }
+b() -> int;
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  utility::handle<DonsusSymTable> sym_global;
+}*/

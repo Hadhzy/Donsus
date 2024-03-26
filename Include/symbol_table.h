@@ -31,6 +31,7 @@ public:
       // use when debugging
       return key == rhs.key && type == rhs.type && short_name == rhs.short_name;
     }
+    bool operator!=(sym const &rhs) const { return !operator==(rhs); }
   };
   using sym = DonsusSymTable::sym;
   // Debug print for symbol

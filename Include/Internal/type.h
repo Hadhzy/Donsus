@@ -26,12 +26,20 @@ public:
   kind type_un;
 
   bool operator==(const DONSUS_TYPE &rhs) const {
+    // TYPE_BASIC_INT and any other integer types are compatible
+    if (rhs.type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT && is_integer() ||
+        this->type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT &&
+            rhs.is_integer()) {
+      return true;
+    }
+
     if (this->type_un == rhs.type_un)
       return true;
 
     return false;
   }
   auto to_string() const -> std::string;
+  auto is_integer() const -> bool;
 };
 
 /**
