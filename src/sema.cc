@@ -384,9 +384,17 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
   for (auto n : node->get<donsus_ast::function_def>().body) {
     if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
       // examine it here
+      // if the type is void
+      if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
+        throw ReturnTypeException("Return is not possible when  type is void");
+      }
       if (n->get<donsus_ast::return_kw>().types == expect)
         return;
     }
+  }
+  // if its void just terminate
+  if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
+    return;
   }
   throw ReturnTypeException("Return statement is not correct, TBD!");
 }
