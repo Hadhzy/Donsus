@@ -71,3 +71,32 @@ TEST(RedeclarationVariableIncorrectNotSameType,
       { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
       ReDefinitionException);
 }
+
+TEST(StringTypecheck, TestSingleTypes) {
+  std::string a = R"(
+    a:char = "s"; # right now this is correct, although this s not a char
+)";
+
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
+  parse_result->init_traverse();
+
+  std::string a2 = R"(
+    a:int = "s"; # right now this is correct, although this s not a char
+)";
+
+  DonsusParser::end_result parse_result2 = Du_Parse(a2);
+  utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
+
+  parse_result2->init_traverse();
+
+  EXPECT_NO_THROW(
+      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+
+  EXPECT_THROW(
+      {
+        parse_result2->traverse(donsus_sym, assign_type_to_node, sym_global2);
+      },
+      InCompatibleTypeException);
+}

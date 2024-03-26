@@ -27,6 +27,7 @@ struct donsus_node_type {
     DONSUS_ELSE_STATEMENT,       // just the type of the node
     DONSUS_RETURN_STATEMENT,     // just the type of the node
     DONSUS_STRING_EXPRESSION,
+    DONSUS_PRINT_EXPRESSION
   };
 
   donsus_node_type() = default;
@@ -123,6 +124,10 @@ struct string_expr {
 
 struct expression {
   donsus_token value;
+};
+
+struct print_expr {
+
 };
 
 using node_properties =
