@@ -59,6 +59,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
 
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
     // we can't figure out the type here.
+    // should be compatible with other types
     node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
     break;
   }
@@ -201,7 +202,6 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
     auto assignment_name = node->get<donsus_ast::assignment>().identifier_name;
-    std::cout << node->get<donsus_ast::assignment>().identifier_name;
 
     bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
 
@@ -231,10 +231,10 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
-    std::string func_name = node->get<donsus_ast::function_call>().func_name;
+    /*std::string func_name = node->get<donsus_ast::function_call>().func_name;
     bool is_defined = sema.donsus_is_function_exist(func_name, table);
     if (!is_defined)
-      throw ReDefinitionException(func_name + " has not been defined!");
+      throw ReDefinitionException(func_name + " has not been defined!");*/
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
@@ -271,7 +271,7 @@ auto DonsusSema::donsus_sema_is_exist(std::string &name,
     return true;
   return false;
 }
-
+/*
 auto DonsusSema::donsus_is_function_exist(std::string &name,
                                           utility::handle<DonsusSymTable> table)
     -> bool {
@@ -282,7 +282,7 @@ auto DonsusSema::donsus_is_function_exist(std::string &name,
   } else {
     return false;
   }
-};
+};*/
 
 /**
  * \brief Checks if the 2 types are compatible.
@@ -290,8 +290,6 @@ auto DonsusSema::donsus_is_function_exist(std::string &name,
 auto DonsusSema::donsus_typecheck_is_compatible(DONSUS_TYPE first,
                                                 DONSUS_TYPE second) -> bool {
 
-  std::cout << "first: " << first.to_string();
-  std::cout << "second: " << second.to_string();
   // call == overload
   if (first == second)
     return true;
@@ -389,7 +387,6 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
     utility::handle<donsus_ast::node> node) -> void {
   std::vector<DONSUS_TYPE> expect =
       node->get<donsus_ast::function_def>().return_type;
-  std::cout << std::to_string(expect.size());
 
   for (auto n : node->get<donsus_ast::function_def>().body) {
     if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {

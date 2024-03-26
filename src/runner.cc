@@ -34,6 +34,7 @@ int Du_Main(int argc, char **argv) {
   parser_result->init_traverse();
   parser_result->traverse(donsus_sym, assign_type_to_node, sym_global);
 
+  // codegen
 #ifdef DEBUG
   std::cout << "\n";
   std::cout << "SYMBOL TABLE:" << std::endl;
@@ -43,9 +44,6 @@ int Du_Main(int argc, char **argv) {
   // sema
 
   // codegen
-
-  DonsusCodegenEvaluator codegen;
-  codegen.compile(parser_result);
   /*  delete sym_global.get();*/
   return 0;
 }

@@ -18,15 +18,19 @@ public:
     int mod;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
-    bool duplicated = false;
-    std::size_t index;      // the order in which the addition happened
-    std::string key;        // qualified_name
-    std::string short_name; // the name from which the qualified_name obtained
+    bool duplicated = false; // true if its duplicated in the symbol_table
+    std::size_t index;       // the order in which the addition happened
+    std::string key;         // qualified_name
+    std::string short_name;  // the name from which the qualified_name obtained
     enum : int { SORT_WHITE, SORT_GREY, SORT_BLACK };
     enum : int { SYMBOL_GLOBAL, SYMBOL_TYPE, SYMBOL_PLACEHOLDER } kind;
     /*    union {
           d_proc, d_global, d_type, d_imas
         }; // d_proc, d_global, d_type, d_imas*/
+    bool operator==(sym const &rhs) const {
+      // use when debugging
+      return key == rhs.key && type == rhs.type && short_name == rhs.short_name;
+    }
   };
   using sym = DonsusSymTable::sym;
   // Debug print for symbol
@@ -69,16 +73,26 @@ public:
 
   /*
    * Compare function's name in function call
-   */
-  std::string apply_scope(std::string &name);
+   *//*
+  std::string apply_scope(std::string &name);*/
 
   /*
    * Obtain symbol table based on name
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
+  /*
+   * Add symbol manually mainly for debugging
+   *
+   * */
+  std::string add_symbol(DonsusSymTable::sym symbol);
   // get symbol based on qualified name
   auto get(std::string qualified_name) -> sym;
+
+  // for debugging purposes
+  bool operator==(DonsusSymTable const &rhs) const {
+    return underlying == rhs.underlying && sym_table == rhs.sym_table;
+  }
 
 private:
   int add_desc(sym &desc);

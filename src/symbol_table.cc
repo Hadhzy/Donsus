@@ -33,6 +33,13 @@ std::string DonsusSymTable::add(std::string short_name,
   underlying.push_back(t_symbol);
   return qualified_name;
 }
+
+std::string DonsusSymTable::add_symbol(DonsusSymTable::sym symbol) {
+  underlying.push_back(symbol);
+  auto qualified_name = create_qualified_name(symbol.short_name);
+  return qualified_name;
+}
+
 utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();
@@ -93,6 +100,7 @@ std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
   return this->qa_sym + '.' + short_name;
 }
 
+/*
 std::string DonsusSymTable::apply_scope(std::string &name) {
   if (name.empty()) {
     // Handle empty string case
@@ -101,4 +109,4 @@ std::string DonsusSymTable::apply_scope(std::string &name) {
   // Return substring excluding the last character
   std::string result = this->qa_sym.substr(0, this->qa_sym.size() - 1) + name;
   return result;
-}
+}*/
