@@ -167,7 +167,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (!is_compatible)
       throw InCompatibleTypeException(
-          "Operation between: " + local_type.to_string() + "and " +
+          "Operation between: " + local_type.to_string() + " and" +
           type_of_var_def.to_string() + " are not supported");
     break;
   }
