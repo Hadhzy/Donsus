@@ -52,7 +52,15 @@ void tree::traverse(std::function<void(utility::handle<node>,
     }
   } else {
     for (auto &n : nodes) {
-      evaluate(visit, assign_node, sym, n);
+      if (n->type.type == donsus_node_type::underlying::DONSUS_FUNCTION_DEF) {
+        std::string func_name = n->get<donsus_ast::function_def>().func_name;
+        std::string qualified_name = sym->apply_scope(func_name);
+        auto sym_table = sym->get_sym_table(qualified_name);
+
+        evaluate(visit, assign_node, sym_table, n);
+      } else {
+        evaluate(visit, assign_node, sym, n);
+      }
     }
   }
 }
@@ -71,7 +79,9 @@ void tree::traverse_nodes(
 
     // process children
     add_params_sym(b, stuff.parameters);
-    traverse(visit, assign_type_to_node, b, n);
+    for (auto &children : n->get<donsus_ast::function_def>().body) {
+      traverse_nodes(visit, assign_type_to_node, b, children);
+    }
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
