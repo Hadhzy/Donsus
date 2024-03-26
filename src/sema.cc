@@ -87,8 +87,17 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
     node->get<donsus_ast::return_kw>().types.push_back(type_a);
     break;
   }
-  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+
+  case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
+    // decide whether it's a string or single char
+    node->real_type.type_un = DONSUS_TYPE::TYPE_CHAR; // not entirely correct
+    break;
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+    break;
+  }
+
   default: {
   }
   }
