@@ -59,6 +59,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
 
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
     // we can't figure out the type here.
+    // should be compatible with other types
     node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
     break;
   }

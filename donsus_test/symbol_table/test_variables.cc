@@ -67,7 +67,6 @@ TEST(SymbolTableCheckScalarInFunction, SymbolTableVariable) {
   EXPECT_EQ(a_symtable, table_a);
 }
 
-
 /*
 
 This checks whether a symbol is duplicated in a symbol-table.
@@ -95,4 +94,43 @@ TEST(SymbolTableDuplicated, SymbolTableVariable) {
   DonsusSymTable::sym is_duplicated = sym_global->get("a");
 
   EXPECT_EQ(true, is_duplicated.duplicated);
+}
+
+/*
+Test if the symbols have proper types.
+ */
+TEST(SymbolType, SymbolTableVariable) {
+  std::string a = R"(
+    a: int = 12 + 7 / 2; # DONSUS_BASIC_INT
+    b: int32 = 12 + 7; # DONSUS_I32
+    c: u64 = 20 + 7; # DONSUS_U64
+    d: int8 = 10 + 40; # DONSUS_I8
+    e: int64 = 20; # DONSUS_I64
+    f: int16 = 20; # DONSUS_I16
+    g: u32 = 12; # DONSUS_U32
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
+  parse_result->init_traverse();
+  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+
+  DonsusSymTable::sym sym_a = sym_global->get("a");
+  DonsusSymTable::sym sym_b = sym_global->get("b");
+  DonsusSymTable::sym sym_c = sym_global->get("c");
+  DonsusSymTable::sym sym_d = sym_global->get("d");
+  DonsusSymTable::sym sym_e = sym_global->get("e");
+  DonsusSymTable::sym sym_f = sym_global->get("f");
+  DonsusSymTable::sym sym_g = sym_global->get("g");
+
+  EXPECT_EQ(sym_a.type.type_un, DONSUS_TYPE::TYPE_BASIC_INT);
+  EXPECT_EQ(sym_b.type.type_un, DONSUS_TYPE::TYPE_I32);
+  EXPECT_EQ(sym_c.type.type_un, DONSUS_TYPE::TYPE_U64);
+  EXPECT_EQ(sym_d.type.type_un, DONSUS_TYPE::TYPE_I8);
+  EXPECT_EQ(sym_e.type.type_un, DONSUS_TYPE::TYPE_I64);
+  EXPECT_EQ(sym_f.type.type_un, DONSUS_TYPE::TYPE_I16);
+  EXPECT_EQ(sym_g.type.type_un, DONSUS_TYPE::TYPE_U32);
+
+  std::cout << "here: "
+            << "\n";
 }

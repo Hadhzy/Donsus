@@ -1,7 +1,3 @@
-/*
-Perform possible optimisations on the AST node before using llvm's IR
-*/
-
 #ifndef DONSUS_OPTIMISE_H
 #define DONSUS_OPTIMISE_H
 class OptimiseDonsus {
