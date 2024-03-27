@@ -83,6 +83,9 @@ public:
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
+  bool is_sym_table_exist(std::string &qa_sym_ex,
+                          utility::handle<DonsusSymTable> current_sym);
+
   /*
    * Add symbol manually mainly for debugging
    *

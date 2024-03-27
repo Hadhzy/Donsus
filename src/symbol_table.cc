@@ -54,7 +54,18 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
     if (n->qa_sym == qa_sym_ex)
       return n;
   }
-  std::cout << "error";
+}
+
+bool DonsusSymTable::is_sym_table_exist(
+    std::string &qa_sym_ex, utility::handle<DonsusSymTable> current_sym) {
+  int found = 0;
+  for (auto n : current_sym->sym_table) {
+    if (n->qa_sym == qa_sym_ex)
+      found++;
+  }
+  if (found == 1)
+    return true;
+  return false;
 }
 
 auto DonsusSymTable::get(std::string qualified_name) -> sym {

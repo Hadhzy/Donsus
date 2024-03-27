@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <queue>
 #include <stack>
 #include <vector>
 
@@ -73,7 +74,7 @@ private:
   std::vector<utility::handle<node>> nodes;
   utility::DonsusAllocator allocator;
   std::stack<utility::handle<node>> stack_assign; // traverse
-  std::stack<utility::handle<node>> stack_visit;  // traverse
+  std::queue<utility::handle<node>> stack_visit;  // traverse
 };
 } // namespace donsus_ast
 
