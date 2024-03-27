@@ -126,15 +126,13 @@ struct expression {
   donsus_token value;
 };
 
-struct print_expr {
-
-};
+struct print_expr {};
 
 using node_properties =
     utility::property<variable_decl, number_expr, function_decl, function_def>;
 
 struct node : node_properties {
-  // children tbd
+  //  // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type

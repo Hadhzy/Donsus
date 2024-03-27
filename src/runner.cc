@@ -44,6 +44,9 @@ int Du_Main(int argc, char **argv) {
   // sema
 
   // codegen
+  DonsusCodegen::DonsusCodeGenerator codegen;
+  codegen.compile(parser_result);
+
   /*  delete sym_global.get();*/
   return 0;
 }
