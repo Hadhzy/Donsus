@@ -95,7 +95,9 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void {
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
-    break;
+    for (auto &args : node->get<donsus_ast::function_call>().arguments) {
+      assign_type_to_node(args);
+    }
   }
 
   default: {
@@ -206,6 +208,11 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     // need to call this later
     sema.donsus_typecheck_is_return_type_valid(node);
     // check for function def specific stuff then just recursion
+    if (node->get<donsus_ast::function_def>().body.size() != 0) {
+      for (auto &children : node->get<donsus_ast::function_def>().body) {
+        donsus_sym(children, table);
+      }
+    }
     break;
   }
 
@@ -233,13 +240,38 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     break;
   }
-  case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
-    break;
-  }
+
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
+    std::string func_name = node->get<donsus_ast::function_call>().func_name;
+
+    bool is_defined = sema.donsus_is_function_exist(func_name, table);
+    if (!is_defined)
+      throw ReDefinitionException(func_name + " has not been defined!");
+    std::string qualified_fn_name = table->apply_scope(func_name);
+    utility::handle<DonsusSymTable> current_table =
+        table->get_sym_table(qualified_fn_name);
+
+    int i = 0;
+    for (i = 0; i < node->get<donsus_ast::function_call>().arguments.size();
+         ++i) {
+      DONSUS_TYPE function_arg = current_table->get_function_argument(i);
+      DONSUS_TYPE function_call_arg =
+          node->get<donsus_ast::function_call>().arguments[i]->real_type;
+      bool compatible =
+          sema.donsus_typecheck_is_compatible(function_arg, function_call_arg);
+      if (!compatible)
+        throw InCompatibleTypeException(
+            "type: " + current_table->get_function_argument(i).to_string() +
+            " is not compatible with type: " +
+            node->get<donsus_ast::function_call>()
+                .arguments[i]
+                ->real_type.to_string() +
+            " in function: '" + func_name + "'");
+    }
+
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
@@ -276,6 +308,20 @@ auto DonsusSema::donsus_sema_is_exist(std::string &name,
     return true;
   return false;
 }
+
+auto DonsusSema::donsus_is_function_exist(std::string &name,
+                                          utility::handle<DonsusSymTable> table)
+    -> bool {
+  // assuming that we are in the table of the function
+  // TODO: make sure this works with multiple functions
+  std::string qu_name = table->apply_scope(name);
+  bool is_exists = table->is_sym_table_exist(qu_name, table);
+  if (!is_exists) {
+    return false;
+  } else {
+    return true;
+  }
+};
 
 /**
  * \brief Checks if the 2 types are compatible.
@@ -371,7 +417,7 @@ auto DonsusSema::donsus_typecheck_support_between_types(
   if (!is_compatible)
     throw InCompatibleTypeException(
         "Operation between: " + lhs->real_type.to_string() +
-        " and:" + rhs->real_type.to_string() + "are not supported");
+        " and:" + rhs->real_type.to_string() + " are not supported");
 
   return node;
 }

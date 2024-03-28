@@ -72,10 +72,22 @@ public:
    * */
   utility::handle<DonsusSymTable> add_sym_table(std::string qa_sym_ex);
 
+  DONSUS_TYPE
+  get_function_argument(int index);
+
+  /*
+   * Applies the qualifed name to a pass name to compare
+   */
+
+  std::string apply_scope(std::string &name);
+
   /*
    * Obtain symbol table based on name
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
+
+  bool is_sym_table_exist(std::string &qa_sym_ex,
+                          utility::handle<DonsusSymTable> current_sym);
 
   /*
    * Add symbol manually mainly for debugging

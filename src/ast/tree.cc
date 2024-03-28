@@ -71,7 +71,9 @@ void tree::traverse_nodes(
 
     // process children
     add_params_sym(b, stuff.parameters);
-    traverse(visit, assign_type_to_node, b, n);
+    for (auto &children : n->get<donsus_ast::function_def>().body) {
+      traverse_nodes(visit, assign_type_to_node, b, children);
+    }
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
@@ -92,6 +94,7 @@ void tree::traverse_nodes(
     sym->add(stuff.func_name, n->get<donsus_ast::function_decl>().return_type);
     break;
   }
+
   default: {
   }
   }
@@ -125,7 +128,7 @@ void tree::evaluate(
   }
 
   while (!stack_visit.empty()) {
-    auto current = stack_visit.top();
+    auto current = stack_visit.front();
     stack_visit.pop();
 
     if (!current) {
@@ -133,13 +136,22 @@ void tree::evaluate(
     }
 
     // if it is a function def go through its body
-    visit(current, sym);
-
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
-      for (auto c : current->get<function_def>().body) {
-        stack_visit.push(c);
-      }
+      std::string func_name =
+          current->get<donsus_ast::function_def>().func_name;
+      std::string qualified_name = sym->apply_scope(func_name);
+      auto sym_table = sym->get_sym_table(qualified_name);
+
+      visit(current, sym_table);
+    } else {
+      visit(current, sym);
     }
+
+    // if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
+    //   for (auto c : current->get<function_def>().body) {
+    //     stack_visit.push(c);
+    //   }
+    // }
     for (auto c : current->children) {
       stack_visit.push(c);
     }
