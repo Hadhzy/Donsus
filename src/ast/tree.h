@@ -14,6 +14,7 @@
 #include "node.h"
 #include "parser_util.h"
 #include "symbol_table.h"
+
 // Holds top level ast nodes
 /* (old version)
  * std::vector<std::variant<donsus_math_expr*, donsus_variable_decl*>> body;

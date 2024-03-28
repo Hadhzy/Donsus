@@ -18,7 +18,8 @@ class DonsusCodeGenerator {
   // destination driven code generating system
 public:
   void compile_donsus_expr(DonsusParser::end_result &ast);
-  void compile(DonsusParser::end_result &ast);
+  void compile(utility::handle<donsus_ast::node> &node,
+               utility::handle<DonsusSymTable> &table);
 
   /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block
   /// of the function.  This is used for mutable variables etc.
