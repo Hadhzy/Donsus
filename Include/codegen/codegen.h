@@ -2,6 +2,7 @@
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
@@ -19,8 +20,11 @@ public:
   void compile_donsus_expr(DonsusParser::end_result &ast);
   void compile(DonsusParser::end_result &ast);
 
+  /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block
+  /// of the function.  This is used for mutable variables etc.
   // visit functions, emit IR
-  llvm::Value *visit(donsus_ast::variable_decl &ast);
+  llvm::Value *visit(donsus_ast::variable_decl &ast,
+                     bool is_definition = false);
   llvm::Value *visit(donsus_ast::assignment &ast);
   llvm::Value *visit(donsus_ast::identifier &ast);
   llvm::Value *visit(donsus_ast::number_expr &ast);
@@ -36,9 +40,14 @@ public:
 
 private:
   // data members
-  static std::unique_ptr<LLVMContext> TheContext;
-  static std::unique_ptr<IRBuilder<>> Builder(TheContext);
-  static std::unique_ptr<Module> TheModule;
+  static std::unique_ptr<llvm::LLVMContext> TheContext;
+  static std::unique_ptr<llvm::IRBuilder<>> Builder;
+  static std::unique_ptr<llvm::Module> TheModule;
+  // assigning INST's during codegen
+  DonsusSymTable TheSymbolTable;
+
+  // debug
+  llvm::Type *map_type(DONSUS_TYPE type);
 };
 
 } // namespace DonsusCodegen

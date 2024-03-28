@@ -4,6 +4,7 @@
 #include "../Include/Internal/type.h"
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
+#include "llvm/IR/Instructions.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@ public:
     int mod;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
+    llvm::AllocaInst *inst;         // for codegen instruction
     bool duplicated = false; // true if its duplicated in the symbol_table
     std::size_t index;       // the order in which the addition happened
     std::string key;         // qualified_name
