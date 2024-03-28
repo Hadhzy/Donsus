@@ -28,11 +28,12 @@ int Du_Main(int argc, char **argv) {
 
   DonsusParser::end_result parser_result = Du_Parse(result);
 
-  // build symbol table
-  // sema and typecheck
-  // see sema.cc for further information
+  // codegen
+  DonsusCodegen::DonsusCodeGenerator codegen;
+
+  // sema
   parser_result->init_traverse();
-  parser_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  parser_result->traverse(donsus_sym, assign_type_to_node, sym_global, codegen);
 
   // codegen
 #ifdef DEBUG
@@ -41,9 +42,7 @@ int Du_Main(int argc, char **argv) {
   std::cout << "GLOBAL: " << std::endl;
   std::cout << sym_global << std::endl;
 #endif
-  // sema
 
-  // codegen
   /*  delete sym_global.get();*/
   return 0;
 }

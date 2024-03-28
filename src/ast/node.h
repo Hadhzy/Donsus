@@ -132,13 +132,13 @@ using node_properties =
     utility::property<variable_decl, number_expr, function_decl, function_def>;
 
 struct node : node_properties {
-  // children tbd
+  //  // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type
   DONSUS_TYPE real_type; // This type is assigned during type checking
 
-  int constant_propagation(const utility::handle<node> &node) {
+  int constant_propagation(utility::handle<donsus_ast::node> &node) {
     if (node->children.size() == 0 &&
         node->type.type ==
             donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {

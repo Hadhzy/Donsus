@@ -15,9 +15,10 @@ Donsus is currently under heavy development and yet not ready to be used.
 serves a small introduction.**
 
 ## Variables
+Donsus supports the creation of both mutable and immutable objects.
 ```
-a: int = 12; # comment here
-a: int;  # comment here
+a: int = 12; # mutable object definition
+a = 20;
 ```
 When creating variables, providing types is *mandatory* as Donsus `does not support 
 any form of type inference yet`, except from identifying expression types. The types of the variables must be known at *compile time.*
@@ -66,10 +67,27 @@ I am a multi line comment
 ```
 
 ## Function declarations:
+Similar to variables, functions can be both declared and defined and conversely must be provided with a return type.
+
+To declare a function one must need to provide the following information:
+```
+a() -> int;
+```
+This declaration has zero parameters and a return type of int.
+
 ```
 # 1 - with parameters
-a(int: a) ->int;
+a(a:int) -> int;
 ```
+In this case the declaration has a parameter which again must be assigned with a corresponding type. One can separate parameters with a comma like the following:
+
+```
+a(a:int, b:char) -> int;
+```
+
+If the user doesn't wish to return any type, a void type must be inserted.
+
+As one might except, re-declaration is forbidden as the consequence of the ODR rule. 
 
 ## Function definition:
 To denote function definition one must use the `def` keyword as part of donsus followed by the following:

@@ -1,5 +1,6 @@
 #ifndef DONSUS_TREE_H
 #define DONSUS_TREE_H
+
 #include <assert.h>
 #include <functional>
 #include <iostream>
@@ -13,12 +14,17 @@
 #include "node.h"
 #include "parser_util.h"
 #include "symbol_table.h"
+
 // Holds top level ast nodes
 /* (old version)
  * std::vector<std::variant<donsus_math_expr*, donsus_variable_decl*>> body;
  *
  * *\
  */
+
+namespace DonsusCodegen {
+class DonsusCodeGenerator; // forward reference
+}
 namespace donsus_ast {
 
 class tree {
@@ -37,19 +43,31 @@ public:
                     visit,
                 std::function<void(utility::handle<node>)> assign_node,
                 utility::handle<DonsusSymTable> sym,
+
+                DonsusCodegen::DonsusCodeGenerator &codegen,
                 utility::handle<node> curr_node = nullptr);
+  // FOR DEBUGGING
+  void traverse(std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    visit,
+                std::function<void(utility::handle<node>)> assign_node,
+                utility::handle<DonsusSymTable> sym,
+                utility::handle<node> curr_node = nullptr);
+
   // implement traverse and use stack
   void traverse_nodes(std::function<void(utility::handle<node>,
                                          utility::handle<DonsusSymTable> table)>
                           visit,
                       std::function<void(utility::handle<node>)> assign_node,
                       utility::handle<DonsusSymTable> sym,
+                      DonsusCodegen::DonsusCodeGenerator &codegen,
                       utility::handle<node> curr_node = nullptr);
   void evaluate(std::function<void(utility::handle<node>,
                                    utility::handle<DonsusSymTable> table)>
                     visit,
                 std::function<void(utility::handle<node>)> assign_node,
                 utility::handle<DonsusSymTable> sym,
+                DonsusCodegen::DonsusCodeGenerator &codegen,
                 utility::handle<node> curr_node = nullptr);
 
   void init_traverse();

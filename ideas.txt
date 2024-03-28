@@ -54,5 +54,8 @@ While keeping the language high-level.
 (53) - STATIC ANALYSIS
 (54) - POINTERS ARE COMPLICATED(https://www.ralfj.de/blog/2020/12/14/provenance.html)
 (55) - NO UNDEFINED BEHAVIOUR
+(56) - BigInts (v8)
+(57) - ability to mutate variables with the = keyword
+
 
 
