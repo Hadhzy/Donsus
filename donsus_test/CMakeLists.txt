@@ -30,10 +30,11 @@ add_executable(donsus_test
         typecheck/test_variables.cc
         typecheck/test_function.cc
         typecheck/test_assignment_type.cc
+        typecheck/test_function_call.cc
 
         #symbol table
         symbol_table/test_variables.cc
-        symbol_table/test_functions.cc
+        symbol_table/test_sym_functions.cc
 )
 
 
@@ -42,5 +43,6 @@ gtest_discover_tests(donsus_test)
 
 target_link_libraries(donsus_test PUBLIC
         GTest::gtest_main
+        ${llvm_libs}
         donsus_lib
 )

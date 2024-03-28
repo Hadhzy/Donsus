@@ -1,5 +1,7 @@
 #include "tree.h"
+#include "../../Include/codegen/codegen.h"
 
+#define IS_DEBUG 0
 using namespace donsus_ast;
 
 // sym_table helpers
@@ -24,19 +26,33 @@ void tree::traverse(std::function<void(utility::handle<node>,
                     std::function<void(utility::handle<node>)> assign_node,
                     utility::handle<DonsusSymTable> sym,
                     utility::handle<node> curr_node) {
+
+  DonsusCodegen::DonsusCodeGenerator codegen;
+#undef IS_DEBUG
+#define IS_DEBUG 1
+  traverse(visit, assign_node, sym, codegen, curr_node);
+}
+
+void tree::traverse(std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        visit,
+                    std::function<void(utility::handle<node>)> assign_node,
+                    utility::handle<DonsusSymTable> sym,
+                    DonsusCodegen::DonsusCodeGenerator &codegen,
+                    utility::handle<node> curr_node) {
   if (curr_node) {
     if (curr_node->type.type ==
         donsus_node_type::underlying::DONSUS_FUNCTION_DEF) {
       for (auto &n : curr_node->get<donsus_ast::function_def>().body) {
-        traverse_nodes(visit, assign_node, sym, n);
+        traverse_nodes(visit, assign_node, sym, codegen, n);
       }
     } else {
       for (auto &n : curr_node->children)
-        traverse_nodes(visit, assign_node, sym, n);
+        traverse_nodes(visit, assign_node, sym, codegen, n);
     }
   } else {
     for (auto &n : nodes) {
-      traverse_nodes(visit, assign_node, sym, n);
+      traverse_nodes(visit, assign_node, sym, codegen, n);
     }
   }
 
@@ -44,15 +60,15 @@ void tree::traverse(std::function<void(utility::handle<node>,
     if (curr_node->type.type ==
         donsus_node_type::underlying::DONSUS_FUNCTION_DEF) {
       for (auto &n : curr_node->get<donsus_ast::function_def>().body) {
-        evaluate(visit, assign_node, sym, n);
+        evaluate(visit, assign_node, sym, codegen, n);
       }
     } else {
       for (auto &n : curr_node->children)
-        evaluate(visit, assign_node, sym, n);
+        evaluate(visit, assign_node, sym, codegen, n);
     }
   } else {
     for (auto &n : nodes) {
-      evaluate(visit, assign_node, sym, n);
+      evaluate(visit, assign_node, sym, codegen, n);
     }
   }
 }
@@ -61,7 +77,8 @@ void tree::traverse_nodes(
     std::function<void(utility::handle<node>, utility::handle<DonsusSymTable>)>
         visit,
     std::function<void(utility::handle<node>)> assign_type_to_node,
-    utility::handle<DonsusSymTable> sym, utility::handle<node> n) {
+    utility::handle<DonsusSymTable> sym,
+    DonsusCodegen::DonsusCodeGenerator &codegen, utility::handle<node> n) {
 
   // global nodes
   switch (n->type.type) {
@@ -71,7 +88,9 @@ void tree::traverse_nodes(
 
     // process children
     add_params_sym(b, stuff.parameters);
-    traverse(visit, assign_type_to_node, b, n);
+    for (auto &children : n->get<donsus_ast::function_def>().body) {
+      traverse_nodes(visit, assign_type_to_node, b, codegen, children);
+    }
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
@@ -92,6 +111,7 @@ void tree::traverse_nodes(
     sym->add(stuff.func_name, n->get<donsus_ast::function_decl>().return_type);
     break;
   }
+
   default: {
   }
   }
@@ -102,7 +122,9 @@ void tree::evaluate(
                        utility::handle<DonsusSymTable> table)>
         visit,
     std::function<void(utility::handle<node>)> assign_type_to_node,
-    utility::handle<DonsusSymTable> sym, utility::handle<node> curr_node) {
+    utility::handle<DonsusSymTable> sym,
+    DonsusCodegen::DonsusCodeGenerator &codegen,
+    utility::handle<node> curr_node) {
   while (!stack_assign.empty()) {
     auto current = stack_assign.top();
     stack_assign.pop();
@@ -125,7 +147,7 @@ void tree::evaluate(
   }
 
   while (!stack_visit.empty()) {
-    auto current = stack_visit.top();
+    auto current = stack_visit.front();
     stack_visit.pop();
 
     if (!current) {
@@ -133,13 +155,28 @@ void tree::evaluate(
     }
 
     // if it is a function def go through its body
-    visit(current, sym);
-
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
-      for (auto c : current->get<function_def>().body) {
-        stack_visit.push(c);
-      }
+      std::string func_name =
+          current->get<donsus_ast::function_def>().func_name;
+      std::string qualified_name = sym->apply_scope(func_name);
+      auto sym_table = sym->get_sym_table(qualified_name);
+      // call it here
+      visit(current, sym_table);
+#ifndef DEBUG
+      codegen.compile(current, sym_table);
+#endif
+    } else {
+      visit(current, sym);
+#ifndef DEBUG
+      codegen.compile(current, sym);
+#endif
     }
+
+    // if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
+    //   for (auto c : current->get<function_def>().body) {
+    //     stack_visit.push(c);
+    //   }
+    // }
     for (auto c : current->children) {
       stack_visit.push(c);
     }

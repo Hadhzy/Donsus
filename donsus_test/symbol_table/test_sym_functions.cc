@@ -49,11 +49,12 @@ TEST(SymbolTableCheckDifferentTableStructures, SymbolTableCheckFunction) {
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
 
   utility::handle<DonsusSymTable> nested_1 = sym_global2->add_sym_table("func");
-  DONSUS_TYPE type;
-  type.type_un == DONSUS_TYPE::TYPE_BASIC_INT;
+  std::vector<DONSUS_TYPE> types;
+  types.push_back(
+      {.type_un = DONSUS_TYPE::TYPE_BASIC_INT}); // return type of a is a vector
 
   std::string value =
-      sym_global2->add("a", type); // I need to specify the type here
+      sym_global2->add("a", types); // I need to specify the type here
 
   parse_result->init_traverse();
   parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);

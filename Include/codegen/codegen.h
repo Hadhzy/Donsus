@@ -1,3 +1,6 @@
+#ifndef CODEGEN_H
+#define CODEGEN_H
+
 #include "../parser.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Constants.h"
@@ -8,9 +11,6 @@
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
 #include <memory>
-
-#ifndef CODEGEN_H
-#define CODEGEN_H
 
 namespace DonsusCodegen {
 
@@ -27,7 +27,7 @@ public:
                      bool is_definition = false);
   llvm::Value *visit(donsus_ast::assignment &ast);
   llvm::Value *visit(donsus_ast::identifier &ast);
-  llvm::Value *visit(donsus_ast::number_expr &ast);
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast);
   llvm::Value *visit(donsus_ast::function_decl &ast);
   llvm::Value *visit(donsus_ast::function_def &ast);
   llvm::Value *visit(donsus_ast::function_call &ast);
@@ -38,16 +38,17 @@ public:
   llvm::Value *visit(donsus_ast::expression &ast);
   llvm::Value *visit(donsus_ast::print_expr &ast);
 
+  llvm::Type *map_type(DONSUS_TYPE type);
+
 private:
   // data members
-  static std::unique_ptr<llvm::LLVMContext> TheContext;
-  static std::unique_ptr<llvm::IRBuilder<>> Builder;
-  static std::unique_ptr<llvm::Module> TheModule;
+  std::unique_ptr<llvm::LLVMContext> TheContext;
+  std::unique_ptr<llvm::IRBuilder<>> Builder;
+  std::unique_ptr<llvm::Module> TheModule;
   // assigning INST's during codegen
-  DonsusSymTable TheSymbolTable;
+  // DonsusSymTable TheSymbolTable;
 
   // debug
-  llvm::Type *map_type(DONSUS_TYPE type);
 };
 
 } // namespace DonsusCodegen

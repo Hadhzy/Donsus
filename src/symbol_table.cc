@@ -54,7 +54,21 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
     if (n->qa_sym == qa_sym_ex)
       return n;
   }
-  std::cout << "error";
+}
+
+DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {
+  return underlying[index].type;
+}
+bool DonsusSymTable::is_sym_table_exist(
+    std::string &qa_sym_ex, utility::handle<DonsusSymTable> current_sym) {
+  int found = 0;
+  for (auto n : current_sym->sym_table) {
+    if (n->qa_sym == qa_sym_ex)
+      found++;
+  }
+  if (found == 1)
+    return true;
+  return false;
 }
 
 auto DonsusSymTable::get(std::string qualified_name) -> sym {
@@ -98,4 +112,15 @@ auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
 
 std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
   return this->qa_sym + '.' + short_name;
+}
+
+std::string DonsusSymTable::apply_scope(std::string &name) {
+  if (name.empty()) {
+    // Handle empty string case
+    return "";
+  }
+  // Return substring excluding the last character
+  std::string result = create_qualified_name(name);
+  // this->qa_sym.substr(0, this->qa_sym.size() - 1) + '.' + name;
+  return result;
 }
