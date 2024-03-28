@@ -94,6 +94,7 @@ void tree::traverse_nodes(
     sym->add(stuff.func_name, n->get<donsus_ast::function_decl>().return_type);
     break;
   }
+
   default: {
   }
   }

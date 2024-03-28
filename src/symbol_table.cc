@@ -56,6 +56,9 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   }
 }
 
+DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {
+  return underlying[index].type;
+}
 bool DonsusSymTable::is_sym_table_exist(
     std::string &qa_sym_ex, utility::handle<DonsusSymTable> current_sym) {
   int found = 0;

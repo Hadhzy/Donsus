@@ -72,6 +72,9 @@ public:
    * */
   utility::handle<DonsusSymTable> add_sym_table(std::string qa_sym_ex);
 
+  DONSUS_TYPE
+  get_function_argument(int index);
+
   /*
    * Applies the qualifed name to a pass name to compare
    */
