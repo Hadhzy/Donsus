@@ -33,6 +33,7 @@ add_executable(donsus_test
         typecheck/test_function_call.cc
         typecheck/test_function_call_rvalue.cc
         typecheck/test_identifier_rvalue.cc
+        typecheck/test_if_statements_type.cc
        
 
         #symbol table

@@ -217,6 +217,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     // see if the operations are supported
     sema.donsus_typecheck_support_between_types(node->children[0]);
+
+    if (node->get<donsus_ast::if_statement>().body.size() != 0) {
+      for (auto &children : node->get<donsus_ast::if_statement>().body) {
+        donsus_sym(children, table);
+      }
+    }
+
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
