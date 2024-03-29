@@ -398,6 +398,11 @@ auto DonsusParser::donsus_parse() -> end_result {
 
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
+      if (result->children.size() == 0) {
+        throw DonsusException(
+            "Condition wasn't provided for if statement \n  at line: " +
+            std::to_string(lexer.cur_line));
+      }
       donsus_tree->add_node(result);
     }
 
@@ -819,6 +824,11 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
 
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
+      if (result->children.size() == 0) {
+        throw DonsusException(
+            "Condition wasn't provided for if statement \n  at line: " +
+            std::to_string(lexer.cur_line));
+      }
       body.push_back(result);
     }
     donsus_parser_next();
