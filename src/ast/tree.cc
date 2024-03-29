@@ -23,7 +23,9 @@ void tree::add_node(utility::handle<node> node) { nodes.push_back(node); }
 void tree::traverse(std::function<void(utility::handle<node>,
                                        utility::handle<DonsusSymTable> table)>
                         visit,
-                    std::function<void(utility::handle<node>)> assign_node,
+                    std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        assign_node,
                     utility::handle<DonsusSymTable> sym,
                     utility::handle<node> curr_node) {
 
@@ -36,7 +38,9 @@ void tree::traverse(std::function<void(utility::handle<node>,
 void tree::traverse(std::function<void(utility::handle<node>,
                                        utility::handle<DonsusSymTable> table)>
                         visit,
-                    std::function<void(utility::handle<node>)> assign_node,
+                    std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        assign_node,
                     utility::handle<DonsusSymTable> sym,
                     DonsusCodegen::DonsusCodeGenerator &codegen,
                     utility::handle<node> curr_node) {
@@ -76,7 +80,9 @@ void tree::traverse(std::function<void(utility::handle<node>,
 void tree::traverse_nodes(
     std::function<void(utility::handle<node>, utility::handle<DonsusSymTable>)>
         visit,
-    std::function<void(utility::handle<node>)> assign_type_to_node,
+    std::function<void(utility::handle<node>,
+                       utility::handle<DonsusSymTable> table)>
+        assign_type_to_node,
     utility::handle<DonsusSymTable> sym,
     DonsusCodegen::DonsusCodeGenerator &codegen, utility::handle<node> n) {
 
@@ -85,6 +91,7 @@ void tree::traverse_nodes(
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     auto stuff = n->get<donsus_ast::function_def>();
     auto b = sym->add_sym_table(stuff.func_name);
+    b->function_return_type = stuff.return_type;
 
     // process children
     add_params_sym(b, stuff.parameters);
@@ -117,14 +124,15 @@ void tree::traverse_nodes(
   }
 }
 
-void tree::evaluate(
-    std::function<void(utility::handle<node>,
-                       utility::handle<DonsusSymTable> table)>
-        visit,
-    std::function<void(utility::handle<node>)> assign_type_to_node,
-    utility::handle<DonsusSymTable> sym,
-    DonsusCodegen::DonsusCodeGenerator &codegen,
-    utility::handle<node> curr_node) {
+void tree::evaluate(std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        visit,
+                    std::function<void(utility::handle<node>,
+                                       utility::handle<DonsusSymTable> table)>
+                        assign_type_to_node,
+                    utility::handle<DonsusSymTable> sym,
+                    DonsusCodegen::DonsusCodeGenerator &codegen,
+                    utility::handle<node> curr_node) {
   while (!stack_assign.empty()) {
     auto current = stack_assign.top();
     stack_assign.pop();
@@ -134,7 +142,7 @@ void tree::evaluate(
     }
 
     // if it is a function def go through its body
-    assign_type_to_node(current);
+    assign_type_to_node(current, sym);
 
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
       for (auto c : current->get<function_def>().body) {

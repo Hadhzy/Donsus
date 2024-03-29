@@ -41,7 +41,9 @@ public:
   void traverse(std::function<void(utility::handle<node>,
                                    utility::handle<DonsusSymTable> table)>
                     visit,
-                std::function<void(utility::handle<node>)> assign_node,
+                std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    assign_node,
                 utility::handle<DonsusSymTable> sym,
 
                 DonsusCodegen::DonsusCodeGenerator &codegen,
@@ -50,7 +52,9 @@ public:
   void traverse(std::function<void(utility::handle<node>,
                                    utility::handle<DonsusSymTable> table)>
                     visit,
-                std::function<void(utility::handle<node>)> assign_node,
+                std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    assign_node,
                 utility::handle<DonsusSymTable> sym,
                 utility::handle<node> curr_node = nullptr);
 
@@ -58,14 +62,18 @@ public:
   void traverse_nodes(std::function<void(utility::handle<node>,
                                          utility::handle<DonsusSymTable> table)>
                           visit,
-                      std::function<void(utility::handle<node>)> assign_node,
+                      std::function<void(utility::handle<node>,
+                                         utility::handle<DonsusSymTable> table)>
+                          assign_node,
                       utility::handle<DonsusSymTable> sym,
                       DonsusCodegen::DonsusCodeGenerator &codegen,
                       utility::handle<node> curr_node = nullptr);
   void evaluate(std::function<void(utility::handle<node>,
                                    utility::handle<DonsusSymTable> table)>
                     visit,
-                std::function<void(utility::handle<node>)> assign_node,
+                std::function<void(utility::handle<node>,
+                                   utility::handle<DonsusSymTable> table)>
+                    assign_node,
                 utility::handle<DonsusSymTable> sym,
                 DonsusCodegen::DonsusCodeGenerator &codegen,
                 utility::handle<node> curr_node = nullptr);

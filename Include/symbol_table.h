@@ -15,6 +15,7 @@ class DonsusSymTable {
 public:
   std::vector<utility::handle<DonsusSymTable>> sym_table;
   std::string qa_sym = "global";
+  std::vector<DONSUS_TYPE> function_return_type; // only for function def
   struct sym {
     int mod;
     DONSUS_TYPE type;

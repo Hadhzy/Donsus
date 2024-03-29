@@ -6,7 +6,8 @@
 #include "../src/utility/memory_alloc.h"
 #include "parser.h"
 
-auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void;
+auto assign_type_to_node(utility::handle<donsus_ast::node> node,
+                         utility::handle<DonsusSymTable> table) -> void;
 void donsus_sym(utility::handle<donsus_ast::node> node,
                 utility::handle<DonsusSymTable> table);
 
