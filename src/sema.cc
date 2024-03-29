@@ -117,6 +117,18 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     for (auto &args : node->get<donsus_ast::function_call>().arguments) {
       assign_type_to_node(args, table);
     }
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
+    std::string iden_name = node->get<donsus_ast::identifier>().identifier_name;
+    bool is_exist = sema.donsus_sema_is_exist(iden_name, table);
+    if (!is_exist)
+      throw DonsusUndefinedException(iden_name + " is not defined");
+    DonsusSymTable::sym identifier_symbol = table->get(iden_name);
+
+    node->real_type.type_un = identifier_symbol.type.type_un;
+    break;
   }
 
   default: {
@@ -188,7 +200,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (!is_compatible)
       throw InCompatibleTypeException(
-          "Operation between: " + local_type.to_string() + " and" +
+          "Operation between: " + local_type.to_string() + " and " +
           type_of_var_def.to_string() + " are not supported");
     break;
   }
@@ -257,6 +269,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
+
     break;
   }
 
@@ -437,8 +450,8 @@ auto DonsusSema::donsus_typecheck_support_between_types(
 
   if (!is_compatible)
     throw InCompatibleTypeException(
-        "Operation between: " + lhs->real_type.to_string() +
-        " and:" + rhs->real_type.to_string() + " are not supported");
+        "Operation between: " + lhs->real_type.to_string() + " and " +
+        rhs->real_type.to_string() + " are not supported");
 
   return node;
 }
