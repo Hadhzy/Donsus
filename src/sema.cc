@@ -77,6 +77,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node, table);
+    sema.donsus_typecheck_support_between_types(node, table);
     break;
   }
 
