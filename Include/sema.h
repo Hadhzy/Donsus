@@ -7,9 +7,11 @@
 #include "parser.h"
 
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
-                         utility::handle<DonsusSymTable> table) -> void;
+                         utility::handle<DonsusSymTable> table,
+                         utility::handle<DonsusSymTable> global_table) -> void;
 void donsus_sym(utility::handle<donsus_ast::node> node,
-                utility::handle<DonsusSymTable> table);
+                utility::handle<DonsusSymTable> table,
+                utility::handle<DonsusSymTable> global_table);
 
 /*
 DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
