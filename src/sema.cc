@@ -262,15 +262,19 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (!is_defined)
       throw DonsusUndefinedException(assignment_name + " is not defined");
 
+    assign_type_to_node(node->children[0], table);
+
     sema.donsus_typecheck_support_between_types(node);
-    DONSUS_TYPE t = sema.donsus_typecheck_type_expr(node->children[0]);
+    DONSUS_TYPE rvalue_expression_type =
+        sema.donsus_typecheck_type_expr(node->children[0]);
+    DONSUS_TYPE assigned_value_type = table->get(assignment_name).type;
 
     bool are_the_same = sema.donsus_typecheck_is_compatible(
-        table->get(assignment_name).type, t);
+        assigned_value_type, rvalue_expression_type);
     if (!are_the_same) {
       throw InCompatibleTypeException(
-          "Operation between: " + table->get(assignment_name).type.to_string() +
-          " and " + t.to_string() + " are not supported");
+          "Operation between: " + assigned_value_type.to_string() + " and " +
+          rvalue_expression_type.to_string() + " are not supported");
     }
     break;
   }

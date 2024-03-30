@@ -146,7 +146,13 @@ void tree::evaluate(std::function<void(utility::handle<node>,
 
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
       for (auto c : current->get<function_def>().body) {
-        stack_assign.push(c);
+        if (c->type.type == donsus_node_type::DONSUS_ASSIGNMENT) {
+          // We dont have the proper symbol table we will assign them in
+          // donsus_sym
+          continue;
+        } else {
+          stack_assign.push(c);
+        }
       }
     }
     for (auto c : current->children) {
