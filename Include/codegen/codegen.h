@@ -21,6 +21,7 @@ public:
                       std::unique_ptr<llvm::Module> module,
                       std::unique_ptr<llvm::IRBuilder<>> builder);
 
+  void Link();
   void create_entry_point();
   void compile_donsus_expr(DonsusParser::end_result &ast);
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,
