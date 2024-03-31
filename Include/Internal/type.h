@@ -19,6 +19,11 @@ public:
     TYPE_VOID
   };
 
+  bool operator<(
+      const DONSUS_TYPE &other) const { // for the set to order its elements
+    return type_un < other.type_un;
+  }
+
   kind from_parse(donsus_token_kind type);
 
   donsus_token_kind to_parse(kind type);

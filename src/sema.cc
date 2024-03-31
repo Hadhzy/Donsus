@@ -39,6 +39,7 @@ definition a:int - here int is the type.
   */
 
 #include "../Include/sema.h"
+#include <set>
 
 DonsusSema sema;
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
@@ -81,7 +82,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node, table, global_table);
-    sema.donsus_typecheck_support_between_types(node, table);
+    sema.donsus_typecheck_support_between_types(node);
     break;
   }
 
@@ -189,8 +190,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (is_exist)
       throw ReDefinitionException(def_name + " has been already defined!");
 
-    utility::handle<donsus_ast::node> a =
-        sema.donsus_typecheck_support_between_types(node);
+    sema.donsus_typecheck_support_between_types(node);
 
     assign_type_to_node(node->children[0], table, global_table);
 
@@ -270,7 +270,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     assign_type_to_node(node->children[0], table, global_table);
 
-    sema.donsus_typecheck_support_between_types(node);
+    sema.donsus_typecheck_support_between_types(node->children[0]);
     DONSUS_TYPE rvalue_expression_type =
         sema.donsus_typecheck_type_expr(node->children[0]);
     DONSUS_TYPE assigned_value_type = table->get(assignment_name).type;
@@ -429,48 +429,37 @@ auto DonsusSema::donsus_typecheck_type_expr(
 /**
  * \brief Check if the operators are supported between operands.
  */
-auto DonsusSema::donsus_typecheck_support_between_types(
-    // get the highest node
-    // see if its children are compatible move to next children
-    // int a = 10;
-    utility::handle<donsus_ast::node> node, int level)
-    -> utility::handle<donsus_ast::node> {
+void DonsusSema::donsus_typecheck_support_between_types(
+    utility::handle<donsus_ast::node> node, std::set<DONSUS_TYPE> *childTypes) {
 
-  utility::handle<donsus_ast::node> lhs;
-  utility::handle<donsus_ast::node> rhs;
-
-  if (node->children.empty()) {
-    // scalar
-    return node;
+  std::set<DONSUS_TYPE> defaultSet;
+  if (childTypes == nullptr) {
+    childTypes = &defaultSet;
   }
 
-  if (!node->children[0]) {
-    // stop recursion
-    return node;
-  }
+  if (!node)
+    return;
 
-  node = node->children[0];
-  // if node operator call with left and right
   if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
-    lhs = node->children[0];
-    rhs = node->children[1];
-  } else {
-    return node;
+    // If the node is an expression, recursively compare types of its children
+
+    for (auto &child : node->children) {
+      if (child->type.type != donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+        childTypes->insert(child->real_type);
+      }
+      donsus_typecheck_support_between_types(child, childTypes);
+    }
+
+    // Check for inconsistent types within the expression
+    if (childTypes->size() > 1) {
+      std::string types = "";
+      for (auto &type : *childTypes) {
+        types += " " + type.to_string() + ",";
+      }
+      throw InCompatibleTypeException(
+          "Inconsistent types in expression between types:" + types);
+    }
   }
-
-  level++;
-  lhs = donsus_typecheck_support_between_types(lhs, level);
-  rhs = donsus_typecheck_support_between_types(rhs, level);
-
-  auto is_compatible =
-      donsus_typecheck_is_compatible(lhs->real_type, rhs->real_type);
-
-  if (!is_compatible)
-    throw InCompatibleTypeException(
-        "Operation between: " + lhs->real_type.to_string() + " and " +
-        rhs->real_type.to_string() + " are not supported");
-
-  return node;
 }
 
 auto DonsusSema::donsus_typecheck_is_return_type_valid(
