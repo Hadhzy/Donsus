@@ -128,8 +128,9 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     std::string iden_name = node->get<donsus_ast::identifier>().identifier_name;
-    bool is_exist = sema.donsus_sema_is_exist(iden_name, table);
-    if (!is_exist)
+    bool is_exist_locally = sema.donsus_sema_is_exist(iden_name, table);
+    bool is_exist_globally = sema.donsus_sema_is_exist(iden_name, global_table);
+    if (!is_exist_locally && !is_exist_globally)
       throw DonsusUndefinedException(iden_name + " is not defined");
     DonsusSymTable::sym identifier_symbol = table->get(iden_name);
 
@@ -170,10 +171,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
     auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_duplicated(
+    bool is_declared_locally = sema.donsus_sema_is_duplicated(
         node->get<donsus_ast::variable_decl>().identifier_name, table);
 
-    if (is_declared)
+    bool is_declared_globally = sema.donsus_sema_is_duplicated(
+        node->get<donsus_ast::variable_decl>().identifier_name, global_table);
+
+    if (is_declared_locally || is_declared_globally)
       throw ReDefinitionException(decl_name + " has been already declared!");
     break;
   }
@@ -263,9 +267,11 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
     auto assignment_name = node->get<donsus_ast::assignment>().identifier_name;
 
-    bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
+    bool is_defined_locally = sema.donsus_sema_is_exist(assignment_name, table);
+    bool is_defined_globally =
+        sema.donsus_sema_is_exist(assignment_name, global_table);
 
-    if (!is_defined)
+    if (!is_defined_locally && !is_defined_globally)
       throw DonsusUndefinedException(assignment_name + " is not defined");
 
     assign_type_to_node(node->children[0], table, global_table);
@@ -346,16 +352,19 @@ void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
 auto DonsusSema::donsus_sema_is_duplicated(
     std::string &name, utility::handle<DonsusSymTable> table) -> bool {
   // check if the
-  DonsusSymTable::sym result = table->get(name);
-  if (result.duplicated)
+  DonsusSymTable::sym result_local = table->get(name);
+  DonsusSymTable::sym result_global = table->get_global(name);
+  if (result_local.duplicated || result_global.duplicated)
     return true;
   return false;
 }
+
 auto DonsusSema::donsus_sema_is_exist(std::string &name,
                                       utility::handle<DonsusSymTable> table)
     -> bool {
-  DonsusSymTable::sym result = table->get(name);
-  if (result.mod != -1)
+  DonsusSymTable::sym result_local = table->get(name);
+  DonsusSymTable::sym result_global = table->get_global(name);
+  if (result_local.mod != -1 || result_global.mod != -1)
     return true;
   return false;
 }

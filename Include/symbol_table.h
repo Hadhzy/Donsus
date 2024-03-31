@@ -100,6 +100,8 @@ public:
   // get symbol based on qualified name
   auto get(std::string qualified_name) -> sym;
 
+  auto get_global(std::string qualified_name) -> sym;
+
   // for debugging purposes
   bool operator==(DonsusSymTable const &rhs) const {
     return underlying == rhs.underlying && sym_table == rhs.sym_table;
