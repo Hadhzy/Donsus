@@ -1,4 +1,5 @@
 #include "../Include/sema.h"
+#include "../src/ast/tree.h"
 #include <gtest/gtest.h>
 
 TEST(FunctionCallCheckCorrect, FunctionCallCheck) {

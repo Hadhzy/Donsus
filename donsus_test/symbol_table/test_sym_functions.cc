@@ -1,7 +1,9 @@
+#include <gtest/gtest.h>
+
 #include "../Include/Internal/type.h"
 #include "../Include/sema.h"
 #include "../Include/symbol_table.h"
-#include <gtest/gtest.h>
+#include "../src/ast/tree.h"
 
 /*
  Check for nested functions and examine the child-parent behaviour between
