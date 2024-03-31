@@ -1,6 +1,5 @@
 #ifndef DONSUS_TREE_H
 #define DONSUS_TREE_H
-
 #include <assert.h>
 #include <functional>
 #include <iostream>
@@ -43,7 +42,6 @@ public:
                     visit,
                 std::function<void(utility::handle<node>)> assign_node,
                 utility::handle<DonsusSymTable> sym,
-
                 DonsusCodegen::DonsusCodeGenerator &codegen,
                 utility::handle<node> curr_node = nullptr);
   // FOR DEBUGGING

@@ -1,6 +1,8 @@
-#include "../Include/sema.h"
-#include <gtest/gtest.h>
 #include "../../Include/codegen/codegen.h"
+#include "../Include/sema.h"
+#include "../src/ast/tree.h"
+#include <gtest/gtest.h>
+
 /*
 
  * */

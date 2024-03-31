@@ -35,8 +35,8 @@ public:
 
     if (this->type_un == rhs.type_un)
       return true;
-
-    return false;
+    else
+      return false;
   }
   auto to_string() const -> std::string;
   auto is_integer() const -> bool;

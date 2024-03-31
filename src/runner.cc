@@ -29,7 +29,14 @@ int Du_Main(int argc, char **argv) {
   DonsusParser::end_result parser_result = Du_Parse(result);
 
   // codegen
-  DonsusCodegen::DonsusCodeGenerator codegen;
+  std::unique_ptr<llvm::LLVMContext> TheContext =
+      std::make_unique<llvm::LLVMContext>();
+  std::unique_ptr<llvm::Module> TheModule =
+      std::make_unique<llvm::Module>("Donsus IR", *TheContext);
+  std::unique_ptr<llvm::IRBuilder<>> TheBuilder =
+      std::make_unique<llvm::IRBuilder<>>(*TheContext);
+
+  DonsusCodegen::DonsusCodeGenerator codegen(std::move(TheContext), std::move(TheModule), std::move(TheBuilder));
 
   // sema
   parser_result->init_traverse();

@@ -53,6 +53,11 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+#[[
+add_compile_options(-fsanitize=address) # ASAN
+add_link_options(-fsanitize=address) # ASAN
+]]
+
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/codegen")
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Internal")
