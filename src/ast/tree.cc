@@ -1,7 +1,5 @@
 #include "tree.h"
 #include "../../Include/codegen/codegen.h"
-
-#define IS_DEBUG 0
 using namespace donsus_ast;
 
 // sym_table helpers
@@ -32,8 +30,6 @@ void tree::traverse(
     utility::handle<DonsusSymTable> sym, utility::handle<node> curr_node) {
 
   DonsusCodegen::DonsusCodeGenerator codegen;
-#undef IS_DEBUG
-#define IS_DEBUG 1
   traverse(visit, assign_node, sym, codegen, curr_node);
 }
 
@@ -185,11 +181,22 @@ void tree::evaluate(
       std::string qualified_name = sym->apply_scope(func_name);
       auto sym_table = sym->get_sym_table(qualified_name);
       // call it here
+      visit(current, sym_table);
+      // Find better solution
+      if (codegen.Builder) {
+        codegen.compile(current, sym_table);
+      }
+
       visit(current, sym_table, sym);
 #ifndef DEBUG
       codegen.compile(current, sym_table);
 #endif
     } else {
+      visit(current, sym);
+      // Find better solution
+      if (codegen.Builder) {
+        codegen.compile(current, sym);
+      }
       visit(current, sym, sym);
 #ifndef DEBUG
       codegen.compile(current, sym);

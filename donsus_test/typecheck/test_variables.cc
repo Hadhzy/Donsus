@@ -1,8 +1,10 @@
 #include "../Include/sema.h"
 #include <gtest/gtest.h>
+
 /*
 
 * */
+#include "../src/ast/tree.h"
 
 TEST(VariableTypeCheckScalarCorrect, VariableTypecheck) {
   std::string a = R"(

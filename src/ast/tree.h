@@ -1,6 +1,5 @@
 #ifndef DONSUS_TREE_H
 #define DONSUS_TREE_H
-
 #include <assert.h>
 #include <functional>
 #include <iostream>

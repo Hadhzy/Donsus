@@ -2,6 +2,7 @@
 #include "../Include/sema.h"
 #include "../Include/symbol_table.h"
 #include <gtest/gtest.h>
+#include "../src/ast/tree.h"
 
 /*
  This checks whether a simple variable is correctly added to the symbol_table

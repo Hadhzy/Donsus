@@ -1,5 +1,6 @@
 #include "../Include/sema.h"
 #include <gtest/gtest.h>
+#include "../src/ast/tree.h"
 
 TEST(AssignmentTypeCheckTypeCorrect, AssignmentTypeCheck) {
   std::string a = R"(
