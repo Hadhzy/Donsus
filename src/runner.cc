@@ -14,9 +14,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
-
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
-#include "llvm/IR/LegacyPassManager.h"
 
 #include <iostream>
 
@@ -103,7 +101,7 @@ int Du_Main(int argc, char **argv) {
     return 1;
   }
 
-  pass.run(*TheModule);
+  pass.run(*codegen.TheModule);
   dest.flush();
 
   llvm::outs() << "Wrote " << Filename << "\n";
