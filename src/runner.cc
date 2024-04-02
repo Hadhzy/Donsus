@@ -14,9 +14,7 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
-
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
-#include "llvm/IR/LegacyPassManager.h"
 
 #include <iostream>
 
@@ -59,54 +57,14 @@ int Du_Main(int argc, char **argv) {
   parser_result->init_traverse();
   parser_result->traverse(donsus_sym, assign_type_to_node, sym_global, codegen);
 
-  // Todo: This section can be implemented inside codegen.cc as 2 methods
-  // Initialize the target registry etc.
+  // Initialise the target registry etc.
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
 
-  auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-  codegen.TheModule->setTargetTriple(TargetTriple);
-
-  std::string Error;
-  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
-  if (!Target) {
-    llvm::errs() << Error;
-    return 1;
-  }
-
-  auto CPU = "generic";
-  auto Features = "";
-
-  llvm::TargetOptions opt;
-  auto TheTargetMachine = Target->createTargetMachine(
-      TargetTriple, CPU, Features, opt, llvm::Reloc::PIC_);
-
-  codegen.TheModule->setDataLayout(TheTargetMachine->createDataLayout());
-
-  auto Filename = "output.o";
-  std::error_code EC;
-  llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
-
-  if (EC) {
-    llvm::errs() << "Could not open file: " << EC.message();
-    return 1;
-  }
-
-  llvm::legacy::PassManager pass;
-  const auto FileType = llvm::CGFT_ObjectFile;
-
-  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
-    llvm::errs() << "TheTargetMachine can't emit a file of this type";
-    return 1;
-  }
-
-  pass.run(*TheModule);
-  dest.flush();
-
-  llvm::outs() << "Wrote " << Filename << "\n";
+  codegen.create_object_file();
 
   // codegen
 #ifdef DEBUG

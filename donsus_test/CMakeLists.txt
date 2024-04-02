@@ -10,12 +10,10 @@ FetchContent_Declare(
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-
 enable_testing()
 
 
 add_executable(donsus_test
-        # parser
         parser/test_variables.cc
         parser/test_functions.cc
         parser/test_if_statements.cc
@@ -43,6 +41,6 @@ gtest_discover_tests(donsus_test)
 
 target_link_libraries(donsus_test PUBLIC
         GTest::gtest_main
-        ${llvm_libs}
+        ${llvm}
         donsus_lib
 )
