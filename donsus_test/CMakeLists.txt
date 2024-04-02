@@ -29,6 +29,10 @@ add_executable(donsus_test
         typecheck/test_function.cc
         typecheck/test_assignment_type.cc
         typecheck/test_function_call.cc
+        typecheck/test_function_call_rvalue.cc
+        typecheck/test_identifier_rvalue.cc
+        typecheck/test_if_statements_type.cc
+       
 
         #symbol table
         symbol_table/test_variables.cc

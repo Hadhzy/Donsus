@@ -70,6 +70,23 @@ TEST(RedeclarationVariableIncorrectNotSameType,
       ReDefinitionException);
 }
 
+TEST(RedeclarationVariableIncorrectGlobally, RedeclarationVariableTypecheck) {
+  std::string a = R"(
+   a: char;
+def d() -> int{
+  a:char;
+  return 2;
+}
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
+  parse_result->init_traverse();
+  EXPECT_THROW(
+      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
+      ReDefinitionException);
+}
+
 TEST(StringTypecheck, TestSingleTypes) {
   std::string a = R"(
     a:char = "s"; # right now this is correct, although this s not a char

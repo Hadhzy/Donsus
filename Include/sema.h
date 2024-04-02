@@ -5,10 +5,14 @@
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
 #include "parser.h"
+#include <set>
 
-auto assign_type_to_node(utility::handle<donsus_ast::node> node) -> void;
+auto assign_type_to_node(utility::handle<donsus_ast::node> node,
+                         utility::handle<DonsusSymTable> table,
+                         utility::handle<DonsusSymTable> global_table) -> void;
 void donsus_sym(utility::handle<donsus_ast::node> node,
-                utility::handle<DonsusSymTable> table);
+                utility::handle<DonsusSymTable> table,
+                utility::handle<DonsusSymTable> global_table);
 
 /*
 DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
@@ -43,10 +47,9 @@ public:
       utility::handle<donsus_ast::node>) -> bool;
   auto donsus_typecheck_type_expr(utility::handle<donsus_ast::node> node)
       -> DONSUS_TYPE;
-  auto
-  donsus_typecheck_support_between_types(utility::handle<donsus_ast::node> node,
-                                         int level = 0)
-      -> utility::handle<donsus_ast::node>;
+  void donsus_typecheck_support_between_types(
+      utility::handle<donsus_ast::node> node,
+      std::set<DONSUS_TYPE> *childTypes = nullptr);
   auto donsus_typecheck_is_valid_operator(donsus_token_kind kind) -> bool;
   auto
   donsus_typecheck_is_return_type_valid(utility::handle<donsus_ast::node> node)

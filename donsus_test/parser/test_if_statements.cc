@@ -5,7 +5,7 @@
 TEST(IfStatements, IfStatementsNodeType) {
   std::string a = R"(
         def a() -> int {
-            if() {}
+            if(1) {}
         };
     )";
 

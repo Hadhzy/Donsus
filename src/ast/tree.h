@@ -37,36 +37,57 @@ public:
 
   // -------------------------------------------------------
   // https://en.wikipedia.org/wiki/Tree_traversal
-  void traverse(std::function<void(utility::handle<node>,
-                                   utility::handle<DonsusSymTable> table)>
-                    visit,
-                std::function<void(utility::handle<node>)> assign_node,
-                utility::handle<DonsusSymTable> sym,
-                DonsusCodegen::DonsusCodeGenerator &codegen,
-                utility::handle<node> curr_node = nullptr);
+  void
+  traverse(std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               visit,
+           std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               assign_node,
+           utility::handle<DonsusSymTable> sym,
+
+           DonsusCodegen::DonsusCodeGenerator &codegen,
+           utility::handle<node> curr_node = nullptr);
   // FOR DEBUGGING
-  void traverse(std::function<void(utility::handle<node>,
-                                   utility::handle<DonsusSymTable> table)>
-                    visit,
-                std::function<void(utility::handle<node>)> assign_node,
-                utility::handle<DonsusSymTable> sym,
-                utility::handle<node> curr_node = nullptr);
+  void
+  traverse(std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               visit,
+           std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               assign_node,
+           utility::handle<DonsusSymTable> sym,
+           utility::handle<node> curr_node = nullptr);
 
   // implement traverse and use stack
-  void traverse_nodes(std::function<void(utility::handle<node>,
-                                         utility::handle<DonsusSymTable> table)>
-                          visit,
-                      std::function<void(utility::handle<node>)> assign_node,
-                      utility::handle<DonsusSymTable> sym,
-                      DonsusCodegen::DonsusCodeGenerator &codegen,
-                      utility::handle<node> curr_node = nullptr);
-  void evaluate(std::function<void(utility::handle<node>,
-                                   utility::handle<DonsusSymTable> table)>
-                    visit,
-                std::function<void(utility::handle<node>)> assign_node,
-                utility::handle<DonsusSymTable> sym,
-                DonsusCodegen::DonsusCodeGenerator &codegen,
-                utility::handle<node> curr_node = nullptr);
+  void traverse_nodes(
+      std::function<void(utility::handle<node>,
+                         utility::handle<DonsusSymTable> table,
+                         utility::handle<DonsusSymTable> global_table)>
+          visit,
+      std::function<void(utility::handle<node>,
+                         utility::handle<DonsusSymTable> table,
+                         utility::handle<DonsusSymTable> global_table)>
+          assign_node,
+      utility::handle<DonsusSymTable> sym,
+      DonsusCodegen::DonsusCodeGenerator &codegen,
+      utility::handle<node> curr_node = nullptr);
+  void
+  evaluate(std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               visit,
+           std::function<void(utility::handle<node>,
+                              utility::handle<DonsusSymTable> table,
+                              utility::handle<DonsusSymTable> global_table)>
+               assign_node,
+           utility::handle<DonsusSymTable> sym,
+           DonsusCodegen::DonsusCodeGenerator &codegen,
+           utility::handle<node> curr_node = nullptr);
 
   void init_traverse();
   // -------------------------------------------------------

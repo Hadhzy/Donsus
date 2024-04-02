@@ -42,6 +42,11 @@ int DonsusCodeGenerator::create_object_file() {
 
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
+  if (llvm::verifyModule(*TheModule, &llvm::errs())) {
+    llvm::errs() << "Error: Module verification failed.\n";
+    return 1;
+  }
+
   auto Filename = "output.o";
   std::error_code EC;
   llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
@@ -134,14 +139,14 @@ DonsusCodeGenerator::DonsusCodeGenerator(
       Builder(std::move(builder)) {
 
   create_entry_point();
-  llvm::Function *TheFunction = TheModule->getFunction("entry");
+  // llvm::Function *TheFunction = TheModule->getFunction("entry");
 
-  // assert here
+  // // assert here
 
-  llvm::BasicBlock *entry =
-      llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
+  // llvm::BasicBlock *entry =
+  //     llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
 
-  Builder->SetInsertPoint(entry);
+  // Builder->SetInsertPoint(entry);
 }
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,
