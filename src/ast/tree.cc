@@ -181,26 +181,22 @@ void tree::evaluate(
       std::string qualified_name = sym->apply_scope(func_name);
       auto sym_table = sym->get_sym_table(qualified_name);
       // call it here
-      visit(current, sym_table);
+      visit(current, sym_table, sym);
       // Find better solution
       if (codegen.Builder) {
         codegen.compile(current, sym_table);
+        codegen.Builder->CreateRet(
+            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
 
-      visit(current, sym_table, sym);
-#ifndef DEBUG
-      codegen.compile(current, sym_table);
-#endif
     } else {
-      visit(current, sym);
+      visit(current, sym, sym);
       // Find better solution
       if (codegen.Builder) {
         codegen.compile(current, sym);
+        codegen.Builder->CreateRet(
+            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
-      visit(current, sym, sym);
-#ifndef DEBUG
-      codegen.compile(current, sym);
-#endif
     }
 
     // if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {

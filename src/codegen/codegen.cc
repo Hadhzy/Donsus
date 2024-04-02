@@ -21,6 +21,55 @@ void DonsusCodeGenerator::create_entry_point() {
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, name, *TheModule);
 }
+
+int DonsusCodeGenerator::create_object_file() {
+  const auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+  TheModule->setTargetTriple(TargetTriple);
+
+  std::string Error;
+  const auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+  if (!Target) {
+    llvm::errs() << Error;
+    return 1;
+  }
+
+  const auto CPU = "generic";
+  const auto Features = "";
+
+  llvm::TargetOptions opt;
+  auto TheTargetMachine = Target->createTargetMachine(
+      TargetTriple, CPU, Features, opt, llvm::Reloc::PIC_);
+
+  TheModule->setDataLayout(TheTargetMachine->createDataLayout());
+
+  if (llvm::verifyModule(*TheModule, &llvm::errs())) {
+    llvm::errs() << "Error: Module verification failed.\n";
+    return 1;
+  }
+
+  auto Filename = "output.o";
+  std::error_code EC;
+  llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
+
+  if (EC) {
+    llvm::errs() << "Could not open file: " << EC.message();
+    return 1;
+  }
+
+  llvm::legacy::PassManager pass;
+  const auto FileType = llvm::CGFT_ObjectFile;
+
+  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+    llvm::errs() << "TheTargetMachine can't emit a file of this type";
+    return 1;
+  }
+
+  pass.run(*TheModule);
+  dest.flush();
+
+  llvm::outs() << "Wrote " << Filename << "\n";
+  return 0;
+}
 // traverse
 llvm::Value *
 DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
@@ -90,14 +139,14 @@ DonsusCodeGenerator::DonsusCodeGenerator(
       Builder(std::move(builder)) {
 
   create_entry_point();
-  llvm::Function *TheFunction = TheModule->getFunction("entry");
+  // llvm::Function *TheFunction = TheModule->getFunction("entry");
 
-  // assert here
+  // // assert here
 
-  llvm::BasicBlock *entry =
-      llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
+  // llvm::BasicBlock *entry =
+  //     llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
 
-  Builder->SetInsertPoint(entry);
+  // Builder->SetInsertPoint(entry);
 }
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,

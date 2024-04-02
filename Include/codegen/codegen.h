@@ -7,9 +7,19 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/TargetParser/Host.h"
+#include <llvm/IR/Verifier.h>
+
 #include <memory>
 
 namespace DonsusCodegen {
@@ -21,8 +31,13 @@ public:
                       std::unique_ptr<llvm::Module> module,
                       std::unique_ptr<llvm::IRBuilder<>> builder);
 
+  // link the object file to get the executable
   void Link();
+  // create object file
+  int create_object_file();
+  // create first basic block for entry point
   void create_entry_point();
+
   void compile_donsus_expr(DonsusParser::end_result &ast);
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,
                        utility::handle<DonsusSymTable> &table);
