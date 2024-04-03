@@ -12,6 +12,16 @@ Todo:
 #include "../../Include/codegen/codegen.h"
 
 namespace DonsusCodegen {
+Bitness GetBitness() {
+  const auto target_triple = llvm::Triple(llvm::sys::getDefaultTargetTriple());
+  if (target_triple.isArch32Bit())
+    return Bitness::x32;
+  if (target_triple.isArch64Bit())
+    return Bitness::x64;
+  std::cerr << "Target triple: " << target_triple.normalize()
+            << " is not supported because it is not 32bit or 64bit";
+  abort();
+}
 void DonsusCodeGenerator::create_entry_point() {
   // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
@@ -42,6 +52,7 @@ int DonsusCodeGenerator::create_object_file() {
 
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
+  // Checks the module or validity.
   if (llvm::verifyModule(*TheModule, &llvm::errs())) {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
@@ -70,7 +81,18 @@ int DonsusCodeGenerator::create_object_file() {
   llvm::outs() << "Wrote " << Filename << "\n";
   return 0;
 }
-// traverse
+
+void DonsusCodeGenerator::Link() const {
+  // Link
+  std::vector<std::filesystem::path> obj_paths = {"output.o"};
+  // hard code it into linux
+  std::filesystem::path exe_path = "test";
+
+  std::string linker_cmd;
+  linker_cmd = platform.GetLinkerCommand(obj_paths, exe_path, GetBitness());
+  std::cout << "command: " << linker_cmd;
+  system(linker_cmd.c_str());
+}
 llvm::Value *
 DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
                              utility::handle<DonsusSymTable> &table) {
@@ -139,14 +161,14 @@ DonsusCodeGenerator::DonsusCodeGenerator(
       Builder(std::move(builder)) {
 
   create_entry_point();
-  // llvm::Function *TheFunction = TheModule->getFunction("entry");
+  llvm::Function *TheFunction = TheModule->getFunction("entry");
 
   // // assert here
 
-  // llvm::BasicBlock *entry =
-  //     llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
+  llvm::BasicBlock *entry =
+      llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
 
-  // Builder->SetInsertPoint(entry);
+  Builder->SetInsertPoint(entry);
 }
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,

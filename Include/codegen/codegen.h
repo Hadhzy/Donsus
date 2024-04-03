@@ -1,7 +1,8 @@
-#ifndef CODEGEN_H
-#define CODEGEN_H
+#ifndef DONSUS_CODEGEN_H
+#define DONSUS_CODEGEN_H
 
 #include "../parser.h"
+
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/IRBuilder.h"
@@ -19,10 +20,39 @@
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
 #include <llvm/IR/Verifier.h>
-
 #include <memory>
 
+// Select platform
+#ifdef _WIN32
+#include "../src/codegen/platform/windows_platform.h"
+#endif
+
+#ifdef __unix__
+#include "../../src/codegen/platform/linux_platform.h"
+#endif
+
+/*#ifdef _WIN32
+using PlatformClass = Window
+#endif*/
+
+#ifdef __unix__
+using PlatformClass = LinuxPlatform;
+#endif
+
 namespace DonsusCodegen {
+// Handle linking
+Bitness GetBitness();
+class Platform {
+public:
+  std::string
+  GetLinkerCommand(const std::vector<std::filesystem::path> &obj_paths,
+                   const std::filesystem::path &exe_path,
+                   Bitness bitness) const {
+
+    return obj.GetLinkerCommand(obj_paths, exe_path, bitness);
+  }
+  PlatformClass obj;
+};
 class DonsusCodeGenerator {
   // destination driven code generating system
 public:
@@ -32,7 +62,7 @@ public:
                       std::unique_ptr<llvm::IRBuilder<>> builder);
 
   // link the object file to get the executable
-  void Link();
+  void Link() const;
   // create object file
   int create_object_file();
   // create first basic block for entry point
@@ -95,6 +125,7 @@ public:
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
   std::unique_ptr<llvm::Module> TheModule;
+  Platform platform;
   // assigning INST's during codegen
   // DonsusSymTable TheSymbolTable;
 
