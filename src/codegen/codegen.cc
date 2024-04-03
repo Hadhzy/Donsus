@@ -26,7 +26,7 @@ void DonsusCodeGenerator::create_entry_point() {
   // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
       llvm::FunctionType::get(llvm::Type::getInt32Ty(*TheContext), false);
-  std::string name = "entry";
+  std::string name = "main";
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, name, *TheModule);
@@ -161,7 +161,7 @@ DonsusCodeGenerator::DonsusCodeGenerator(
       Builder(std::move(builder)) {
 
   create_entry_point();
-  llvm::Function *TheFunction = TheModule->getFunction("entry");
+  llvm::Function *TheFunction = TheModule->getFunction("main");
 
   // // assert here
 
@@ -170,6 +170,7 @@ DonsusCodeGenerator::DonsusCodeGenerator(
 
   Builder->SetInsertPoint(entry);
 }
+
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,
                                         utility::handle<DonsusSymTable> &table,
@@ -274,7 +275,9 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  // function def
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
