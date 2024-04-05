@@ -8,7 +8,7 @@ TEST(FunctionCallCheckCorrect, FunctionCallCheck) {
             return 1;
         }
 
-    def b(c:int, d:char) -> int {
+    def b(c:int, d: string) -> int {
         return 1;
     }
 
@@ -28,7 +28,7 @@ TEST(FunctionCallCheckIncorrect, FunctionCallCheck) {
             return 1;
         }
 
-    def b(c:int, d:char) -> int {
+    def b(c:int, d: string) -> int {
         return 1;
     }
 

@@ -10,7 +10,7 @@ public:
     TYPE_BASIC_INT,
     TYPE_I32,
     TYPE_U64,
-    TYPE_CHAR,
+    TYPE_STRING,
     TYPE_I8,
     TYPE_I64,
     TYPE_BOOL,

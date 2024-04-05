@@ -22,7 +22,7 @@ TEST(IfStatementTypecheckInCorrect, IfStatementTypecheck) {
   std::string a = R"(
     def a() ->int {
    if(1) {
-      b:char = 12;
+      b:string = 12;
    }
    return 1;
 }
