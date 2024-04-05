@@ -408,7 +408,7 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
         break;
       }
 
-      case DONSUS_TYPE::TYPE_CHAR: {
+      case DONSUS_TYPE::TYPE_STRING: {
         break;
       }*/
   default: {

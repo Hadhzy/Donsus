@@ -29,7 +29,7 @@ These types can be used together to form a well design infrastructure:
 - INT(signed integer)
 - I32(32 bit signed integer)
 - U64(64 bit unsigned integer)
-- CHAR
+- STRING
 - I8 (8 bit integer)
 - I64
 - BOOL
@@ -82,7 +82,7 @@ a(a:int) -> int;
 In this case the declaration has a parameter which again must be assigned with a corresponding type. One can separate parameters with a comma like the following:
 
 ```
-a(a:int, b:char) -> int;
+a(a:int, b:string) -> int;
 ```
 
 If the user doesn't wish to return any type, a void type must be inserted.

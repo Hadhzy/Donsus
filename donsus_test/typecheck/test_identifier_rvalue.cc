@@ -20,7 +20,7 @@ TEST(IdentifierRvalueCheckInCorrect, IdentifierRvalueCheck) {
   std::string a = R"(
         b:int = 11;
 
-         a:char = b;
+         a:string = b;
     )";
 
   DonsusParser::end_result parse_result = Du_Parse(a);

@@ -49,7 +49,7 @@
 
   DONSUS_BOOL,  // bool
   DONSUS_VOID,  // void
-  DONSUS_CHAR,  // 'D'
+  DONSUS_STRING,  // 'D'
   DONSUS_ARROW, // ->
 
   // keywords

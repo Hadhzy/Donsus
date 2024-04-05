@@ -36,7 +36,7 @@ TEST(ReturnStatementTypeCheckIdentifierCorrect, ReturnStatementTypecheck) {
 
 TEST(ReturnStatementTypeCheckScalarIncorrect, ReturnStatementTypecheck) {
   std::string a = R"(
-    def a() ->char{
+    def a() ->string{
     return 1;
 }
 )";
@@ -53,7 +53,7 @@ TEST(ReturnStatementTypeCheckScalarIncorrect, ReturnStatementTypecheck) {
 TEST(ReturnStatementTypeCheckIdentifierIncorrect, ReturnStatementTypecheck) {
   std::string a = R"(
     b:int = 12;
-    def a() ->char{
+    def a() ->string{
     return b;
 }
 )";
@@ -70,7 +70,7 @@ TEST(ReturnStatementTypeCheckIdentifierIncorrect, ReturnStatementTypecheck) {
 TEST(ReturnStatementTypeCheckScalarIncorrectWithMultiple,
      ReturnStatementTypecheck) {
   std::string a = R"(
-    def a() ->int, char{
+    def a() ->int, string{
     return 1;
 }
 )";
