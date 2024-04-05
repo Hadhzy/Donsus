@@ -411,6 +411,9 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_STRING: {
     return Builder->getPtrTy();
   }
+  case DONSUS_TYPE::TYPE_BOOL: {
+    return Builder->getInt8Ty();
+  }
 
   default: {
   }
