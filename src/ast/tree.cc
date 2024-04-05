@@ -127,6 +127,13 @@ void tree::traverse_nodes(
   }
 }
 
+/*
+Calls specific visit functions on the AST nodes.
+Depth first search.
+Loop through the stack that is already filled up with ITEMS.
+stack_assign: assign types to nodes - data member
+stack_visit: performs typechecking - data member
+ * */
 void tree::evaluate(
     std::function<void(utility::handle<node>,
                        utility::handle<DonsusSymTable> table,
@@ -139,7 +146,9 @@ void tree::evaluate(
     utility::handle<DonsusSymTable> sym,
     DonsusCodegen::DonsusCodeGenerator &codegen,
     utility::handle<node> curr_node) {
+  // Assign nodes to types
   while (!stack_assign.empty()) {
+    // python pop
     auto current = stack_assign.top();
     stack_assign.pop();
 
@@ -147,14 +156,11 @@ void tree::evaluate(
       continue;
     }
 
-    // if it is a function def go through its body
     assign_type_to_node(current, sym, sym);
 
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
       for (auto c : current->get<function_def>().body) {
         if (c->type.type == donsus_node_type::DONSUS_ASSIGNMENT) {
-          // We dont have the proper symbol table we will assign them in
-          // donsus_sym
           continue;
         } else {
           stack_assign.push(c);
@@ -166,7 +172,9 @@ void tree::evaluate(
     }
   }
 
+  // Doing typechecking
   while (!stack_visit.empty()) {
+    // python pop
     auto current = stack_visit.front();
     stack_visit.pop();
 
@@ -174,39 +182,30 @@ void tree::evaluate(
       continue;
     }
 
-    // if it is a function def go through its body
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
       std::string func_name =
           current->get<donsus_ast::function_def>().func_name;
       std::string qualified_name = sym->apply_scope(func_name);
       auto sym_table = sym->get_sym_table(qualified_name);
-      // call it here
+
       visit(current, sym_table, sym);
-      // Find better solution
+      // when called by test api, it'll be false
       if (codegen.Builder) {
         codegen.compile(current, sym_table);
-        codegen.Builder->CreateRet(
-            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
 
     } else {
       visit(current, sym, sym);
-      // Find better solution
+      // when called by test api, it'll be false
       if (codegen.Builder) {
         codegen.compile(current, sym);
-        codegen.Builder->CreateRet(
-            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
     }
-
-    // if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
-    //   for (auto c : current->get<function_def>().body) {
-    //     stack_visit.push(c);
-    //   }
-    // }
-    for (auto c : current->children) {
-      stack_visit.push(c);
-    }
+  }
+  // when called by test api, it'll be false
+  if (codegen.Builder) {
+    // CREATE RET instruction
+    codegen.Finish();
   }
 }
 

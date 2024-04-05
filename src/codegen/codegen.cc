@@ -12,11 +12,24 @@ Todo:
 #include "../../Include/codegen/codegen.h"
 
 namespace DonsusCodegen {
+Bitness GetBitness() {
+  const auto target_triple = llvm::Triple(llvm::sys::getDefaultTargetTriple());
+  if (target_triple.isArch32Bit())
+    return Bitness::x32;
+  if (target_triple.isArch64Bit())
+    return Bitness::x64;
+  std::cerr << "Target triple: " << target_triple.normalize()
+            << " is not supported because it is not 32bit or 64bit";
+  abort();
+}
+void DonsusCodeGenerator::Finish() const {
+  Builder->CreateRet(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
+}
 void DonsusCodeGenerator::create_entry_point() {
   // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
       llvm::FunctionType::get(llvm::Type::getInt32Ty(*TheContext), false);
-  std::string name = "entry";
+  std::string name = "main";
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, name, *TheModule);
@@ -42,6 +55,7 @@ int DonsusCodeGenerator::create_object_file() {
 
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
+  // Checks the module or validity.
   if (llvm::verifyModule(*TheModule, &llvm::errs())) {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
@@ -70,7 +84,18 @@ int DonsusCodeGenerator::create_object_file() {
   llvm::outs() << "Wrote " << Filename << "\n";
   return 0;
 }
-// traverse
+
+void DonsusCodeGenerator::Link() const {
+  // Link
+  std::vector<std::filesystem::path> obj_paths = {"output.o"};
+  // hard code it into linux
+  std::filesystem::path exe_path = "test";
+
+  std::string linker_cmd;
+  linker_cmd = platform.GetLinkerCommand(obj_paths, exe_path, GetBitness());
+  std::cout << "command: " << linker_cmd;
+  system(linker_cmd.c_str());
+}
 llvm::Value *
 DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
                              utility::handle<DonsusSymTable> &table) {
@@ -139,15 +164,16 @@ DonsusCodeGenerator::DonsusCodeGenerator(
       Builder(std::move(builder)) {
 
   create_entry_point();
-  // llvm::Function *TheFunction = TheModule->getFunction("entry");
+  llvm::Function *TheFunction = TheModule->getFunction("main");
 
   // // assert here
 
-  // llvm::BasicBlock *entry =
-  //     llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
+  llvm::BasicBlock *entry =
+      llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
 
-  // Builder->SetInsertPoint(entry);
+  Builder->SetInsertPoint(entry);
 }
+
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,
                                         utility::handle<DonsusSymTable> &table,
@@ -224,6 +250,18 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return Builder->CreateLoad(A->getAllocatedType(), A, sym1.inst);
 }
 
+/*
+ Returns back a vector with llvm TYPE based on DONSUS_TYPE for parameters
+ * */
+/*// Todo: Avoid unnecessary copies
+std::vector<llvm::Type *> DonsusCodeGenerator::parameters_for_function(
+    std::vector<NAME_DATA_PAIR> parameters) {
+  std::vector<llvm::Type *> parameters_vector;
+  for (auto n : parameters) {
+    parameters_vector.push_back(map_type(n.type));
+  }
+  return parameters_vector;
+}*/
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
@@ -252,7 +290,32 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  /*
+    std::vector<llvm::Type *> parameters =
+        parameters_for_function(ast.parameters);
+    auto function_name = ast.func_name;
+    // multiple return type support here
+
+    if (!ast.return_type.size()) {
+      using return_type = map_type(make_type(ast.return_type));
+    } else {
+      // multiple return types
+      llvm::StructType type = multiple_return_types(ast.return_type);
+      using return_type = type;
+    }
+
+    llvm::FunctionType *FT =
+        llvm::FunctionType::get(return_type), parameters, false);
+
+    llvm::Function *F = llvm::Function::Create(
+        FT, llvm::Function::ExternalLinkage, function_name, *TheModule);
+
+    // process body here before returning
+    // multiple return types
+    Builder->CreateRet(map_type(make_type(ast.return_type)));
+  */
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_call &ast,

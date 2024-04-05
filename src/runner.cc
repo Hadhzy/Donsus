@@ -3,6 +3,7 @@
 #include "../Include/file.h"
 #include "../Include/sema.h"
 
+#include "llvm/CodeGen/AsmPrinter.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
@@ -58,6 +59,7 @@ int Du_Main(int argc, char **argv) {
   parser_result->traverse(donsus_sym, assign_type_to_node, sym_global, codegen);
 
   // Initialise the target registry etc.
+
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
@@ -65,7 +67,7 @@ int Du_Main(int argc, char **argv) {
   llvm::InitializeAllAsmPrinters();
 
   codegen.create_object_file();
-
+  codegen.Link();
   // codegen
 #ifdef DEBUG
   std::cout << "\n";
@@ -74,6 +76,12 @@ int Du_Main(int argc, char **argv) {
   std::cout << sym_global << std::endl;
 #endif
 
+// print out llvm IR
+#ifdef DEBUG
+  std::cout << "-------------------------------------"
+            << "\n";
+  llvm::errs() << *codegen.TheModule;
+#endif
   /*  delete sym_global.get();*/
   return 0;
 }
