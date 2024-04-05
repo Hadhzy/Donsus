@@ -408,10 +408,10 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_U64: {
     return Builder->getInt64Ty();
   }
-
   case DONSUS_TYPE::TYPE_STRING: {
-    break;
+    return Builder->getPtrTy();
   }
+
   default: {
   }
   }
