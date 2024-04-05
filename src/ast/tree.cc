@@ -202,11 +202,6 @@ void tree::evaluate(
       }
     }
   }
-  // when called by test api, it'll be false
-  if (codegen.Builder) {
-    // CREATE RET instruction
-    codegen.Finish();
-  }
 }
 
 void tree::init_traverse() {

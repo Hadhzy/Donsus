@@ -86,7 +86,6 @@ int DonsusCodeGenerator::create_object_file() {
 }
 
 void DonsusCodeGenerator::Link() const {
-  // Link
   std::vector<std::filesystem::path> obj_paths = {"output.o"};
   // hard code it into linux
   std::filesystem::path exe_path = "test";
@@ -374,23 +373,17 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
  **/
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
-  case DONSUS_TYPE::TYPE_VOID: {
-    return nullptr;
+
+  case DONSUS_TYPE::TYPE_BASIC_INT: {
+    return Builder->getInt32Ty();
   }
 
-  // integers
   case DONSUS_TYPE::TYPE_I8: {
     return Builder->getInt8Ty();
   }
 
   case DONSUS_TYPE::TYPE_I16: {
     return Builder->getInt16Ty();
-  }
-
-  case DONSUS_TYPE::TYPE_BASIC_INT: {
-    // arbitrary precision integer, like BIGINT
-    // consider using APInt here, but we don't know the value
-    return Builder->getInt32Ty();
   }
 
   case DONSUS_TYPE::TYPE_I32: {
@@ -400,17 +393,25 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_I64: {
     return Builder->getInt64Ty();
   }
-    /*  case DONSUS_TYPE::TYPE_U32: {
-        return Builder->get
-      }*/
 
-    /*  case DONSUS_TYPE::TYPE_U64: {
-        break;
-      }
+  case DONSUS_TYPE::TYPE_U32: {
+      return Builder->getInt32Ty();
+  }
 
-      case DONSUS_TYPE::TYPE_CHAR: {
-        break;
-      }*/
+  case DONSUS_TYPE::TYPE_U64: {
+      return Builder->getInt64Ty();
+  }
+
+  case DONSUS_TYPE::TYPE_BOOL: {
+      // handle bool here
+      return Builder->getInt8Ty();
+  }
+
+  case DONSUS_TYPE::TYPE_CHAR: {
+      LLVMTypeRef strType = LLVMArrayType( LLVMInt8Type(), size );
+    return llvm::ARRAYTYPE(Builder->getInt8Ty(),);
+  }
+
   default: {
   }
   }

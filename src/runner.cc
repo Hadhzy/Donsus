@@ -66,8 +66,12 @@ int Du_Main(int argc, char **argv) {
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
 
+  if (codegen.Builder){
+  codegen.Finish();
   codegen.create_object_file();
   codegen.Link();
+  }
+
   // codegen
 #ifdef DEBUG
   std::cout << "\n";
