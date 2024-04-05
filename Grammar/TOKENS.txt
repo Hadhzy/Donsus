@@ -49,8 +49,8 @@
 
   DONSUS_BOOL,  // bool
   DONSUS_VOID,  // void
-  DONSUS_STRING,  // 'D'
   DONSUS_ARROW, // ->
+  DONSUS_STRING_TYPE,  // string
 
   // keywords
   DONSUS_FUNCTION_DEFINITION_KW // def

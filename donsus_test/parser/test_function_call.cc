@@ -7,18 +7,20 @@
  * */
 TEST(FunctionCallTest, FunctionName) {
   std::string a = R"(
-    def func_name() -> int {
+    def a() -> int {
       return 1;
     }
     
-    func_name();
+    a();
 )";
   DonsusParser::end_result result = Du_Parse(a);
 
-  std::string func_name =
-      result->get_nodes()[0]->get<donsus_ast::function_call>().func_name;
+  std::string _func_name =
+      result->get_nodes()[1]->get<donsus_ast::function_call>().func_name;
 
-  EXPECT_EQ("func_name", func_name);
+  std::cout << _func_name << std::endl;
+
+  EXPECT_EQ("a", _func_name);
 }
 
 /** \brief Check for function's arguments(just positional as of now)

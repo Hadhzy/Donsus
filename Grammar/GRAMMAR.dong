@@ -67,7 +67,7 @@ donsus_type:
 
   | DONSUS_BOOL,
   | DONSUS_VOID,
-  | DONSUS_STRING,
+  | DONSUS_STRING_TYPE,
 
 # expressions
 
