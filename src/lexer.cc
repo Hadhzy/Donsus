@@ -5,10 +5,11 @@
 
 std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER{
 
-    {"int", DONSUS_BASIC_INT}, {"int8", DONSUS_I8},   {"int16", DONSUS_I16},
-    {"int32", DONSUS_I32},     {"int64", DONSUS_I64}, {"u32", DONSUS_U32},
-    {"u64", DONSUS_U64},       {"bool", DONSUS_BOOL}, {"void", DONSUS_VOID},
-    {"string", DONSUS_STRING},
+    {"int", DONSUS_BASIC_INT}, {"int8", DONSUS_I8},
+    {"int16", DONSUS_I16},     {"int32", DONSUS_I32},
+    {"int64", DONSUS_I64},     {"u32", DONSUS_U32},
+    {"u64", DONSUS_U64},       {"bool", DONSUS_BOOL},
+    {"void", DONSUS_VOID},     {"string", DONSUS_STRING_TYPE},
 };
 
 std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
@@ -28,6 +29,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_NUMBER:
     return "DONSUS_NUMBER";
+
+  case DONSUS_STRING_TYPE:
+    return "DONSUS_STRING_TYPE";
 
   case DONSUS_STRING:
     return "DONSUS_STRING";

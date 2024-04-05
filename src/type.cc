@@ -15,7 +15,7 @@ DONSUS_TYPE::kind DONSUS_TYPE::from_parse(donsus_token_kind type) {
   case DONSUS_U64:
     return TYPE_U64;
 
-  case DONSUS_STRING:
+  case DONSUS_STRING_TYPE:
     return TYPE_STRING;
 
   case DONSUS_I8:

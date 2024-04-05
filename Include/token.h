@@ -55,9 +55,10 @@ typedef enum {
   DONSUS_U32,       // [FROM 0 TO 2^32 -1]
   DONSUS_U64,       // [FROM 0 TO 2^64 − 1]
 
-  DONSUS_BOOL,  // bool
-  DONSUS_VOID,  // void
-  DONSUS_ARROW, // ->
+  DONSUS_BOOL,        // bool
+  DONSUS_VOID,        // void
+  DONSUS_ARROW,       // ->
+  DONSUS_STRING_TYPE, // string
 
   // keywords
   DONSUS_FUNCTION_DEFINITION_KW, // def
