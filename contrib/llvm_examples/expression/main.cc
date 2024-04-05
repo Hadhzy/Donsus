@@ -67,19 +67,17 @@ public:
     Builder->CreateStore(inst, Allocadef);
     auto first_name = '1';
     auto second_name = '2';
-    llvm::Value* load_a =
+    llvm::Value *load_a =
         Builder->CreateLoad(Builder->getInt32Ty(), global_var);
-    llvm::Value* load_b =
-        Builder->CreateLoad(Builder->getInt32Ty(), Allocadef);
+    llvm::Value *load_c = Builder->CreateLoad(Builder->getInt32Ty(), Allocadef);
     // get the value from the load instruction, then save it to d
     // print it out afterwards
     llvm::Value *add = Builder->CreateAdd(load_a, load_b);
     Builder->CreateStore(add, Allocadef2);
 
-  Builder->CreateRet(
-      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 10)));
+    Builder->CreateRet(
+        llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 10)));
   }
-
 
   void add_variable() {}
 
