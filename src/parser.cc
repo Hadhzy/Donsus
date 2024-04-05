@@ -368,7 +368,7 @@ auto DonsusParser::donsus_parse() -> end_result {
     // case DONSUS_NAME: {
     //   /*      case DONSUS_BOOL:
     //         case DONSUS_VOID:
-    //         case DONSUS_CHAR:
+    //         case DONSUS_STRING:
     //         case DONSUS_BASIC_INT:
     //         case DONSUS_I8:
     //         case DONSUS_I16:

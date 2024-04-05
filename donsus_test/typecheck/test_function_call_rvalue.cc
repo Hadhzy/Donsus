@@ -21,7 +21,7 @@ a:int = function_call();
 
 TEST(FunctionCallRvalueCheckInCorrect, FunctionCallRvalueCheck) {
   std::string a = R"(
-        def function_call() -> char {
+        def function_call() -> string {
     return 1;
 };
 

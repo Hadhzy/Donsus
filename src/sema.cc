@@ -99,7 +99,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
     // decide whether it's a string or single char
-    node->real_type.type_un = DONSUS_TYPE::TYPE_CHAR; // not entirely correct
+    node->real_type.type_un = DONSUS_TYPE::TYPE_STRING; // not entirely correct
     break;
   }
 

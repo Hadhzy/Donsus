@@ -7,7 +7,11 @@
  * */
 TEST(FunctionCallTest, FunctionName) {
   std::string a = R"(
-        func_name();
+    def func_name() -> int {
+      return 1;
+    }
+    
+    func_name();
 )";
   DonsusParser::end_result result = Du_Parse(a);
 

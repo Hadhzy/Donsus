@@ -1,6 +1,6 @@
 #include "../Include/sema.h"
-#include <gtest/gtest.h>
 #include "../src/ast/tree.h"
+#include <gtest/gtest.h>
 
 TEST(AssignmentTypeCheckTypeCorrect, AssignmentTypeCheck) {
   std::string a = R"(
@@ -41,7 +41,7 @@ TEST(AssignmentTypeCheckType2Correct, AssignmentTypeCheck) {
   std::string a = R"(
     def d() ->int {
     a: int;
-    b:char = "12";
+    b:string = "12";
 
     a = 3 + 2 + b;
     return 1;
@@ -96,7 +96,7 @@ TEST(AssignmentTypeCheckType4Correct, AssignmentTypeCheck) {
 TEST(AssignmentTypeCheckTypeInCorrect, AssignmentTypeCheck) {
   std::string a = R"(
   def d() -> int{
-  a: char;
+  a: string;
   c: int;
 
   a = 2 + 1;
@@ -116,7 +116,7 @@ TEST(AssignmentTypeCheckType1InCorrect, AssignmentTypeCheck) {
   std::string a = R"(
   def d() -> int{
   a:int;
-  c: char = "12";
+  c: string = "12";
 
   a = c;
   return 2;
@@ -134,9 +134,9 @@ TEST(AssignmentTypeCheckType1InCorrect, AssignmentTypeCheck) {
 TEST(AssignmentTypeCheckType2InCorrect, AssignmentTypeCheck) {
   std::string a = R"(
   def d() -> int{
-  a: char;
-  c: char = "12";
-  b: char = "a";
+  a: string;
+  c: string = "12";
+  b: string = "a";
 
   a = c + b + "abc" + 1;
   return 2;
@@ -154,9 +154,9 @@ TEST(AssignmentTypeCheckType2InCorrect, AssignmentTypeCheck) {
 TEST(AssignmentTypeCheckType3InCorrect, AssignmentTypeCheck) {
   std::string a = R"(
   def d() -> int{
-  a: char;
+  a: string;
   c: int = 12;
-  b: char = "a";
+  b: string = "a";
 
   a = c + b + "abc" + "a";
   return 2;
@@ -173,10 +173,10 @@ TEST(AssignmentTypeCheckType3InCorrect, AssignmentTypeCheck) {
 
 TEST(AssignmentTypeCheckType4InCorrect, AssignmentTypeCheck) {
   std::string a = R"(
-  a: char;
+  a: string;
   def d() -> int{
   c: int = 12;
-  b: char = "a";
+  b: string = "a";
 
   a = c + b + "abc" + "a";
   return 2;

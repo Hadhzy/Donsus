@@ -15,8 +15,8 @@ DONSUS_TYPE::kind DONSUS_TYPE::from_parse(donsus_token_kind type) {
   case DONSUS_U64:
     return TYPE_U64;
 
-  case DONSUS_CHAR:
-    return TYPE_CHAR;
+  case DONSUS_STRING:
+    return TYPE_STRING;
 
   case DONSUS_I8:
     return TYPE_I8;
@@ -59,8 +59,8 @@ donsus_token_kind DONSUS_TYPE::to_parse(DONSUS_TYPE::kind type) {
   case TYPE_U64:
     return DONSUS_U64;
 
-  case TYPE_CHAR:
-    return DONSUS_CHAR;
+  case TYPE_STRING:
+    return DONSUS_STRING;
 
   case TYPE_I8:
     return DONSUS_I8;
@@ -96,8 +96,8 @@ auto DONSUS_TYPE::to_string() const -> std::string {
     return "TYPE_I32";
   case TYPE_U64:
     return "TYPE_U64";
-  case TYPE_CHAR:
-    return "TYPE_CHAR";
+  case TYPE_STRING:
+    return "TYPE_STRING";
   case TYPE_I8:
     return "TYPE_I8";
   case TYPE_I64:

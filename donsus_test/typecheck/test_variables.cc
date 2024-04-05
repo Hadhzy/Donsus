@@ -16,7 +16,7 @@ TEST(VariableTypeCheckScalarCorrect, VariableTypecheck) {
 
 TEST(VariableTypeCheckScalarInCorrect, VariableTypecheck) {
   std::string a = R"(
-    a:char = 12 + 7 / 2;
+    a:string = 12 + 7 / 2;
 )";
   DonsusParser::end_result parse_result = Du_Parse(a);
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
@@ -59,7 +59,7 @@ TEST(RedeclarationVariableIncorrectNotSameType,
      RedeclarationVariableTypecheck) {
   std::string a = R"(
     a:int;
-    a:char;
+    a:string;
 )";
   DonsusParser::end_result parse_result = Du_Parse(a);
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
@@ -72,7 +72,7 @@ TEST(RedeclarationVariableIncorrectNotSameType,
 
 TEST(StringTypecheck, TestSingleTypes) {
   std::string a = R"(
-    a:char = "s"; # right now this is correct, although this s not a char
+    a:string = "s"; # right now this is correct, although this s not a string
 )";
 
   DonsusParser::end_result parse_result = Du_Parse(a);
@@ -81,7 +81,7 @@ TEST(StringTypecheck, TestSingleTypes) {
   parse_result->init_traverse();
 
   std::string a2 = R"(
-    a:int = "s"; # right now this is correct, although this s not a char
+    a:int = "s"; # right now this is correct, although this s not a string
 )";
 
   DonsusParser::end_result parse_result2 = Du_Parse(a2);
