@@ -189,31 +189,23 @@ void tree::evaluate(
       auto sym_table = sym->get_sym_table(qualified_name);
 
       visit(current, sym_table, sym);
+      // when called by test api, it'll be false
       if (codegen.Builder) {
         codegen.compile(current, sym_table);
-        // ONLY WORKS WITH ONE NODE
-        codegen.Builder->CreateRet(
-            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
 
     } else {
       visit(current, sym, sym);
+      // when called by test api, it'll be false
       if (codegen.Builder) {
         codegen.compile(current, sym);
-        // ONLY WORKS WITH ONE NODE
-        codegen.Builder->CreateRet(
-            llvm::ConstantInt::get(*codegen.TheContext, llvm::APInt(32, 0)));
       }
     }
-
-    // if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
-    //   for (auto c : current->get<function_def>().body) {
-    //     stack_visit.push(c);
-    //   }
-    // }
-    /*    for (auto c : current->children) {
-          stack_visit.push(c);
-        }*/
+  }
+  // when called by test api, it'll be false
+  if (codegen.Builder) {
+    // CREATE RET instruction
+    codegen.Finish();
   }
 }
 

@@ -22,6 +22,9 @@ Bitness GetBitness() {
             << " is not supported because it is not 32bit or 64bit";
   abort();
 }
+void DonsusCodeGenerator::Finish() const {
+  Builder->CreateRet(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
+}
 void DonsusCodeGenerator::create_entry_point() {
   // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
@@ -247,6 +250,18 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return Builder->CreateLoad(A->getAllocatedType(), A, sym1.inst);
 }
 
+/*
+ Returns back a vector with llvm TYPE based on DONSUS_TYPE for parameters
+ * */
+/*// Todo: Avoid unnecessary copies
+std::vector<llvm::Type *> DonsusCodeGenerator::parameters_for_function(
+    std::vector<NAME_DATA_PAIR> parameters) {
+  std::vector<llvm::Type *> parameters_vector;
+  for (auto n : parameters) {
+    parameters_vector.push_back(map_type(n.type));
+  }
+  return parameters_vector;
+}*/
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
@@ -276,7 +291,30 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
                            utility::handle<DonsusSymTable> &table) {
-  // function def
+  /*
+    std::vector<llvm::Type *> parameters =
+        parameters_for_function(ast.parameters);
+    auto function_name = ast.func_name;
+    // multiple return type support here
+
+    if (!ast.return_type.size()) {
+      using return_type = map_type(make_type(ast.return_type));
+    } else {
+      // multiple return types
+      llvm::StructType type = multiple_return_types(ast.return_type);
+      using return_type = type;
+    }
+
+    llvm::FunctionType *FT =
+        llvm::FunctionType::get(return_type), parameters, false);
+
+    llvm::Function *F = llvm::Function::Create(
+        FT, llvm::Function::ExternalLinkage, function_name, *TheModule);
+
+    // process body here before returning
+    // multiple return types
+    Builder->CreateRet(map_type(make_type(ast.return_type)));
+  */
 }
 
 llvm::Value *

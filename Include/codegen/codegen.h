@@ -5,6 +5,7 @@
 
 #include "llvm/ADT/StringRef.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
@@ -12,6 +13,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
+#include "llvm/IR/Verifier.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/TargetSelect.h"
@@ -19,7 +21,6 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
-#include <llvm/IR/Verifier.h>
 #include <memory>
 
 // Select platform
@@ -61,12 +62,19 @@ public:
                       std::unique_ptr<llvm::Module> module,
                       std::unique_ptr<llvm::IRBuilder<>> builder);
 
+  // Finish codegen
+  void Finish() const;
   // link the object file to get the executable
   void Link() const;
   // create object file
   int create_object_file();
   // create first basic block for entry point
   void create_entry_point();
+  // parameters
+  std::vector<llvm::Type *>
+      parameters_for_function(std::vector<NAME_DATA_PAIR>);
+
+  llvm::StructType multiple_return_types(std::vector<DONSUS_TYPE>);
 
   void compile_donsus_expr(DonsusParser::end_result &ast);
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,
