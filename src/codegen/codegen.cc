@@ -216,15 +216,11 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::assignment &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::Value *res;
-  // so first load from the instruction and get its value
-  // based on the operator use CreateAdd, CreateMul on the value that we want to
-  // add.
   auto identifier_name = ac_ast.identifier_name;
   auto op = ac_ast.op;
 
   DonsusSymTable::sym sym1 = table->get(identifier_name);
   llvm::AllocaInst *A = sym1.inst;
-  // op here, CreateAdd, CreateMul,
   llvm::Value *lhs_value =
       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
   switch (op.kind) {
@@ -386,11 +382,6 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
  **/
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
-  case DONSUS_TYPE::TYPE_VOID: {
-    return nullptr;
-  }
-
-  // integers
   case DONSUS_TYPE::TYPE_I8: {
     return Builder->getInt8Ty();
   }
@@ -400,8 +391,6 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
 
   case DONSUS_TYPE::TYPE_BASIC_INT: {
-    // arbitrary precision integer, like BIGINT
-    // consider using APInt here, but we don't know the value
     return Builder->getInt32Ty();
   }
 
@@ -425,6 +414,9 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
   case DONSUS_TYPE::TYPE_BOOL: {
     return Builder->getInt8Ty();
+  }
+  case DONSUS_TYPE::TYPE_VOID: {
+    return Builder->getVoidTy();
   }
   default: {
   }

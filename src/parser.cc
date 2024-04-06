@@ -51,6 +51,13 @@ public:
       break;
     }
 
+    case type::DONSUS_UNARY_EXPRESSION: {
+      print_type(ast_node->type, indent_level);
+      print_with_newline("expression: ", indent_level);
+      print_ast_node(ast_node->children[0], indent_level + 1);
+      break;
+    }
+
     case type::DONSUS_PRINT_EXPRESSION: {
       print_type(ast_node->type, indent_level);
       indent_level++;
@@ -493,6 +500,7 @@ auto DonsusParser::match_expressions(int ptp) -> parse_result {
     return donsus_number_primary(
         donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 20);
   }
+
   case DONSUS_NAME: {
     if (donsus_peek().kind == DONSUS_LPAR) {
       return donsus_function_decl();
@@ -511,6 +519,10 @@ auto DonsusParser::match_expressions(int ptp) -> parse_result {
 
   case DONSUS_FALSE_KW: {
     return bool_expression();
+  }
+
+  case DONSUS_MINUS: {
+    return unary_expression();
   }
 
   default: {
@@ -963,6 +975,17 @@ auto DonsusParser::bool_expression() -> parse_result {
   return result;
 }
 
+auto DonsusParser::unary_expression() -> parse_result {
+  donsus_parser_next();
+  parse_result result = create_expression(
+      donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
+  auto &expression = result->get<donsus_ast::unary_expr>();
+  expression.op = cur_token;
+  parse_result unary = donsus_expr(0);
+  result->children.push_back(unary);
+  return result;
+}
+
 auto DonsusParser::donsus_print() -> parse_result {
   parse_result print = create_donsus_print(
       donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION, 10);
@@ -1072,6 +1095,12 @@ auto DonsusParser::create_bool_expression(donsus_ast::donsus_node_type type,
                                           uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::bool_expr>(type, child_count);
+}
+
+auto DonsusParser::create_unary_expression(donsus_ast::donsus_node_type type,
+                                           uint64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::unary_expr>(type, child_count);
 }
 
 auto DonsusParser::create_donsus_print(donsus_ast::donsus_node_type type,

@@ -41,7 +41,6 @@ using PlatformClass = LinuxPlatform;
 #endif
 
 namespace DonsusCodegen {
-// Handle linking
 Bitness GetBitness();
 class Platform {
 public:
@@ -55,22 +54,20 @@ public:
   PlatformClass obj;
 };
 class DonsusCodeGenerator {
-  // destination driven code generating system
 public:
   DonsusCodeGenerator() = default;
   DonsusCodeGenerator(std::unique_ptr<llvm::LLVMContext> context,
                       std::unique_ptr<llvm::Module> module,
                       std::unique_ptr<llvm::IRBuilder<>> builder);
 
-  // Finish codegen
   void Finish() const;
-  // link the object file to get the executable
+
   void Link() const;
-  // create object file
+
   int create_object_file();
-  // create first basic block for entry point
+
   void create_entry_point();
-  // parameters
+
   std::vector<llvm::Type *>
       parameters_for_function(std::vector<NAME_DATA_PAIR>);
 
@@ -80,9 +77,6 @@ public:
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,
                        utility::handle<DonsusSymTable> &table);
 
-  /// CreateEntryBlockAlloca - Create an alloca instruction in the entry block
-  /// of the function.  This is used for mutable variables etc.
-  // visit functions, emit IR
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::variable_decl &ca_ast,
                      utility::handle<DonsusSymTable> &table,
@@ -133,15 +127,10 @@ public:
 
   llvm::Type *map_type(DONSUS_TYPE type);
 
-  // data members
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
   std::unique_ptr<llvm::Module> TheModule;
   Platform platform;
-  // assigning INST's during codegen
-  // DonsusSymTable TheSymbolTable;
-
-  // debug
 };
 
 } // namespace DonsusCodegen

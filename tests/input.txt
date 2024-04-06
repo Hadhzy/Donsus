@@ -1,3 +1,4 @@
+/*
 # integer types
 a:int = 2;
 b:int8 = 34;
@@ -6,10 +7,12 @@ e:int32 = 34;
 f:int64 = 34;
 g:u32 = 34;
 h:u64 = 34;
+*/
 
 # bool
 a_bool: bool = true;
 c_bool: bool = false;
 
-# char
-string_or_smt:char = "test";
+/*
+string_or_smt:string = "test";
+*/
