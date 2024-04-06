@@ -134,7 +134,7 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n, n->get<donsus_ast::number_expr>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
-    return visit(n->get<donsus_ast::expression>(), table);
+    return visit(n, n->get<donsus_ast::expression>(), table);
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
@@ -268,13 +268,12 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // arbitrary precision integer, typically common unsigned ints
-  // context_, llvm:PInt(32, int_expr.GetValAsInt(), true)));
-  // only works with scalar integers, constant propagation is needed
-  // constant propagate the operands into an unsigned int
-  int value = ast->constant_propagation(ast);
 
-  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, value, false));
+  return llvm::ConstantInt::get(
+      *TheContext,
+      llvm::APInt(32,
+                  std::stoi(ast->get<donsus_ast::number_expr>().value.value),
+                  false));
 }
 
 llvm::Value *
@@ -340,8 +339,36 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
 }
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::expression &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::expression &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  switch (ca_ast.value.kind) {
+  case DONSUS_PLUS: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateAdd(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_MINUS: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateSub(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_SLASH: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateUDiv(compile(*it, table),
+                                 compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_STAR: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  default: {
+    return nullptr;
+  }
+  }
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,

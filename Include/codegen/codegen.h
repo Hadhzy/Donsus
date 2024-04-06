@@ -114,7 +114,8 @@ public:
   llvm::Value *visit(donsus_ast::string_expr &ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::expression &ast,
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
+                     donsus_ast::expression &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
@@ -125,7 +126,7 @@ public:
                      donsus_ast::bool_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value* visit(utility::handle<donsus_ast::node> &ast,
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
