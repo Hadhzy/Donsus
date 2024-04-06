@@ -153,6 +153,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION: {
     return visit(n, n->get<donsus_ast::print_expr>(), table);
   }
+  case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION: {
+    return visit(n, n->get<donsus_ast::bool_expr>(), table);
+  }
   }
 }
 
@@ -370,6 +373,15 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   /*  return Builder->CreateCall(func, Argsv, "printfCall");*/
 }
 
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::bool_expr &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  if (ca_ast.value.value == "true")
+    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1, false));
+
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0, false));
+}
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
@@ -414,7 +426,6 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_BOOL: {
     return Builder->getInt8Ty();
   }
-
   default: {
   }
   }
