@@ -22,6 +22,7 @@ add_executable(donsus_test
         parser/test_return.cc
         parser/test_assignments.cc
         parser/test_print.cc
+        parser/test_unary_expressions.cc
 
         # typecheck
         typecheck/test_return.cc
@@ -32,6 +33,9 @@ add_executable(donsus_test
         typecheck/test_function_call_rvalue.cc
         typecheck/test_identifier_rvalue.cc
         typecheck/test_if_statements_type.cc
+        typecheck/test_unary_expressions_rvalue.cc
+        typecheck/test_bools.cc
+        
        
 
         #symbol table

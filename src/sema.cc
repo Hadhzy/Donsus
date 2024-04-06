@@ -97,6 +97,12 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION: {
+    sema.donsus_typecheck_support_between_types(node->children[0]);
+    assign_type_to_node(node->children[0], table, global_table);
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
     // decide whether it's a string or single char
     node->real_type.type_un = DONSUS_TYPE::TYPE_STRING; // not entirely correct
@@ -199,9 +205,23 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (is_exist)
       throw ReDefinitionException(def_name + " has been already defined!");
 
-    sema.donsus_typecheck_support_between_types(node);
+    // check for signed and unsigned
+    if ((node->get<donsus_ast::variable_decl>().identifier_type == DONSUS_U32 ||
+         node->get<donsus_ast::variable_decl>().identifier_type ==
+             DONSUS_U64) &&
+        node->children[0]->type.type ==
+            donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION) {
+
+      if (node->children[0]->children[0]->type.type ==
+          donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
+        throw UnsignedTypeException("Unsigned type cannot be negative at: " +
+                                    def_name);
+      }
+    }
 
     assign_type_to_node(node->children[0], table, global_table);
+
+    sema.donsus_typecheck_support_between_types(node);
 
     DONSUS_TYPE type_of_var_def =
         sema.donsus_typecheck_type_expr(node->children[0]);
@@ -410,6 +430,7 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL:
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
+  case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION:
 
     return true;
 
@@ -430,7 +451,9 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
 auto DonsusSema::donsus_typecheck_type_expr(
     utility::handle<donsus_ast::node> node) -> DONSUS_TYPE {
 
-  if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+  if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION ||
+      node->type.type ==
+          donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION) {
     for (auto n : node->children) {
       if (n->type.type != donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
         return n->real_type;

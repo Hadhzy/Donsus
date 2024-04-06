@@ -97,9 +97,15 @@ public:
   auto create_string_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
+  // parsing boolean expressions
   auto bool_expression() -> parse_result;
   auto create_bool_expression(donsus_ast::donsus_node_type type,
                               u_int64_t child_count) -> parse_result;
+
+  // parsing unary expressions
+  auto unary_expression() -> parse_result;
+  auto create_unary_expression(donsus_ast::donsus_node_type type,
+                               u_int64_t child_count) -> parse_result;
 
   // Function definition
   auto donsus_function_definition() -> parse_result;
