@@ -431,7 +431,9 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL:
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
   case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION:
-
+  case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION:
     return true;
 
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
@@ -441,6 +443,7 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT:
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT:
   case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT:
+  case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT:
     return false;
   }
 }

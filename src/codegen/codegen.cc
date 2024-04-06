@@ -156,6 +156,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION: {
     return visit(n, n->get<donsus_ast::bool_expr>(), table);
   }
+  case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION: {
+    return visit(n, n->get<donsus_ast::unary_expr>(), table);
+  }
   }
 }
 
@@ -271,12 +274,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // constant propagate the operands into an unsigned int
   int value = ast->constant_propagation(ast);
 
-  bool is_signed = false;
-  if (value < 0) {
-    is_signed = true;
-  }
-
-  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, value, is_signed));
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, value, false));
 }
 
 llvm::Value *
@@ -377,6 +375,19 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1, false));
 
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0, false));
+}
+
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::unary_expr &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // negative number expression
+  int value = ast->constant_propagation(ast->children[0]);
+
+  if (ast->children[0]->type.type ==
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
+    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
+  }
 }
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/

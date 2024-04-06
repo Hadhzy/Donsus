@@ -125,6 +125,10 @@ public:
                      donsus_ast::bool_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
+  llvm::Value* visit(utility::handle<donsus_ast::node> &ast,
+                     donsus_ast::unary_expr &ca_ast,
+                     utility::handle<DonsusSymTable> &table);
+
   llvm::Type *map_type(DONSUS_TYPE type);
 
   std::unique_ptr<llvm::LLVMContext> TheContext;
