@@ -28,6 +28,7 @@ struct donsus_node_type {
     DONSUS_RETURN_STATEMENT,     // just the type of the node
     DONSUS_STRING_EXPRESSION,
     DONSUS_BOOL_EXPRESSION,
+    DONSUS_UNARY_EXPRESSION,
     DONSUS_PRINT_EXPRESSION
   };
 
@@ -56,6 +57,10 @@ struct number_expr {
 
 struct bool_expr {
   donsus_token value;
+};
+
+struct unary_expr {
+  donsus_token op;
 };
 
 // actual node structure containing extra properties

@@ -45,4 +45,10 @@ public:
   DonsusUndefinedException(const std::string &message)
       : DonsusException(message) {}
 };
+class UnsignedTypeException : public DonsusException {
+public:
+  UnsignedTypeException() = default;
+  UnsignedTypeException(const std::string &message)
+      : DonsusException(message) {}
+};
 #endif
