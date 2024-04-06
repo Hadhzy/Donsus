@@ -1,18 +1,21 @@
-/*
+
 # integer types
-a:int = 2;
-b:int8 = 34;
-c:int16 = 34;
-e:int32 = 34;
-f:int64 = 34;
-g:u32 = 34;
-h:u64 = 34;
-*/
+a: int = 2;
+b: int8 = 34;
+c: int16 = 34;
+e: int32 = 34;
+f: int64 = 34;
+g: u32 = 34;
+h: u64 = 34;
+
+
 
 # bool
 a_bool: bool = true;
 c_bool: bool = false;
 
-/*
-string_or_smt:string = "test";
-*/
+# negative integer
+ca: int = -4;
+
+# string
+string_or_smt: string = "test";
