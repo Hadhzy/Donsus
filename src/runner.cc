@@ -42,6 +42,11 @@ int Du_Main(int argc, char **argv) {
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   DonsusParser::end_result parser_result = Du_Parse(result);
+  std::cout << "\n";
+
+  std::cout << "-----Parsing completed successfully-----\n";
+
+  std::cout << "\n";
 
   // codegen
   std::unique_ptr<llvm::LLVMContext> TheContext =

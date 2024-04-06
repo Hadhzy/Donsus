@@ -25,6 +25,25 @@ TEST(Expressions, ExpressionsValueNumbers) {
   EXPECT_EQ(10, expression.precedence);
 }
 
+TEST(Expressions, ExpressionsBooleans) {
+  std::string a = R"(
+        a:bool = true;
+        b:bool = false;
+    )";
+
+  DonsusParser::end_result result = Du_Parse(a);
+  donsus_token expression =
+      result->get_nodes()[0]->children[0]->get<donsus_ast::bool_expr>().value;
+  donsus_token expression1 =
+      result->get_nodes()[1]->children[0]->get<donsus_ast::bool_expr>().value;
+  EXPECT_EQ("true", expression.value);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION,
+            result->get_nodes()[0]->children[0]->type.type);
+  EXPECT_EQ("false", expression1.value);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION,
+            result->get_nodes()[1]->children[0]->type.type);
+}
+
 TEST(Expressions, ExpressionsValueWithIdentifiers) {
   std::string a = R"(
         a:int = (3/a) + (a/5);
