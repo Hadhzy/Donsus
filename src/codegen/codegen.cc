@@ -339,7 +339,7 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
   // first immutable
   // make a new global variable, i8*
 
-  Builder->CreateGlobalStringPtr(llvm::StringRef(ast.value.value));
+  return Builder->CreateGlobalStringPtr(llvm::StringRef(ast.value.value));
 }
 
 llvm::Value *
@@ -400,17 +400,21 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_I64: {
     return Builder->getInt64Ty();
   }
-    /*  case DONSUS_TYPE::TYPE_U32: {
-        return Builder->get
-      }*/
 
-    /*  case DONSUS_TYPE::TYPE_U64: {
-        break;
-      }
+  case DONSUS_TYPE::TYPE_U32: {
+    return Builder->getInt32Ty();
+  }
 
-      case DONSUS_TYPE::TYPE_STRING: {
-        break;
-      }*/
+  case DONSUS_TYPE::TYPE_U64: {
+    return Builder->getInt64Ty();
+  }
+  case DONSUS_TYPE::TYPE_STRING: {
+    return Builder->getPtrTy();
+  }
+  case DONSUS_TYPE::TYPE_BOOL: {
+    return Builder->getInt8Ty();
+  }
+
   default: {
   }
   }
