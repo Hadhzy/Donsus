@@ -30,7 +30,7 @@ public:
       print_var_decl(ast_node->get<donsus_ast::variable_decl>(),
                      indent_level); // reuse variable decl
       for (auto children_expr : ast_node->children) {
-        print_type(children_expr->type, indent_level);
+        print_with_newline("children: ", indent_level);
         print_ast_node(children_expr, indent_level + 2);
       }
 
@@ -41,6 +41,13 @@ public:
       print_type(ast_node->type, indent_level);
       print_string_expression(ast_node->get<donsus_ast::string_expr>(),
                               indent_level);
+      break;
+    }
+
+    case type::DONSUS_BOOL_EXPRESSION: {
+      print_type(ast_node->type, indent_level);
+      print_bool_expression(ast_node->get<donsus_ast::bool_expr>(),
+                            indent_level);
       break;
     }
 
@@ -201,6 +208,20 @@ public:
                        indent_level);
     print_with_newline("precedence: " +
                            std::to_string(string_expr.value.precedence),
+                       indent_level);
+  }
+
+  void print_bool_expression(donsus_ast::bool_expr &bool_expr,
+                             int indent_level) {
+    print_with_newline("kind: " + de_get_name_from_token(bool_expr.value.kind),
+                       indent_level);
+    print_with_newline("value: " + bool_expr.value.value, indent_level);
+    print_with_newline("length: " + std::to_string(bool_expr.value.length),
+                       indent_level);
+    print_with_newline("line: " + std::to_string(bool_expr.value.line),
+                       indent_level);
+    print_with_newline("precedence: " +
+                           std::to_string(bool_expr.value.precedence),
                        indent_level);
   }
 
@@ -482,6 +503,14 @@ auto DonsusParser::match_expressions(int ptp) -> parse_result {
 
   case DONSUS_STRING: {
     return string_expression();
+  }
+
+  case DONSUS_TRUE_KW: {
+    return bool_expression();
+  }
+
+  case DONSUS_FALSE_KW: {
+    return bool_expression();
   }
 
   default: {
@@ -921,7 +950,15 @@ auto DonsusParser::donsus_identifier() -> parse_result {
 auto DonsusParser::string_expression() -> parse_result {
   parse_result result = create_string_expression(
       donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION, 10);
-  auto &expression = result->get<donsus_ast::number_expr>();
+  auto &expression = result->get<donsus_ast::string_expr>();
+  expression.value = cur_token;
+  return result;
+}
+
+auto DonsusParser::bool_expression() -> parse_result {
+  parse_result result = create_bool_expression(
+      donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION, 10);
+  auto &expression = result->get<donsus_ast::bool_expr>();
   expression.value = cur_token;
   return result;
 }
@@ -1029,6 +1066,12 @@ auto DonsusParser::create_string_expression(donsus_ast::donsus_node_type type,
                                             uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::string_expr>(type, child_count);
+}
+
+auto DonsusParser::create_bool_expression(donsus_ast::donsus_node_type type,
+                                          uint64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::bool_expr>(type, child_count);
 }
 
 auto DonsusParser::create_donsus_print(donsus_ast::donsus_node_type type,

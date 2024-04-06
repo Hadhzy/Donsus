@@ -85,7 +85,7 @@ public:
   // print expression
   auto donsus_print() -> parse_result;
   auto create_donsus_print(donsus_ast::donsus_node_type type,
-u_int64_t child_count) -> parse_result;
+                           u_int64_t child_count) -> parse_result;
 
   // Function declaration
   auto donsus_function_decl() -> parse_result;
@@ -96,6 +96,10 @@ u_int64_t child_count) -> parse_result;
   auto string_expression() -> parse_result;
   auto create_string_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
+
+  auto bool_expression() -> parse_result;
+  auto create_bool_expression(donsus_ast::donsus_node_type type,
+                              u_int64_t child_count) -> parse_result;
 
   // Function definition
   auto donsus_function_definition() -> parse_result;

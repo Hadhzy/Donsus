@@ -103,6 +103,11 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION: {
+    node->real_type.type_un = DONSUS_TYPE::TYPE_BOOL;
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
 
     std::string func_name = node->get<donsus_ast::function_call>().func_name;
