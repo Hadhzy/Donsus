@@ -89,27 +89,6 @@ auto DonsusSymTable::setInst(std::string qualified_name, llvm::AllocaInst *inst)
   }
 }
 
-auto DonsusSymTable::get_global(std::string qualified_name) -> sym {
-  sym a;
-  int found = 0;
-  for (auto n : underlying) {
-    if (n.key == create_qualified_name(qualified_name)) {
-      a = n;
-      ++found;
-    }
-  }
-
-  if (found >= 2) {
-    a.duplicated = true;
-    return a;
-  } else if (found == 0) {
-    return a;
-  }
-
-  sym n{.mod = -1};
-  return n;
-}
-
 int DonsusSymTable::add_desc(sym &desc) {
   if (desc.mod != -1 && desc.kind != sym::SYMBOL_PLACEHOLDER) {
     std::cout << "report error here";
