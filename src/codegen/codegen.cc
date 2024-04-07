@@ -144,12 +144,11 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n->get<donsus_ast::else_statement>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
-    return visit(n->get<donsus_ast::return_kw>(), table);
+    return visit(n, n->get<donsus_ast::return_kw>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
     return visit(n->get<donsus_ast::string_expr>(), table);
   }
-
   case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION: {
     return visit(n, n->get<donsus_ast::print_expr>(), table);
   }
@@ -278,7 +277,11 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::identifier &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  DonsusSymTable::sym symbol = table->get(ast.identifier_name);
+  return Builder->CreateLoad(map_type(symbol.type), symbol.inst,
+                             ast.identifier_name);
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
@@ -326,8 +329,12 @@ DonsusCodeGenerator ::visit(donsus_ast::else_statement &ast,
                             utility::handle<DonsusSymTable> &table) {}
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::return_kw &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::return_kw &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // TBD
+  return nullptr;
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,

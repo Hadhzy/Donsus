@@ -128,8 +128,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     utility::handle<DonsusSymTable> current_table =
         global_table->get_sym_table(qualified_fn_name);
 
-    node->real_type.type_un = current_table->function_return_type[0]
-                                  .type_un; // TODO: consider all the elements
+    node->real_type.type_un = current_table->function_return_type[0].type_un;
 
     for (auto &args : node->get<donsus_ast::function_call>().arguments) {
       assign_type_to_node(args, table, global_table);

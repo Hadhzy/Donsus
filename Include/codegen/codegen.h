@@ -108,7 +108,8 @@ public:
   llvm::Value *visit(donsus_ast::else_statement &ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::return_kw &ast,
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
+                    donsus_ast::return_kw &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(donsus_ast::string_expr &ast,
