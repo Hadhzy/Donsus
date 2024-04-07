@@ -627,7 +627,12 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
                             "' is not valid in the declaration of: '" +
                             expression.identifier_name +
                             "'\n at line: " + std::to_string(lexer.cur_line));
+
     expression.identifier_type = cur_token.kind;
+
+    if (cur_token.kind == DONSUS_VOID) {
+      throw DonsusException("Void can't be used as a variable type");
+    }
 
     /*    donsus_parser_next(); // if the next token is not '=' then its a
                               // declaration.*/

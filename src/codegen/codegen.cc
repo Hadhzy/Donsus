@@ -134,7 +134,7 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n, n->get<donsus_ast::number_expr>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
-    return visit(n->get<donsus_ast::expression>(), table);
+    return visit(n, n->get<donsus_ast::expression>(), table);
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
@@ -144,14 +144,19 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n->get<donsus_ast::else_statement>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
-    return visit(n->get<donsus_ast::return_kw>(), table);
+    return visit(n, n->get<donsus_ast::return_kw>(), table);
   }
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
     return visit(n->get<donsus_ast::string_expr>(), table);
   }
-
   case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION: {
     return visit(n, n->get<donsus_ast::print_expr>(), table);
+  }
+  case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION: {
+    return visit(n, n->get<donsus_ast::bool_expr>(), table);
+  }
+  case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION: {
+    return visit(n, n->get<donsus_ast::unary_expr>(), table);
   }
   }
 }
@@ -213,15 +218,11 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::assignment &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::Value *res;
-  // so first load from the instruction and get its value
-  // based on the operator use CreateAdd, CreateMul on the value that we want to
-  // add.
   auto identifier_name = ac_ast.identifier_name;
   auto op = ac_ast.op;
 
   DonsusSymTable::sym sym1 = table->get(identifier_name);
   llvm::AllocaInst *A = sym1.inst;
-  // op here, CreateAdd, CreateMul,
   llvm::Value *lhs_value =
       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
   switch (op.kind) {
@@ -266,23 +267,21 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // arbitrary precision integer, typically common unsigned ints
-  // context_, llvm:PInt(32, int_expr.GetValAsInt(), true)));
-  // only works with scalar integers, constant propagation is needed
-  // constant propagate the operands into an unsigned int
-  int value = ast->constant_propagation(ast);
 
-  bool is_signed = false;
-  if (value < 0) {
-    is_signed = true;
-  }
-
-  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, value, is_signed));
+  return llvm::ConstantInt::get(
+      *TheContext,
+      llvm::APInt(32,
+                  std::stoi(ast->get<donsus_ast::number_expr>().value.value),
+                  false));
 }
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::identifier &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  DonsusSymTable::sym symbol = table->get(ast.identifier_name);
+  return Builder->CreateLoad(map_type(symbol.type), symbol.inst,
+                             ast.identifier_name);
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
@@ -330,8 +329,12 @@ DonsusCodeGenerator ::visit(donsus_ast::else_statement &ast,
                             utility::handle<DonsusSymTable> &table) {}
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::return_kw &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::return_kw &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // TBD
+  return nullptr;
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
@@ -343,8 +346,36 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
 }
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::expression &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::expression &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  switch (ca_ast.value.kind) {
+  case DONSUS_PLUS: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateAdd(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_MINUS: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateSub(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_SLASH: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateUDiv(compile(*it, table),
+                                 compile(*(it + 1), table));
+    }
+  }
+  case DONSUS_STAR: {
+    for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
+    }
+  }
+  default: {
+    return nullptr;
+  }
+  }
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
@@ -370,15 +401,32 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   /*  return Builder->CreateCall(func, Argsv, "printfCall");*/
 }
 
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::bool_expr &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  if (ca_ast.value.value == "true")
+    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1, false));
+
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0, false));
+}
+
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::unary_expr &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // negative number expression
+  int value = ast->constant_propagation(ast->children[0]);
+
+  if (ast->children[0]->type.type ==
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
+    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
+  }
+}
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
-  case DONSUS_TYPE::TYPE_VOID: {
-    return nullptr;
-  }
-
-  // integers
   case DONSUS_TYPE::TYPE_I8: {
     return Builder->getInt8Ty();
   }
@@ -388,8 +436,6 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
 
   case DONSUS_TYPE::TYPE_BASIC_INT: {
-    // arbitrary precision integer, like BIGINT
-    // consider using APInt here, but we don't know the value
     return Builder->getInt32Ty();
   }
 
@@ -414,7 +460,9 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   case DONSUS_TYPE::TYPE_BOOL: {
     return Builder->getInt8Ty();
   }
-
+  case DONSUS_TYPE::TYPE_VOID: {
+    return Builder->getVoidTy();
+  }
   default: {
   }
   }

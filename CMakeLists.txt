@@ -54,8 +54,13 @@ add_library(donsus_lib STATIC
 )
 
 
-#[[add_compile_options(-fsanitize=address) # ASAN
-add_link_options(-fsanitize=address) # ASAN]]
+#[[
+add_compile_options(-fsanitize=address) # ASAN
+add_link_options(-fsanitize=address) # ASAN
+]]
+
+add_compile_options(-fsanitize=undefined) # ASAN
+add_link_options(-fsanitize=undefined) # ASAN
 
 execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
