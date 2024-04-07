@@ -191,8 +191,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     // CreateAlloca (Type *Ty, Value *ArraySize=nullptr, const Twine &Name="")
     llvm::AllocaInst *Allocadef =
         Builder->CreateAlloca(map_type(make_type(type)), 0, name);
-    DonsusSymTable::sym sym_def = table->get(name);
-    sym_def.inst = Allocadef;
+    table->setInst(name, Allocadef);
     llvm::Value *def_value = compile(ast->children[0], table);
     Builder->CreateStore(def_value, Allocadef);
     llvm::Value *CurVardef =
@@ -203,8 +202,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   llvm::AllocaInst *Alloca =
       Builder->CreateAlloca(map_type(make_type(type)), 0, name);
 
-  DonsusSymTable::sym sym1 = table->get(name);
-  sym1.inst = Alloca;
+  table->setInst(name, Alloca);
   llvm::Value *decl_value =
       llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
   Builder->CreateStore(decl_value, Alloca);
@@ -406,9 +404,9 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::bool_expr &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
   if (ca_ast.value.value == "true")
-    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1, false));
+    return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 1, false));
 
-  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0, false));
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
 llvm::Value *
