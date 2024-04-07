@@ -102,6 +102,8 @@ public:
 
   auto get_global(std::string qualified_name) -> sym;
 
+  void setInst(std::string qualified_name, llvm::AllocaInst *inst);
+
   // for debugging purposes
   bool operator==(DonsusSymTable const &rhs) const {
     return underlying == rhs.underlying && sym_table == rhs.sym_table;

@@ -80,6 +80,15 @@ auto DonsusSymTable::get(std::string qualified_name) -> sym {
   return b;
 }
 
+auto DonsusSymTable::setInst(std::string qualified_name, llvm::AllocaInst *inst)
+    -> void {
+  for (auto &n : underlying) {
+    if (n.key == create_qualified_name(qualified_name)) {
+      n.inst = inst;
+    }
+  }
+}
+
 auto DonsusSymTable::get_global(std::string qualified_name) -> sym {
   sym a;
   int found = 0;
