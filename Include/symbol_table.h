@@ -100,8 +100,6 @@ public:
   // get symbol based on qualified name
   auto get(std::string qualified_name) -> sym;
 
-  auto get_global(std::string qualified_name) -> sym;
-
   void setInst(std::string qualified_name, llvm::AllocaInst *inst);
 
   // for debugging purposes

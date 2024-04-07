@@ -376,9 +376,8 @@ void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
 auto DonsusSema::donsus_sema_is_duplicated(
     std::string &name, utility::handle<DonsusSymTable> table) -> bool {
   // check if the
-  DonsusSymTable::sym result_local = table->get(name);
-  DonsusSymTable::sym result_global = table->get_global(name);
-  if (result_local.duplicated || result_global.duplicated)
+  DonsusSymTable::sym result = table->get(name);
+  if (result.duplicated)
     return true;
   return false;
 }
@@ -386,9 +385,8 @@ auto DonsusSema::donsus_sema_is_duplicated(
 auto DonsusSema::donsus_sema_is_exist(std::string &name,
                                       utility::handle<DonsusSymTable> table)
     -> bool {
-  DonsusSymTable::sym result_local = table->get(name);
-  DonsusSymTable::sym result_global = table->get_global(name);
-  if (result_local.mod != -1 || result_global.mod != -1)
+  DonsusSymTable::sym result = table->get(name);
+  if (result.mod != -1)
     return true;
   return false;
 }
