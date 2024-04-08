@@ -388,34 +388,18 @@ auto DonsusParser::donsus_parse() -> end_result {
   *this = save;
 #endif
   while (cur_token.kind != DONSUS_END) {
-    // switch (cur_token.kind) {
-    // case DONSUS_NUMBER: {
-    //   parse_result result = donsus_number_expr(0);
-    //   donsus_tree->add_node(result);
-    // }
-    // case DONSUS_NAME: {
-    //   /*      case DONSUS_BOOL:
-    //         case DONSUS_VOID:
-    //         case DONSUS_STRING:
-    //         case DONSUS_BASIC_INT:
-    //         case DONSUS_I8:
-    //         case DONSUS_I16:
-    //         case DONSUS_I32:
-    //         case DONSUS_I64:
-    //         case DONSUS_U32:*/
-    //   /*case DONSUS_U64:*/
-    //   donsus_tree->add_node(donsus_variable_decl());
-    //   break;
-    // }
-    // default: {
-    // }
-    // }
     if (cur_token.kind == DONSUS_NAME) {
       if (donsus_peek().kind == DONSUS_LPAR) {
         parse_result result = donsus_function_decl();
         donsus_tree->add_node(result);
       } else if (donsus_peek().kind == DONSUS_COLO) {
         parse_result result = donsus_variable_decl();
+        donsus_tree->add_node(result);
+      } else if (donsus_peek().kind == DONSUS_PLUS_EQUAL ||
+                 donsus_peek().kind == DONSUS_MINUS_EQUAL ||
+                 donsus_peek().kind == DONSUS_SLASH_EQUAL ||
+                 donsus_peek().kind == DONSUS_STAR_EQUAL) {
+        parse_result result = donsus_assignments();
         donsus_tree->add_node(result);
       } else {
         throw DonsusException(
@@ -553,8 +537,7 @@ auto DonsusParser::donsus_expr(int ptp) -> parse_result {
   parse_result right;
 
   if (cur_token.kind == DONSUS_LPAR) {
-    // Handle open paranthesis
-    donsus_parser_next(); // Move past the open paranthesis
+    donsus_parser_next();
     left = donsus_expr(ptp);
   } else {
     try {

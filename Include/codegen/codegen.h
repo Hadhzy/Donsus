@@ -109,7 +109,7 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
-                    donsus_ast::return_kw &ca_ast,
+                     donsus_ast::return_kw &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(donsus_ast::string_expr &ast,
@@ -132,7 +132,8 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Type *map_type(DONSUS_TYPE type);
-
+  // meta
+  llvm::BasicBlock *main_block;
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
   std::unique_ptr<llvm::Module> TheModule;

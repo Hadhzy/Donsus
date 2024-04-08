@@ -20,7 +20,7 @@ public:
     int mod;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
-    llvm::AllocaInst *inst;         // for codegen instruction
+    llvm::Value *inst;       // This can represent AllocaDef, or a function
     bool duplicated = false; // true if its duplicated in the symbol_table
     std::size_t index;       // the order in which the addition happened
     std::string key;         // qualified_name
@@ -100,7 +100,8 @@ public:
   // get symbol based on qualified name
   auto get(std::string qualified_name) -> sym;
 
-  void setInst(std::string qualified_name, llvm::AllocaInst *inst);
+  // set inst field from CreateAlloca or a function
+  void setInst(std::string qualified_name, llvm::Value *inst);
 
   // for debugging purposes
   bool operator==(DonsusSymTable const &rhs) const {

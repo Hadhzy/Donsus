@@ -12,6 +12,15 @@ Todo:
 #include "../../Include/codegen/codegen.h"
 
 namespace DonsusCodegen {
+// similar to donsus_sema_is_exist
+auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
+    -> bool {
+  DonsusSymTable::sym result = table->get(name);
+  if (result.key == "global." + result.short_name) {
+    return true;
+  }
+  return false;
+}
 Bitness GetBitness() {
   const auto target_triple = llvm::Triple(llvm::sys::getDefaultTargetTriple());
   if (target_triple.isArch32Bit())
@@ -23,6 +32,7 @@ Bitness GetBitness() {
   abort();
 }
 void DonsusCodeGenerator::Finish() const {
+  Builder->SetInsertPoint(main_block);
   Builder->CreateRet(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
 }
 void DonsusCodeGenerator::create_entry_point() {
@@ -175,7 +185,7 @@ DonsusCodeGenerator::DonsusCodeGenerator(
 
   llvm::BasicBlock *entry =
       llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
-
+  main_block = entry;
   Builder->SetInsertPoint(entry);
 }
 
@@ -185,6 +195,11 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         bool is_definition) {
   auto type = ca_ast.identifier_type;
   auto name = ca_ast.identifier_name;
+
+  // make sure it continues from main
+  if (is_global_sym(name, table)) {
+    Builder->SetInsertPoint(main_block);
+  }
 
   // variable definition
   if (is_definition) {
@@ -219,8 +234,12 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   auto identifier_name = ac_ast.identifier_name;
   auto op = ac_ast.op;
 
+  if (is_global_sym(identifier_name, table)) {
+    Builder->SetInsertPoint(main_block);
+  }
+
   DonsusSymTable::sym sym1 = table->get(identifier_name);
-  llvm::AllocaInst *A = sym1.inst;
+  llvm::AllocaInst *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
   llvm::Value *lhs_value =
       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
   switch (op.kind) {
@@ -237,8 +256,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     break;
   }
   case donsus_token_kind::DONSUS_SLASH_EQUAL: {
-    res = Builder->CreateUDiv(
-        lhs_value, compile(ast->children[0], table)); // unsigned division?
+    res = Builder->CreateSDiv(lhs_value, compile(ast->children[0], table));
     break;
   }
   default: {
@@ -246,7 +264,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   }
 
   Builder->CreateStore(res, sym1.inst);
-  return Builder->CreateLoad(A->getAllocatedType(), A, sym1.inst);
+  return Builder->CreateLoad(A->getAllocatedType(), sym1.inst, identifier_name);
 }
 
 /*
@@ -265,7 +283,6 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
-
   return llvm::ConstantInt::get(
       *TheContext,
       llvm::APInt(32,
@@ -283,40 +300,59 @@ DonsusCodeGenerator::visit(donsus_ast::identifier &ast,
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  llvm::FunctionType *FT;
+  if (ast.return_type.size() > 1) {
+    // handle multiple parameters here
+    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+  } else {
+    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+  }
 
+  llvm::Function *F = llvm::Function::Create(
+      FT, llvm::Function::ExternalLinkage, ast.func_name, *TheModule);
+
+  table->setInst(ast.func_name, F);
+}
+
+// Todo: if variable is global, set the insert point to main function's block
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
                            utility::handle<DonsusSymTable> &table) {
-  /*
-    std::vector<llvm::Type *> parameters =
-        parameters_for_function(ast.parameters);
-    auto function_name = ast.func_name;
-    // multiple return type support here
+  llvm::FunctionType *FT;
+  if (ast.return_type.size() > 1) {
+    // handle multiple parameters here
+    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+  } else {
+    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+  }
 
-    if (!ast.return_type.size()) {
-      using return_type = map_type(make_type(ast.return_type));
-    } else {
-      // multiple return types
-      llvm::StructType type = multiple_return_types(ast.return_type);
-      using return_type = type;
-    }
+  llvm::Function *F = llvm::Function::Create(
+      FT, llvm::Function::ExternalLinkage, ast.func_name, *TheModule);
 
-    llvm::FunctionType *FT =
-        llvm::FunctionType::get(return_type), parameters, false);
+  table->setInst(ast.func_name, F);
 
-    llvm::Function *F = llvm::Function::Create(
-        FT, llvm::Function::ExternalLinkage, function_name, *TheModule);
+  // construct a basic block before adding body
+  llvm::BasicBlock *block =
+      llvm::BasicBlock::Create(*TheContext, ast.func_name + "_block", F);
+  Builder->SetInsertPoint(block);
 
-    // process body here before returning
-    // multiple return types
-    Builder->CreateRet(map_type(make_type(ast.return_type)));
-  */
+  // compile the body
+  for (auto node : ast.body) {
+    compile(node, table);
+  }
+  return F;
 }
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  DonsusSymTable::sym sym = table->get(ast.func_name);
+  std::vector<llvm::Value *> args;
+
+  // llvm::CallInst *call =
+  // Builder->CreateCall(llvm::dyn_cast<llvm::FunctionType>(sym.inst), args);
+}
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::if_statement &ast,
@@ -330,15 +366,13 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::return_kw &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // TBD
-  return nullptr;
+  // handle multiple parameters here
+  return Builder->CreateRet(compile(ast->children[0], table));
 }
 
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
                            utility::handle<DonsusSymTable> &table) {
-  // first immutable
-  // make a new global variable, i8*
 
   return Builder->CreateGlobalStringPtr(llvm::StringRef(ast.value.value));
 }
@@ -360,7 +394,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   }
   case DONSUS_SLASH: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
-      return Builder->CreateUDiv(compile(*it, table),
+      return Builder->CreateSDiv(compile(*it, table),
                                  compile(*(it + 1), table));
     }
   }
@@ -413,13 +447,11 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::unary_expr &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // negative number expression
-  int value = ast->constant_propagation(ast->children[0]);
-
-  if (ast->children[0]->type.type ==
-      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
-    return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
-  }
+  /*  // negative number expression
+    if (ast->children[0]->type.type ==
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
+      return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
+    }*/
 }
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/
