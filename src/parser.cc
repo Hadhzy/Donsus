@@ -996,7 +996,6 @@ auto DonsusParser::donsus_return_statement() -> parse_result {
       donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT, 10);
   donsus_parser_next();
   parse_result return_expression = donsus_expr(0);
-  return_expression->get<donsus_ast::return_kw>().order++;
   return_statement->children.push_back(return_expression);
   return return_statement;
 }

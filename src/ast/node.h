@@ -112,8 +112,6 @@ struct else_statement {
 
 struct return_kw {
   std::vector<DONSUS_TYPE> types; // only if the main type is not long enough
-  int order = -1; // This will relate to the return type of the function in
-                  // which it is used in
 };
 
 /*
