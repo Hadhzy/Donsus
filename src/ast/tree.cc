@@ -156,16 +156,21 @@ void tree::evaluate(
       continue;
     }
 
-    assign_type_to_node(current, sym, sym);
-
     if (current->type.type == donsus_node_type::DONSUS_FUNCTION_DEF) {
+      std::string func_name =
+          current->get<donsus_ast::function_def>().func_name;
+      std::string qualified_name = sym->apply_scope(func_name);
+      auto sym_table = sym->get_sym_table(qualified_name);
+
       for (auto c : current->get<function_def>().body) {
         if (c->type.type == donsus_node_type::DONSUS_ASSIGNMENT) {
           continue;
         } else {
-          stack_assign.push(c);
+          assign_type_to_node(c, sym_table, sym);
         }
       }
+    } else {
+      assign_type_to_node(current, sym, sym);
     }
     for (auto c : current->children) {
       stack_assign.push(c);

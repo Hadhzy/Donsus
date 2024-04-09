@@ -114,6 +114,13 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
+    for (auto &n : node->get<donsus_ast::function_def>().body) {
+      assign_type_to_node(n, table, global_table);
+    }
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
 
     std::string func_name = node->get<donsus_ast::function_call>().func_name;
@@ -142,9 +149,14 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     bool is_exist_globally = sema.donsus_sema_is_exist(iden_name, global_table);
     if (!is_exist_locally && !is_exist_globally)
       throw DonsusUndefinedException(iden_name + " is not defined");
-    DonsusSymTable::sym identifier_symbol = table->get(iden_name);
+    DonsusSymTable::sym identifier_symbol_local = table->get(iden_name);
+    DonsusSymTable::sym identifier_symbol_global = global_table->get(iden_name);
 
-    node->real_type.type_un = identifier_symbol.type.type_un;
+    if (identifier_symbol_local.mod != -1) {
+      node->real_type = identifier_symbol_local.type;
+    } else {
+      node->real_type = identifier_symbol_global.type;
+    }
     break;
   }
 
