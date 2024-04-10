@@ -16,11 +16,12 @@ public:
   std::vector<utility::handle<DonsusSymTable>> sym_table;
   std::string qa_sym = "global";
   std::vector<DONSUS_TYPE> function_return_type; // only for function def
+  utility::handle<DonsusSymTable> parent = nullptr; //
   struct sym {
     int mod;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
-    llvm::Value *inst;       // This can represent AllocaDef, or a function
+    llvm::Value *inst;       // This can represent AllocaDef, or a function as an lvalue
     bool duplicated = false; // true if its duplicated in the symbol_table
     std::size_t index;       // the order in which the addition happened
     std::string key;         // qualified_name
@@ -79,7 +80,7 @@ public:
   get_function_argument(int index);
 
   /*
-   * Applies the qualifed name to a pass name to compare
+   * Applies the qualified name to a pass name to compare
    */
 
   std::string apply_scope(std::string &name);
@@ -113,7 +114,8 @@ private:
   // create qualified name from short_name(private)
   std::string create_qualified_name(std::string &short_name);
 
-  // get the symbol based on the qualified name(private)
+  // get the symbol based on the qualified name(private), this will propagate
+  // to other symbol tables if the current one does not contain the one we need.
   auto get_from_qualified_name(std::string &qualified_name) -> sym;
   // holds underlying symbols(private)
   std::vector<sym> underlying;
