@@ -8,12 +8,9 @@ Todo:
 - assign them in symbol table
 
 - global support for variables
-- fix casting issue
 - function call
 - multiple return type
 - printf
- // signed support
- // unsigned support
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -27,6 +24,26 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
   }
   return false;
 }
+/*
+ Get the symbol based on node's name, this will just simply
+ call table->get().
+ This function is used when passing in arguments for the print function.
+ We need to identify the node type and based on its name get the sym.inst from
+ the symbol table. This can be DONSUS_IDENTIFIER, DONSUS_EXPRESSION,
+ DONSUS_FUNCTION_CALL, etc. printf(a) # DONSUS_IDENTIFIER printf(2+5) #
+ DONSUS_EXPRESSION
+ * */
+auto sym_from_node(utility::handle<donsus_ast::node> &node,
+                   utility::handle<DonsusSymTable> table)
+    -> DonsusSymTable::sym {
+  switch (node->type.type) {
+  case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
+    return table->get(node->get<donsus_ast::identifier>().identifier_name);
+  default: {
+  }
+  }
+}
+
 Bitness GetBitness() {
   const auto target_triple = llvm::Triple(llvm::sys::getDefaultTargetTriple());
   if (target_triple.isArch32Bit())
@@ -41,6 +58,7 @@ void DonsusCodeGenerator::Finish() const {
   Builder->SetInsertPoint(main_block);
   Builder->CreateRet(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
 }
+
 void DonsusCodeGenerator::create_entry_point() {
   // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
@@ -95,6 +113,7 @@ int DonsusCodeGenerator::create_object_file() {
   }
 
   pass.run(*TheModule);
+
   dest.flush();
 
   llvm::outs() << "Wrote " << Filename << "\n";
@@ -202,7 +221,8 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   auto type = ca_ast.identifier_type;
   auto name = ca_ast.identifier_name;
 
-  // make sure it continues from main
+  // instead of putting them in the main, they should be created globals
+  // properly
   if (is_global_sym(name, table)) {
     Builder->SetInsertPoint(main_block);
   }
@@ -432,19 +452,26 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // use external functions ,eg extern printf
   // if its lvalue, look it up in symbol table, otherwise just codegen
   // the expression
-  auto CalleeF = TheModule->getOrInsertFunction(
-      "printf",
-      llvm::FunctionType::get(
-          llvm::IntegerType::getInt32Ty(*TheContext),
-          llvm::PointerType::get(llvm::Type::getInt8Ty(*TheContext), 0),
-          true /* this is var arg func type*/));
+  std::vector<llvm::Type *> printf_arg_types;
+  printf_arg_types.push_back(Builder->getPtrTy());
+  llvm::FunctionType *FT1 = llvm::FunctionType::get(
+      llvm::Type::getInt32Ty(*TheContext), printf_arg_types, true);
 
-  auto func = llvm::dyn_cast<llvm::Constant>(CalleeF.getCallee());
+  llvm::Function *func =
+      llvm::Function::Create(FT1, llvm::Function::ExternalLinkage,
+                             llvm::Twine("printf"), TheModule.get());
 
   // pass in args
   std::vector<llvm::Value *> Argsv;
+  // format
 
-  /*  return Builder->CreateCall(func, Argsv, "printfCall");*/
+  for (auto node : ast->children) {
+    DonsusSymTable::sym sym = sym_from_node(node, table);
+    Argsv.push_back(printf_format(node, sym.key));
+    Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+  }
+
+  return Builder->CreateCall(func, Argsv, "printfCall");
 }
 
 llvm::Value *
@@ -455,6 +482,27 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 1, false));
 
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
+}
+
+// for now it only supports one kind of type, e.g
+// %d, %s
+llvm::Value *
+DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
+                                   std::string name) {
+  switch (node->real_type.type_un) {
+  case DONSUS_TYPE::TYPE_BASIC_INT:
+  case DONSUS_TYPE::TYPE_I32:
+  case DONSUS_TYPE::TYPE_U64:
+  case DONSUS_TYPE::TYPE_I8:
+  case DONSUS_TYPE::TYPE_I64:
+  case DONSUS_TYPE::TYPE_I16:
+  case DONSUS_TYPE::TYPE_U32: {
+    auto format_name = name + "for_printf_string";
+    return Builder->CreateGlobalString("%d", format_name);
+  }
+  default: {
+  }
+  }
 }
 
 llvm::Value *
