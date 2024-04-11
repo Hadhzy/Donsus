@@ -497,8 +497,12 @@ DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
   case DONSUS_TYPE::TYPE_I64:
   case DONSUS_TYPE::TYPE_I16:
   case DONSUS_TYPE::TYPE_U32: {
-    auto format_name = name + "for_printf_string";
+    auto format_name = name + "_for_printf_string";
     return Builder->CreateGlobalString("%d", format_name);
+  }
+  case DONSUS_TYPE::TYPE_STRING: {
+    auto format_name = name + "_for_printf_string";
+    return Builder->CreateGlobalString("%s", format_name);
   }
   default: {
   }
