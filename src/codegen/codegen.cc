@@ -6,6 +6,12 @@ Todo:
 - optimisation is not needed as the IR builder already constant one
 - IRBuilder
 - assign them in symbol table
+
+- global support for variables
+- fix casting issue
+- function call
+- multiple return type
+- printf
  // signed support
  // unsigned support
  */
@@ -259,6 +265,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     res = Builder->CreateSDiv(lhs_value, compile(ast->children[0], table));
     break;
   }
+  case donsus_token_kind::DONSUS_EQUAL: {
+    res = compile(ast->children[0], table);
+    break;
+  }
   default: {
   }
   }
@@ -304,6 +314,7 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
   llvm::FunctionType *FT;
   if (ast.return_type.size() > 1) {
     // handle multiple parameters here
+    // setup the return type to a struct here
     FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
   } else {
     FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
@@ -315,13 +326,13 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
   table->setInst(ast.func_name, F);
 }
 
-// Todo: if variable is global, set the insert point to main function's block
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::FunctionType *FT;
   if (ast.return_type.size() > 1) {
     // handle multiple parameters here
+    // setup teh return type to a struct here
     FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
   } else {
     FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
@@ -337,7 +348,8 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
       llvm::BasicBlock::Create(*TheContext, ast.func_name + "_block", F);
   Builder->SetInsertPoint(block);
 
-  // compile the body
+  // setup the struct members
+
   for (auto node : ast.body) {
     compile(node, table);
   }
@@ -350,6 +362,7 @@ DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
   DonsusSymTable::sym sym = table->get(ast.func_name);
   std::vector<llvm::Value *> args;
 
+  // just call the function and save it
   // llvm::CallInst *call =
   // Builder->CreateCall(llvm::dyn_cast<llvm::FunctionType>(sym.inst), args);
 }
@@ -367,6 +380,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::return_kw &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
   // handle multiple parameters here
+  // if its a multiple type just return back the structure
   return Builder->CreateRet(compile(ast->children[0], table));
 }
 
