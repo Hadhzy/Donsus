@@ -18,7 +18,7 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"elif", DONSUS_ELIF_KW},
     {"else", DONSUS_ELSE_KW},
     {"return", DONSUS_RETURN_KW},
-    {"print", DONSUS_PRINT_KW},
+    {"printf", DONSUS_PRINT_KW},
     {"true", DONSUS_TRUE_KW},
     {"false", DONSUS_FALSE_KW}};
 

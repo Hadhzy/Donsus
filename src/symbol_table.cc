@@ -44,6 +44,7 @@ utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();
   sym_ptr->qa_sym = create_qualified_name(qa_sym_ex);
+  sym_ptr->parent = this;
   sym_table.push_back(sym_ptr);
   return sym_ptr;
 }
@@ -72,15 +73,24 @@ bool DonsusSymTable::is_sym_table_exist(
 }
 
 auto DonsusSymTable::get(std::string qualified_name) -> sym {
-  sym b = get_from_qualified_name(qualified_name);
-  if (b.mod == -1) {
-    // doesn't exist
-    return b; // empty
+  sym b;
+  b = get_from_qualified_name(qualified_name);
+  if (b.mod != -1){
+    return b;
+  }
+
+  while (parent) {
+      b = parent->get_from_qualified_name(qualified_name);
+    if (b.mod == -1 && parent->parent) {
+      parent = parent->parent;
+    } else {
+      return b;
+    }
   }
   return b;
 }
 
-auto DonsusSymTable::setInst(std::string qualified_name, llvm::AllocaInst *inst)
+auto DonsusSymTable::setInst(std::string qualified_name, llvm::Value *inst)
     -> void {
   for (auto &n : underlying) {
     if (n.key == create_qualified_name(qualified_name)) {

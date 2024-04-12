@@ -1,45 +1,4 @@
-// Construct symbol table from ast(1)
-// Semantic analysis generates SEA OF NODES from symbol table(2) or AST(TBD)
-/* \*
- *    AST(no):
- *      +
- *     /  \
- *    2    3
- *
- *
- *      name     type    scope
- *     |-----------------------|
- *     |       |        |      |
- *     |-----------------------|
- *     |       |        |      |
- *     |-----------------------|
- *     |       |        |      |
- *     |-----------------------|
- *
- */
-/*
- Type checking TODOS:
-  - check if the number of return values matches the one in the function
- prototype
-  unsigned long int a = 12 + "sdfsd" + func_call();
-  - figure out if the if statement is true
-
-  -see whether parameters/arguments have the correct type.
-  - typecheck assignments
-
-DONSUS_EXPRESSION:
-  Call donsus_typecheck_support_between_types to see whether operators between
-operands are supported
-  - Assign type of DONSUS_EXPRESSION by assigning type to each of its nodes,
-  and then pick the closest one(from children - process_donsus_expression) to
-determine the expression type -Obtaining the type happens in
-donsus_typecheck_type_expr.
-  - Then just simply match it against the type defined in the variable
-definition a:int - here int is the type.
-  */
-
 #include "../Include/sema.h"
-#include <set>
 
 DonsusSema sema;
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
@@ -145,10 +104,10 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     std::string iden_name = node->get<donsus_ast::identifier>().identifier_name;
-    bool is_exist_locally = sema.donsus_sema_is_exist(iden_name, table);
-    bool is_exist_globally = sema.donsus_sema_is_exist(iden_name, global_table);
-    if (!is_exist_locally && !is_exist_globally)
+    bool is_exist = sema.donsus_sema_is_exist(iden_name, table);
+    if (!is_exist)
       throw DonsusUndefinedException(iden_name + " is not defined");
+
     DonsusSymTable::sym identifier_symbol_local = table->get(iden_name);
     DonsusSymTable::sym identifier_symbol_global = global_table->get(iden_name);
 
@@ -189,17 +148,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
    Call type checking function with the correct type
    **/
   switch (node->type.type) {
-
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
     auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
-    bool is_declared_locally = sema.donsus_sema_is_duplicated(
+    bool is_declared = sema.donsus_sema_is_duplicated(
         node->get<donsus_ast::variable_decl>().identifier_name, table);
 
-    bool is_declared_globally = sema.donsus_sema_is_duplicated(
-        node->get<donsus_ast::variable_decl>().identifier_name, global_table);
-
-    if (is_declared_locally || is_declared_globally)
+    if (is_declared)
       throw ReDefinitionException(decl_name + " has been already declared!");
     break;
   }
@@ -303,11 +258,9 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
     auto assignment_name = node->get<donsus_ast::assignment>().identifier_name;
 
-    bool is_defined_locally = sema.donsus_sema_is_exist(assignment_name, table);
-    bool is_defined_globally =
-        sema.donsus_sema_is_exist(assignment_name, global_table);
+    bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
 
-    if (!is_defined_locally && !is_defined_globally)
+    if (!is_defined)
       throw DonsusUndefinedException(assignment_name + " is not defined");
 
     assign_type_to_node(node->children[0], table, global_table);

@@ -21,6 +21,12 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
+// opt
+#include "llvm/Analysis/CGSCCPassManager.h"
+#include "llvm/Analysis/LoopAnalysisManager.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/Passes/PassBuilder.h"
+
 #include <memory>
 
 // Select platform
@@ -66,6 +72,9 @@ public:
 
   int create_object_file();
 
+  // run llvm's default optimisation pipeline
+  void default_optimisation();
+
   void create_entry_point();
 
   std::vector<llvm::Type *>
@@ -109,7 +118,7 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
-                    donsus_ast::return_kw &ca_ast,
+                     donsus_ast::return_kw &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(donsus_ast::string_expr &ast,
@@ -130,9 +139,12 @@ public:
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
+  llvm::Value *printf_format(utility::handle<donsus_ast::node> node,
+                             std::string name);
 
   llvm::Type *map_type(DONSUS_TYPE type);
-
+  // meta
+  llvm::BasicBlock *main_block;
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
   std::unique_ptr<llvm::Module> TheModule;
