@@ -21,6 +21,12 @@
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
+// opt
+#include "llvm/Analysis/CGSCCPassManager.h"
+#include "llvm/Analysis/LoopAnalysisManager.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/Passes/PassBuilder.h"
+
 #include <memory>
 
 // Select platform
@@ -65,6 +71,9 @@ public:
   void Link() const;
 
   int create_object_file();
+
+  // run llvm's default optimisation pipeline
+  void default_optimisation();
 
   void create_entry_point();
 

@@ -10,6 +10,7 @@ Todo:
 - global support for variables
 - function call
 - multiple return type
+ - having the ability to print out multiple things
 - printf
  */
 #include "../../Include/codegen/codegen.h"
@@ -70,6 +71,7 @@ void DonsusCodeGenerator::create_entry_point() {
 }
 
 int DonsusCodeGenerator::create_object_file() {
+  default_optimisation();
   const auto TargetTriple = llvm::sys::getDefaultTargetTriple();
   TheModule->setTargetTriple(TargetTriple);
 
@@ -118,6 +120,38 @@ int DonsusCodeGenerator::create_object_file() {
 
   llvm::outs() << "Wrote " << Filename << "\n";
   return 0;
+}
+
+void DonsusCodeGenerator::default_optimisation() {
+  // Create the analysis managers.
+  // These must be declared in this order so that they are destroyed in the
+  // correct order due to inter-analysis-manager references.
+
+  llvm::LoopAnalysisManager LAM;
+  llvm::FunctionAnalysisManager FAM;
+  llvm::CGSCCAnalysisManager CGAM;
+  llvm::ModuleAnalysisManager MAM;
+
+  // Create the new pass manager builder.
+  // Take a look at the PassBuilder constructor parameters for more
+  // customization, e.g. specifying a TargetMachine or various debugging
+  // options.
+  llvm::PassBuilder PB;
+
+  // Register all the basic analyses with the managers.
+  PB.registerModuleAnalyses(MAM);
+  PB.registerCGSCCAnalyses(CGAM);
+  PB.registerFunctionAnalyses(FAM);
+  PB.registerLoopAnalyses(LAM);
+  PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+
+  // Create the pass manager.
+  // This one corresponds to a typical -O2 optimization pipeline.
+  llvm::ModulePassManager MPM =
+      PB.buildPerModuleDefaultPipeline(llvm::OptimizationLevel::O2);
+
+  // optimise IR
+  MPM.run(*TheModule, MAM);
 }
 
 void DonsusCodeGenerator::Link() const {
@@ -454,12 +488,17 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // the expression
   std::vector<llvm::Type *> printf_arg_types;
   printf_arg_types.push_back(Builder->getPtrTy());
+
   llvm::FunctionType *FT1 = llvm::FunctionType::get(
       llvm::Type::getInt32Ty(*TheContext), printf_arg_types, true);
 
-  llvm::Function *func =
-      llvm::Function::Create(FT1, llvm::Function::ExternalLinkage,
-                             llvm::Twine("printf"), TheModule.get());
+  llvm::Function *func;
+  if (TheModule->getFunction("printf") == nullptr) {
+    func = llvm::Function::Create(FT1, llvm::Function::ExternalLinkage,
+                                  llvm::Twine("printf"), TheModule.get());
+  } else {
+    func = TheModule->getFunction("printf");
+  }
 
   // pass in args
   std::vector<llvm::Value *> Argsv;
