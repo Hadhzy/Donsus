@@ -71,7 +71,7 @@ void DonsusCodeGenerator::create_entry_point() {
 }
 
 int DonsusCodeGenerator::create_object_file() {
-  default_optimisation();
+  // default_optimisation();
   const auto TargetTriple = llvm::sys::getDefaultTargetTriple();
   TheModule->setTargetTriple(TargetTriple);
 
@@ -258,6 +258,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // instead of putting them in the main, they should be created globals
   // properly
   if (is_global_sym(name, table)) {
+    // Todo: should create a global-var
     Builder->SetInsertPoint(main_block);
   }
 
@@ -403,10 +404,13 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   Builder->SetInsertPoint(block);
 
   // setup the struct members
-
   for (auto node : ast.body) {
     compile(node, table);
   }
+  /*  // setup parameters
+    for (auto node : ast.parameters) {
+      // compile them down
+    }*/
   return F;
 }
 
