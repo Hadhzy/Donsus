@@ -7,11 +7,10 @@ Todo:
 - IRBuilder
 - assign them in symbol table
 
-- global support for variables
 - function call
+- function parameters
 - multiple return type
  - having the ability to print out multiple things
-- printf
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -268,7 +267,8 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       initial_value =
           llvm::dyn_cast<llvm::Constant>(compile(ast->children[0], table));
     } else {
-      initial_value = nullptr; // this will be deduced to 'external'
+      initial_value = llvm::Constant::getNullValue(
+          map_type(make_type(type))); // zero initializer
     }
 
     llvm::GlobalVariable *c = new llvm::GlobalVariable(
