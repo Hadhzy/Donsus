@@ -420,6 +420,8 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
       llvm::BasicBlock::Create(*TheContext, ast.func_name + "_block", F);
   Builder->SetInsertPoint(block);
 
+  // process parameters
+
   // setup the struct members
   for (auto node : ast.body) {
     compile(node, table);
