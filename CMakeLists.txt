@@ -53,8 +53,8 @@ add_library(donsus_lib STATIC
         src/optimisation_ast.cc
 )
 
-
 #[[
+
 add_compile_options(-fsanitize=address) # ASAN
 add_link_options(-fsanitize=address) # ASAN
 ]]
