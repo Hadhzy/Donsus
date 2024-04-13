@@ -162,13 +162,7 @@ void tree::evaluate(
       std::string qualified_name = sym->apply_scope(func_name);
       auto sym_table = sym->get_sym_table(qualified_name);
 
-      for (auto c : current->get<function_def>().body) {
-        if (c->type.type == donsus_node_type::DONSUS_ASSIGNMENT) {
-          continue;
-        } else {
-          assign_type_to_node(c, sym_table, sym);
-        }
-      }
+      assign_type_to_node(current, sym_table, sym);
     } else {
       assign_type_to_node(current, sym, sym);
     }
