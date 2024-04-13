@@ -835,6 +835,11 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
       body.push_back(result);
     }
 
+    if (cur_token.kind == DONSUS_PRINT_KW) {
+      parse_result result = donsus_print();
+      donsus_tree->add_node(result);
+    }
+
     /*
       | func_decl
      */

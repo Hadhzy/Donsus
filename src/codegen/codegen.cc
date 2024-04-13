@@ -40,6 +40,10 @@ auto sym_from_node(utility::handle<donsus_ast::node> &node,
   switch (node->type.type) {
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
     return table->get(node->get<donsus_ast::identifier>().identifier_name);
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
+    return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION:
+    return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   default: {
   }
   }
@@ -256,10 +260,22 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   auto name = ca_ast.identifier_name;
 
   // instead of putting them in the main, they should be created globals
-  // properly
   if (is_global_sym(name, table)) {
-    // Todo: should create a global-var
+    // it must have an initial value thus we can't do it with declarations
+    llvm::Constant *initial_value;
+    if (is_definition) {
+      initial_value =
+          llvm::dyn_cast<llvm::Constant>(compile(ast->children[0], table));
+    } else {
+      initial_value = nullptr; // this will be deduced to 'external'
+    }
+
+    llvm::GlobalVariable *c = new llvm::GlobalVariable(
+        *TheModule, map_type(make_type(type)), false,
+        llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
+    table->setInst(name, c);
     Builder->SetInsertPoint(main_block);
+    return c;
   }
 
   // variable definition
