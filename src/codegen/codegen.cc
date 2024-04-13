@@ -25,6 +25,7 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
   }
   return false;
 }
+
 /*
  Get the symbol based on node's name, this will just simply
  call table->get().
@@ -427,6 +428,8 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
     for (auto node : ast.parameters) {
       // compile them down
     }*/
+  // use main block again
+  Builder->SetInsertPoint(main_block);
   return F;
 }
 
