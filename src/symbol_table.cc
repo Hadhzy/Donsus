@@ -55,6 +55,7 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
     if (n->qa_sym == qa_sym_ex)
       return n;
   }
+  return nullptr;
 }
 
 DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {
@@ -75,12 +76,12 @@ bool DonsusSymTable::is_sym_table_exist(
 auto DonsusSymTable::get(std::string qualified_name) -> sym {
   sym b;
   b = get_from_qualified_name(qualified_name);
-  if (b.mod != -1){
+  if (b.mod != -1) {
     return b;
   }
 
   while (parent) {
-      b = parent->get_from_qualified_name(qualified_name);
+    b = parent->get_from_qualified_name(qualified_name);
     if (b.mod == -1 && parent->parent) {
       parent = parent->parent;
     } else {
