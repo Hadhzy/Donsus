@@ -259,10 +259,7 @@ public:
 
     print_with_newline("parameters: ", indent_level);
     for (auto p : f_decl.parameters) {
-      print_with_newline(
-          "type: " + de_get_name_from_token((p.type.to_parse(p.type.type_un))),
-          indent_level + 1);
-      print_with_newline("identifier: " + p.identifier, indent_level + 1);
+      print_ast_node(p, indent_level + 1);
     }
     print_with_newline("func_name: " + f_decl.func_name, indent_level);
   }
@@ -277,10 +274,7 @@ public:
 
     print_with_newline("parameters: ", indent_level);
     for (auto p : f_def.parameters) {
-      print_with_newline(
-          "type: " + de_get_name_from_token((p.type.to_parse(p.type.type_un))),
-          indent_level + 1);
-      print_with_newline("identifier: " + p.identifier, indent_level + 1);
+      print_ast_node(p, indent_level + 1);
     }
     print_with_newline("func_name: " + f_def.func_name, indent_level);
     print_with_newline("body: ", indent_level);
@@ -735,21 +729,17 @@ auto DonsusParser::donsus_function_call(donsus_token &name) -> parse_result {
 /*
 donsus_function_proto: var_decl* [,] [donsus_function_proto]
  */
-auto DonsusParser::donsus_function_signature() -> std::vector<NAME_DATA_PAIR> {
+auto DonsusParser::donsus_function_signature()
+    -> std::vector<utility::handle<donsus_ast::node>> {
   // e.g (a:int, b:int)
   // As of now, parameters just variable decls(excluding semi-colon).
-  std::vector<NAME_DATA_PAIR> a;
+  std::vector<utility::handle<donsus_ast::node>> a;
 
   while (donsus_peek().kind != DONSUS_RPAR) {
     try {
-      NAME_DATA_PAIR pair;
       donsus_parser_except(DONSUS_NAME);
       parse_result v_d = donsus_variable_decl(); // catch its value
-      pair.identifier =
-          v_d.get()->get<donsus_ast::variable_decl>().identifier_name;
-      pair.type = make_type(
-          v_d.get()->get<donsus_ast::variable_decl>().identifier_type);
-      a.push_back(pair);
+      a.push_back(v_d);
     } catch (DonsusException &e) {
       std::cerr << e.what() << std::endl;
     }

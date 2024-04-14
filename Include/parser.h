@@ -114,7 +114,8 @@ public:
 
   auto donsus_statements() -> std::vector<parse_result>;
 
-  auto donsus_function_signature() -> std::vector<NAME_DATA_PAIR>;
+  auto donsus_function_signature()
+      -> std::vector<utility::handle<donsus_ast::node>>;
   auto donsus_function_args() -> std::vector<utility::handle<donsus_ast::node>>;
 
   // peeking functions

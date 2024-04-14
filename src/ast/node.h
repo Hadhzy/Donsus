@@ -69,7 +69,7 @@ struct function_decl {
   std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
-  std::vector<NAME_DATA_PAIR>
+  std::vector<utility::handle<donsus_ast::node>>
       parameters; // parameters inside the function signature
 
   std::string func_name; // name of the function
@@ -79,7 +79,7 @@ struct function_def {
   std::vector<DONSUS_TYPE> return_type; // the return type of the function
 
   // function signature
-  std::vector<NAME_DATA_PAIR>
+  std::vector<utility::handle<donsus_ast::node>>
       parameters; // parameters inside the function signature
 
   std::string func_name; // name of the function

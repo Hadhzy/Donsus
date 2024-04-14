@@ -3,14 +3,6 @@
 using namespace donsus_ast;
 
 // sym_table helpers
-void add_params_sym(utility::handle<DonsusSymTable> sym,
-                    std::vector<NAME_DATA_PAIR> &children) {
-  for (auto &n : children) {
-    // add params to a specific symbol table
-    // n.type doesn't work here
-    sym->add(n.identifier, n.type);
-  }
-}
 
 tree::tree() : allocator(1024) {}
 
@@ -97,7 +89,9 @@ void tree::traverse_nodes(
     b->function_return_type = stuff.return_type;
 
     // process children
-    add_params_sym(b, stuff.parameters);
+    for (auto &param : stuff.parameters) {
+      traverse_nodes(visit, assign_type_to_node, b, codegen, param);
+    }
     for (auto &children : n->get<donsus_ast::function_def>().body) {
       traverse_nodes(visit, assign_type_to_node, b, codegen, children);
     }

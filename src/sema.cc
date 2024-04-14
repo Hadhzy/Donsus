@@ -80,6 +80,9 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
       }
       assign_type_to_node(n, table, global_table);
     }
+    for (auto &param : node->get<donsus_ast::function_def>().parameters) {
+      assign_type_to_node(param, table, global_table);
+    }
     break;
   }
 
