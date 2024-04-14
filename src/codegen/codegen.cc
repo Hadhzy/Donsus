@@ -448,9 +448,14 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
       llvm::BasicBlock::Create(*TheContext, ast.func_name + "_block", F);
   Builder->SetInsertPoint(block);
 
-  // allocate for stack
-  for (auto &arg : F->args()) {
-    llvm::AllocaInst *allocaInst = Builder->CreateAlloca(arg.getType());
+  for (auto node : ast.parameters) {
+    llvm::AllocaInst *allocaInst =
+        Builder->CreateAlloca(map_type(node->real_type));
+
+    // we could just simply assume its variable declaration all the time
+    DonsusSymTable::sym symbol = sym_from_node(node, table);
+    table->setInst(symbol.short_name, allocaInst);
+
     allocated_insts.push_back(allocaInst);
   }
   // store values into local stack
