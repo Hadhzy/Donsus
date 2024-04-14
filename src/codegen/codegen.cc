@@ -26,6 +26,22 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
 }
 
 /*
+ Return whether the node is an r-value expression
+ or an lvalue variable
+ * */
+auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
+  switch (node->type.type) {
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION:
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
+    return false;
+  case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
+    return true;
+  default: {
+  }
+  }
+}
+/*
  Get the symbol based on node's name, this will just simply
  call table->get().
  This function is used when passing in arguments for the print function.
@@ -264,8 +280,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     // it must have an initial value thus we can't do it with declarations
     llvm::Constant *initial_value;
     if (is_definition) {
-      initial_value =
-          llvm::dyn_cast<llvm::Constant>(compile(ast->children[0], table));
+      initial_value = llvm::Constant::getNullValue(map_type(make_type(type)));
     } else {
       initial_value = llvm::Constant::getNullValue(
           map_type(make_type(type))); // zero initializer
@@ -274,6 +289,11 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     llvm::GlobalVariable *c = new llvm::GlobalVariable(
         *TheModule, map_type(make_type(type)), false,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
+    if (is_definition) {
+      auto result = compile(ast->children[0], table);
+      Builder->CreateStore(result, c);
+    }
+
     table->setInst(name, c);
     Builder->SetInsertPoint(main_block);
     return c;
@@ -288,7 +308,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     llvm::Value *def_value = compile(ast->children[0], table);
     Builder->CreateStore(def_value, Allocadef);
     llvm::Value *CurVardef =
-        Builder->CreateLoad(Allocadef->getAllocatedType(), Allocadef, name);
+        Builder->CreateLoad(Allocadef->getAllocatedType(), Allocadef);
     return CurVardef;
   }
 
@@ -300,7 +320,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
   Builder->CreateStore(decl_value, Alloca);
   llvm::Value *CurVardef =
-      Builder->CreateLoad(Alloca->getAllocatedType(), Alloca, name);
+      Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
   return CurVardef;
 }
 
@@ -402,34 +422,54 @@ llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::FunctionType *FT;
+  std::vector<llvm::Type *> arg_types;
+  std::vector<llvm::Value *> allocated_insts; // allocadef(s) of local vars
+  for (auto node : ast.parameters) {
+    arg_types.push_back(map_type(node->real_type));
+  }
+
   if (ast.return_type.size() > 1) {
+
     // handle multiple parameters here
     // setup teh return type to a struct here
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   } else {
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   }
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, ast.func_name, *TheModule);
-
-  table->setInst(ast.func_name, F);
+  table->inst = F;
 
   // construct a basic block before adding body
   llvm::BasicBlock *block =
       llvm::BasicBlock::Create(*TheContext, ast.func_name + "_block", F);
   Builder->SetInsertPoint(block);
 
-  // process parameters
+  // allocate for stack
+  for (auto &arg : F->args()) {
+    llvm::AllocaInst *allocaInst = Builder->CreateAlloca(arg.getType());
+    allocated_insts.push_back(allocaInst);
+  }
+  // store values into local stack
+  auto argIterator = F->arg_begin();
+  for (auto &allocaInst : allocated_insts) {
+    llvm::Value *argValue = &(*argIterator);
+    Builder->CreateStore(argValue, allocaInst);
+    // load maybe?
+    Builder->CreateLoad(allocaInst->getType(), allocaInst);
+    ++argIterator;
+  }
 
   // setup the struct members
+
+  // body of the function
   for (auto node : ast.body) {
     compile(node, table);
   }
-  /*  // setup parameters
-    for (auto node : ast.parameters) {
-      // compile them down
-    }*/
+
   // use main block again
   Builder->SetInsertPoint(main_block);
   return F;
@@ -438,12 +478,25 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
                            utility::handle<DonsusSymTable> &table) {
-  DonsusSymTable::sym sym = table->get(ast.func_name);
-  std::vector<llvm::Value *> args;
 
-  // just call the function and save it
+  std::string qualified_fn_name = table->apply_scope(ast.func_name);
+
+  utility::handle<DonsusSymTable> sym_table =
+      table->get_sym_table(qualified_fn_name); // the funcion's table
+
+  std::vector<llvm::Value *> args;
   // llvm::CallInst *call =
-  // Builder->CreateCall(llvm::dyn_cast<llvm::FunctionType>(sym.inst), args);
+  for (auto node : ast.arguments) {
+    if (is_expression(node)) {
+      args.push_back(compile(node, table));
+    } else {
+      DonsusSymTable::sym sym_local = sym_from_node(node, table);
+      args.push_back(sym_local.inst);
+    }
+  }
+  llvm::CallInst *call = Builder->CreateCall(
+      llvm::dyn_cast<llvm::Function>(sym_table->inst), args);
+  return call;
 }
 
 llvm::Value *
