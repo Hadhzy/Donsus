@@ -1,3 +1,5 @@
+#include "../Include/sema.h"
+#include "../src/ast/tree.h"
 #include "parser.h"
 #include <gtest/gtest.h>
 #include <iostream>
@@ -42,11 +44,48 @@ TEST(Functions, FunctionDeclarationParameters) {
         a(b:int) -> int;
     )";
   DonsusParser::end_result result = Du_Parse(a);
-  NAME_DATA_PAIR fn_param =
+  utility::handle<donsus_ast::node> fn_param =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().parameters[0];
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  EXPECT_EQ(DONSUS_TYPE::TYPE_BASIC_INT, fn_param.type.type_un);
-  EXPECT_EQ("b", fn_param.identifier);
+  result->init_traverse();
+  result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  /*
+    Here the reason why we check for DONSUS_BASIC_INT instead of
+    DONSUS_TYPE::TYPE_BASIC_INT is because when it comes to function
+    declarations we don't actually add the things to the symbol table, we will
+    only do so when the function has been defined, so therefore when its just a
+    function declaration we will not assign type to it because it will only
+    makes sense to do so when the function has been defined.
+    If this would have been a function definition then we would have assigned
+    DONSUS_TYPE::TYPE_BASIC_INT. (this might change in the future)
+  */
+  EXPECT_EQ(donsus_token_kind::DONSUS_BASIC_INT,
+            fn_param->get<donsus_ast::variable_decl>().identifier_type);
+  EXPECT_EQ("b", fn_param->get<donsus_ast::variable_decl>().identifier_name);
+}
+
+TEST(Functions, FunctionDefinitionParameters) {
+  std::string a = R"(
+        def a(b:int) -> int {
+          return 1;
+        };
+    )";
+  DonsusParser::end_result result = Du_Parse(a);
+
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+
+  result->init_traverse();
+  result->traverse(donsus_sym, assign_type_to_node, sym_global);
+
+  utility::handle<donsus_ast::node> fn_param =
+      result->get_nodes()[0]->get<donsus_ast::function_decl>().parameters[0];
+  /*
+    Now here we can check for DONSUS_TYPE::TYPE_BASIC_INT because its a function
+    definition
+  */
+  EXPECT_EQ(DONSUS_TYPE::TYPE_BASIC_INT, fn_param->real_type.type_un);
+  EXPECT_EQ("b", fn_param->get<donsus_ast::variable_decl>().identifier_name);
 }
 
 TEST(Functions, FunctionDefinitionNodeType) {

@@ -75,7 +75,13 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     for (auto &n : node->get<donsus_ast::function_def>().body) {
+      if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
+        continue;
+      }
       assign_type_to_node(n, table, global_table);
+    }
+    for (auto &param : node->get<donsus_ast::function_def>().parameters) {
+      assign_type_to_node(param, table, global_table);
     }
     break;
   }
@@ -99,6 +105,11 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     for (auto &args : node->get<donsus_ast::function_call>().arguments) {
       assign_type_to_node(args, table, global_table);
     }
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION: {
+    assign_type_to_node(node->children[0], table, global_table);
     break;
   }
 
