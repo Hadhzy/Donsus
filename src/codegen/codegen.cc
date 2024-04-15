@@ -2,15 +2,10 @@
  Codegen for the DONSUS COMPILER
 Todo:
 - build vtable: https://itanium-cxx-abi.github.io/cxx-abi/abi.html#vtable
-- visit each of the ast nodes
-- optimisation is not needed as the IR builder already constant one
 - IRBuilder
 - assign them in symbol table
-
-- function call
-- function parameters
 - multiple return type
- - having the ability to print out multiple things
+- DONSUS_EXPRESSION TYPE ASSIGNMENT
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -35,6 +30,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
     return false;
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
     return true;
   default: {
@@ -580,11 +576,6 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::print_expr &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // figure out whether its lvalue, or rvalue
-  // we would check for the string representation of an object
-  // use external functions ,eg extern printf
-  // if its lvalue, look it up in symbol table, otherwise just codegen
-  // the expression
   std::vector<llvm::Type *> printf_arg_types;
   printf_arg_types.push_back(Builder->getPtrTy());
 
@@ -599,13 +590,18 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     func = TheModule->getFunction("printf");
   }
 
-  // pass in args
   std::vector<llvm::Value *> Argsv;
-  // format
 
   for (auto node : ast->children) {
+    if (is_expression(node)) {
+      // better name
+      Argsv.push_back(printf_format(node));
+      Argsv.push_back(compile(node, table));
+      continue;
+    }
+
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    Argsv.push_back(printf_format(node, sym.key));
+    Argsv.push_back(printf_format(node)); // sym.key is not really needed
     Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
   }
 
@@ -622,11 +618,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
-// for now it only supports one kind of type, e.g
-// %d, %s
 llvm::Value *
-DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
-                                   std::string name) {
+DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
   switch (node->real_type.type_un) {
   case DONSUS_TYPE::TYPE_BASIC_INT:
   case DONSUS_TYPE::TYPE_I32:
@@ -635,16 +628,15 @@ DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
   case DONSUS_TYPE::TYPE_I64:
   case DONSUS_TYPE::TYPE_I16:
   case DONSUS_TYPE::TYPE_U32: {
-    auto format_name = name + "_for_printf_string";
-    return Builder->CreateGlobalString("%d", format_name);
+    return Builder->CreateGlobalString("%d");
   }
   case DONSUS_TYPE::TYPE_STRING: {
-    auto format_name = name + "_for_printf_string";
-    return Builder->CreateGlobalString("%s", format_name);
+    return Builder->CreateGlobalString("%s");
   }
   default: {
   }
   }
+  return nullptr;
 }
 
 llvm::Value *
