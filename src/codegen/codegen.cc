@@ -206,7 +206,7 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   }
 
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
-    return visit(n->get<donsus_ast::if_statement>(), table);
+    return visit(n->get<donsus_ast::if_statement>(), n, table);
   }
 
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
@@ -506,8 +506,51 @@ DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
 }
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::if_statement &ast,
-                           utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
+                           utility::handle<donsus_ast::node> &ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // Visit the condition expression
+  llvm::Value *conditionValue = compile(ast->children[0], table);
+
+  // Ensure the condition value is of type i1
+  if (conditionValue->getType()->isIntegerTy(8)) {
+    conditionValue = Builder->CreateICmpNE(
+        conditionValue, llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0)),
+        "conditionAsI1");
+  }
+
+  // Create basic blocks for if and else (if present) bodies
+  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+  llvm::BasicBlock *if_block =
+      llvm::BasicBlock::Create(*TheContext, "then", TheFunction);
+  llvm::BasicBlock *elseBlock =
+      llvm::BasicBlock::Create(*TheContext, "else", TheFunction);
+  llvm::BasicBlock *mergeBlock =
+      llvm::BasicBlock::Create(*TheContext, "ifcont", TheFunction);
+
+  // conditional branch
+  Builder->CreateCondBr(conditionValue, if_block, elseBlock);
+
+  // Generate code for the if block
+  Builder->SetInsertPoint(if_block);
+  for (auto node : ac_ast.body) {
+    compile(node, table);
+  }
+  Builder->CreateBr(mergeBlock);
+
+  // Generate code for the else block
+  Builder->SetInsertPoint(elseBlock);
+  for (auto node :
+       ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
+    compile(node, table);
+  }
+  Builder->CreateBr(mergeBlock);
+
+  // Set insertion point to the merge block
+  Builder->SetInsertPoint(mergeBlock);
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+}
 
 llvm::Value *
 DonsusCodeGenerator ::visit(donsus_ast::else_statement &ast,

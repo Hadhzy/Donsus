@@ -111,7 +111,8 @@ public:
   llvm::Value *visit(donsus_ast::function_call &ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::if_statement &ast,
+  llvm::Value *visit(donsus_ast::if_statement &ac_ast,
+                     utility::handle<donsus_ast::node> &ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(donsus_ast::else_statement &ast,

@@ -97,6 +97,26 @@ void tree::traverse_nodes(
     }
     break;
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
+    auto stuff = n->get<donsus_ast::if_statement>();
+    for (auto &children : stuff.body) {
+      traverse_nodes(visit, assign_type_to_node, sym, codegen, children);
+    }
+    for (auto &children : stuff.alternate) {
+      traverse_nodes(visit, assign_type_to_node, sym, codegen, children);
+    }
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
+    auto stuff = n->get<donsus_ast::else_statement>();
+    for (auto &children : stuff.body) {
+      traverse_nodes(visit, assign_type_to_node, sym, codegen, children);
+    }
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
     auto stuff = n->get<donsus_ast::variable_decl>();
     sym->add(stuff.identifier_name,
