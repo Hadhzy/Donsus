@@ -474,7 +474,11 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   for (auto node : ast.body) {
     compile(node, table);
   }
+  // handle void here
+  if (ast.return_type[0].type_un == DONSUS_TYPE::TYPE_VOID) {
 
+    Builder->CreateRetVoid();
+  }
   // use main block again
   Builder->SetInsertPoint(main_block);
   return F;
