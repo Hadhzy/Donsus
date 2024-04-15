@@ -524,8 +524,20 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
                            utility::handle<DonsusSymTable> &table) {
+  // process escape sequences: \n etc.
+  std::vector<char> PreprocessedString;
+  for (int i = 0; i < ast.value.value.size(); ++i) {
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'n') {
+      //   10  0A 00001010 LF  &#10; Line Feed
+      PreprocessedString.push_back(0x0a);
+      ++i;
+      continue;
+    }
+    PreprocessedString.push_back(ast.value.value[i]);
+  }
 
-  return Builder->CreateGlobalStringPtr(llvm::StringRef(ast.value.value));
+  return Builder->CreateGlobalStringPtr(
+      llvm::StringRef(PreprocessedString.data()));
 }
 
 llvm::Value *
