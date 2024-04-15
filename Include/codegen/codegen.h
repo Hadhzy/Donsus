@@ -139,8 +139,7 @@ public:
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
-  llvm::Value *printf_format(utility::handle<donsus_ast::node> node,
-                             std::string name);
+  llvm::Value *printf_format(utility::handle<donsus_ast::node> node);
 
   llvm::Type *map_type(DONSUS_TYPE type);
   // meta
