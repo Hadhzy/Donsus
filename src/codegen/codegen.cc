@@ -5,7 +5,8 @@ Todo:
 - IRBuilder
 - assign them in symbol table
 - multiple return type
-- DONSUS_EXPRESSION TYPE ASSIGNMENT
+- DONSUS_EXPRESSION TYPE ASSIGNMENT -> all the children have type, we can just
+loop through and if its an expression that have a type just assign it
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -594,7 +595,9 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   for (auto node : ast->children) {
     if (is_expression(node)) {
-      // better name
+      // here some expression don't have a specific type
+      // e.g DONSUS_EXPRESSION itself does not contain any type
+      // here we will just obtain the type from the first child
       Argsv.push_back(printf_format(node));
       Argsv.push_back(compile(node, table));
       continue;
