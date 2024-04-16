@@ -19,6 +19,19 @@ auto process_donsus_expression(utility::handle<donsus_ast::node> node,
   // go until find a proper type
 }
 
+/*
+ Returns the type of the DONSUS_EXPRESSION based on its children
+ * */
+auto decide_type_for_expression(utility::handle<donsus_ast::node> node,
+                                utility::handle<DonsusSymTable> table)
+    -> DONSUS_TYPE {
+  for (auto n : node->children) {
+    if (n->type.type != donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
+      return n->real_type;
+    }
+  }
+}
+
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
                          utility::handle<DonsusSymTable> table,
                          utility::handle<DonsusSymTable> global_table) -> void {
@@ -42,6 +55,10 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node, table, global_table);
     sema.donsus_typecheck_support_between_types(node);
+    // after all the children of donsus expression got a type
+    // we can just pick the closest one and set it up as the expression
+    // type
+    node->real_type.type_un = decide_type_for_expression(node, table).type_un;
     break;
   }
 
