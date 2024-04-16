@@ -4,6 +4,7 @@ Todo:
 - build vtable: https://itanium-cxx-abi.github.io/cxx-abi/abi.html#vtable
 - IRBuilder
 - assign them in symbol table
+ - forward declaration
 - multiple return type
 - DONSUS_EXPRESSION TYPE ASSIGNMENT -> all the children have type, we can just
 loop through and if its an expression that have a type just assign it
@@ -401,18 +402,26 @@ llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::FunctionType *FT;
+  std::vector<llvm::Type *> arg_types;
+  for (auto node : ast.parameters) {
+    arg_types.push_back(map_type(node->real_type));
+  }
+
   if (ast.return_type.size() > 1) {
     // handle multiple parameters here
     // setup the return type to a struct here
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   } else {
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   }
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, ast.func_name, *TheModule);
-
+  llvm::verifyFunction(*F);
   table->setInst(ast.func_name, F);
+  return F;
 }
 
 llvm::Value *
