@@ -540,9 +540,12 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
 
   // Generate code for the else block
   Builder->SetInsertPoint(elseBlock);
-  for (auto node :
-       ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
-    compile(node, table);
+  // TODO: make this better
+  if (ac_ast.alternate.size() != 0) {
+    for (auto node :
+         ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
+      compile(node, table);
+    }
   }
   Builder->CreateBr(mergeBlock);
 
@@ -596,6 +599,43 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
       return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
     }
+  }
+
+  case DONSUS_DOUBLE_EQUAL: {
+    // Handle ==
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpEQ(lhs, rhs, "cmp_eq");
+  }
+  case DONSUS_NOT_EQUAL: {
+    // Handle !=
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpNE(lhs, rhs, "cmp_ne");
+  }
+  case DONSUS_GREATER: {
+    // Handle >
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpSGT(lhs, rhs, "cmp_gt");
+  }
+  case DONSUS_GREATER_EQUAL: {
+    // Handle >=
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpSGE(lhs, rhs, "cmp_ge");
+  }
+  case DONSUS_LESS: {
+    // Handle <
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpSLT(lhs, rhs, "cmp_lt");
+  }
+  case DONSUS_LESS_EQUAL: {
+    // Handle <=
+    llvm::Value *lhs = compile(ast->children[0], table);
+    llvm::Value *rhs = compile(ast->children[1], table);
+    return Builder->CreateICmpSLE(lhs, rhs, "cmp_le");
   }
   default: {
     return nullptr;
