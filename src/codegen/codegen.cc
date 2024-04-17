@@ -2,15 +2,12 @@
  Codegen for the DONSUS COMPILER
 Todo:
 - build vtable: https://itanium-cxx-abi.github.io/cxx-abi/abi.html#vtable
-- visit each of the ast nodes
-- optimisation is not needed as the IR builder already constant one
 - IRBuilder
 - assign them in symbol table
-
-- function call
-- function parameters
+ - forward declaration
 - multiple return type
- - having the ability to print out multiple things
+- DONSUS_EXPRESSION TYPE ASSIGNMENT -> all the children have type, we can just
+loop through and if its an expression that have a type just assign it
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -35,6 +32,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
     return false;
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
     return true;
   default: {
@@ -404,18 +402,26 @@ llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
                            utility::handle<DonsusSymTable> &table) {
   llvm::FunctionType *FT;
+  std::vector<llvm::Type *> arg_types;
+  for (auto node : ast.parameters) {
+    arg_types.push_back(map_type(node->real_type));
+  }
+
   if (ast.return_type.size() > 1) {
     // handle multiple parameters here
     // setup the return type to a struct here
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   } else {
-    FT = llvm::FunctionType::get(map_type(ast.return_type[0]), false);
+    FT =
+        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
   }
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, ast.func_name, *TheModule);
-
+  llvm::verifyFunction(*F);
   table->setInst(ast.func_name, F);
+  return F;
 }
 
 llvm::Value *
@@ -474,7 +480,11 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   for (auto node : ast.body) {
     compile(node, table);
   }
+  // handle void here
+  if (ast.return_type[0].type_un == DONSUS_TYPE::TYPE_VOID) {
 
+    Builder->CreateRetVoid();
+  }
   // use main block again
   Builder->SetInsertPoint(main_block);
   return F;
@@ -570,8 +580,20 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
                            utility::handle<DonsusSymTable> &table) {
+  // process escape sequences: \n etc.
+  std::vector<char> PreprocessedString;
+  for (int i = 0; i < ast.value.value.size(); ++i) {
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'n') {
+      //   10  0A 00001010 LF  &#10; Line Feed
+      PreprocessedString.push_back(0x0a);
+      ++i;
+      continue;
+    }
+    PreprocessedString.push_back(ast.value.value[i]);
+  }
 
-  return Builder->CreateGlobalStringPtr(llvm::StringRef(ast.value.value));
+  return Builder->CreateGlobalStringPtr(
+      llvm::StringRef(PreprocessedString.data()));
 }
 
 llvm::Value *
@@ -647,11 +669,6 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::print_expr &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // figure out whether its lvalue, or rvalue
-  // we would check for the string representation of an object
-  // use external functions ,eg extern printf
-  // if its lvalue, look it up in symbol table, otherwise just codegen
-  // the expression
   std::vector<llvm::Type *> printf_arg_types;
   printf_arg_types.push_back(Builder->getPtrTy());
 
@@ -666,13 +683,20 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     func = TheModule->getFunction("printf");
   }
 
-  // pass in args
   std::vector<llvm::Value *> Argsv;
-  // format
 
   for (auto node : ast->children) {
+    if (is_expression(node)) {
+      // here some expression don't have a specific type
+      // e.g DONSUS_EXPRESSION itself does not contain any type
+      // here we will just obtain the type from the first child
+      Argsv.push_back(printf_format(node));
+      Argsv.push_back(compile(node, table));
+      continue;
+    }
+
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    Argsv.push_back(printf_format(node, sym.key));
+    Argsv.push_back(printf_format(node)); // sym.key is not really needed
     Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
   }
 
@@ -689,11 +713,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
-// for now it only supports one kind of type, e.g
-// %d, %s
 llvm::Value *
-DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
-                                   std::string name) {
+DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
   switch (node->real_type.type_un) {
   case DONSUS_TYPE::TYPE_BASIC_INT:
   case DONSUS_TYPE::TYPE_I32:
@@ -702,16 +723,15 @@ DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node,
   case DONSUS_TYPE::TYPE_I64:
   case DONSUS_TYPE::TYPE_I16:
   case DONSUS_TYPE::TYPE_U32: {
-    auto format_name = name + "_for_printf_string";
-    return Builder->CreateGlobalString("%d", format_name);
+    return Builder->CreateGlobalString("%d");
   }
   case DONSUS_TYPE::TYPE_STRING: {
-    auto format_name = name + "_for_printf_string";
-    return Builder->CreateGlobalString("%s", format_name);
+    return Builder->CreateGlobalString("%s");
   }
   default: {
   }
   }
+  return nullptr;
 }
 
 llvm::Value *
