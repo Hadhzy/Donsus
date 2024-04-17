@@ -17,6 +17,12 @@ public:
   std::string qa_sym = "global";
   std::vector<DONSUS_TYPE> function_return_type; // only for function def
   llvm::Value *inst;
+  // similar to inst - requires a loop to change the actual value
+  // e.g setInst
+  struct f_mul_ret {
+    llvm::Type *type_of_struct;
+    llvm::Value *inst_of_struct;
+  } multiple_return;
   utility::handle<DonsusSymTable> parent = nullptr; //
   struct sym {
     int mod;
