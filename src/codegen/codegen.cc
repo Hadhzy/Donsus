@@ -24,16 +24,27 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
 
 /*
  Return whether the node is an r-value expression
- or an lvalue variable
+ or an lvalue variable, for printf.
  * */
 auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   switch (node->type.type) {
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION:
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
+  case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL:
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF:
+  case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT:
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL:
+  case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT:
+  case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT:
     return false;
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT:
+  case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION:
     return true;
   default: {
   }
