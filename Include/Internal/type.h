@@ -43,6 +43,7 @@ public:
     else
       return false;
   }
+  bool operator!=(DONSUS_TYPE &rhs) const { return !(rhs == *this); }
   auto to_string() const -> std::string;
   auto is_integer() const -> bool;
 };

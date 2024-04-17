@@ -534,6 +534,17 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
       }
       if (n->get<donsus_ast::return_kw>().types == expect)
         return;
+      // multiple return types
+      if (expect.size() > 1) {
+        for (auto type : expect) {
+          for (auto type2 : n->get<donsus_ast::return_kw>().types) {
+            if (type != type2) {
+              throw ReturnTypeException("Return is not correct");
+            }
+          }
+        }
+        return;
+      }
     }
   }
   // if its void just terminate

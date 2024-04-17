@@ -409,9 +409,13 @@ DonsusCodeGenerator::visit(donsus_ast::function_decl &ast,
 
   if (ast.return_type.size() > 1) {
     // handle multiple parameters here
-    // setup the return type to a struct here
-    FT =
-        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
+    std::vector<llvm::Type *> types_in_struct;
+    for (DONSUS_TYPE type : ast.return_type) {
+      types_in_struct.push_back(map_type(type));
+    }
+    auto struct_for_func = llvm::StructType::create(*TheContext);
+    struct_for_func->setBody(types_in_struct);
+    FT = llvm::FunctionType::get(struct_for_func, arg_types, false);
   } else {
     FT =
         llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
@@ -435,11 +439,19 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   }
 
   if (ast.return_type.size() > 1) {
-
     // handle multiple parameters here
-    // setup teh return type to a struct here
-    FT =
-        llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
+    auto struct_for_func = llvm::StructType::create(*TheContext);
+    llvm::AllocaInst *inst = Builder->CreateAlloca(struct_for_func);
+    // use struct for func
+    // use inst
+
+    table->multiple_return.type_of_struct = struct_for_func;
+    table->multiple_return.inst_of_struct = inst;
+
+    // This is not correct, since arguments have zero correlation with what
+    // we return
+    struct_for_func->setBody(arg_types);
+    FT = llvm::FunctionType::get(struct_for_func, arg_types, false);
   } else {
     FT =
         llvm::FunctionType::get(map_type(ast.return_type[0]), arg_types, false);
@@ -569,8 +581,35 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::return_kw &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  // handle multiple parameters here
-  // if its a multiple type just return back the structure
+  /*  if (ca_ast.types.size() > 1) {
+      // if its a multiple type just return back the structure
+      // with the loaded elements
+      // make indices
+      std::vector<std::vector<llvm::Value *>> indices;
+      llvm::Value *Zero =
+          llvm::ConstantInt::get(llvm::Type::getInt32Ty(*TheContext), 0);
+      for (int i = 0; i < ca_ast.types.size(); ++i) {
+        indices[i].push_back(Zero);
+        // don't have to be LLVM value - can be regular vector with int
+        llvm::Value *tmp =
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(*TheContext), i);
+        indices[i].push_back(tmp);
+      }
+
+      auto type = table->multiple_return.type_of_struct;
+      auto inst = table->multiple_return.inst_of_struct;
+      // obtain struct
+      int counter = 0;
+      for (auto in : indices) {
+
+        llvm::Value *store_into = Builder->CreateGEP(type, inst, in);
+        Builder->CreateStore(compile(ast->children[counter], table),
+    store_into);
+        ++counter;
+      }
+      llvm::Value *result = Builder->CreateLoad(type, inst);
+      return Builder->CreateRet(result);
+    }*/
   return Builder->CreateRet(compile(ast->children[0], table));
 }
 
