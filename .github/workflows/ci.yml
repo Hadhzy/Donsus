@@ -27,3 +27,6 @@ jobs:
           mkdir build
           cd build
           cmake  -S ../ -B . -DCMAKE_BUILD_TYPE=DEBUG
+          make
+          cd ./donsus_test/
+          ./donsus_test
