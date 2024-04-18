@@ -1,0 +1,29 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build linux:
+    name: Ubuntu build, Check, and TEST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkouts@v1
+      - name: Download LLVM
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 17
+          echo "/usr/lib/llvm-17/bin" >> $GITHUB_PATH
+      - name: Download GTEST
+        run: |
+          git clone https://github.com/google/googletest.git -b v1.14.0
+          cd googletest 
+          mkdir build  
+          cd build
+          cmake .. 
+          make
+          sudo make install
+      - name: build donsus
+        run: |
+          mkdir build
+          cd build
+          cmake  -S ../ -B . -DCMAKE_BUILD_TYPE=DEBUG
