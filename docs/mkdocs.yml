@@ -56,3 +56,6 @@ theme:
 # Page tree
 nav:
   - Home: index.md
+  - Language reference:
+      - language_ref/index.md
+      - Variables: language_ref/variables/index.md

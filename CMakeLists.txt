@@ -66,7 +66,15 @@ execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
 target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
 
-set(CMAKE_BUILD_TYPE Debug)
+# set(CMAKE_BUILD_TYPE Debug)
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "release")
+endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG_MODE)
+endif ()
+
 
 # Add include directories for the library
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include")
@@ -80,5 +88,7 @@ llvm_map_components_to_libnames(llvm_libs core irreader support)
 target_link_libraries(donsus PUBLIC ${llvm})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
-add_subdirectory(donsus_test)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_subdirectory(donsus_test)
+endif ()
 
