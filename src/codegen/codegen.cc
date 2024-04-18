@@ -6,8 +6,6 @@ Todo:
 - assign them in symbol table
  - forward declaration
 - multiple return type
-- DONSUS_EXPRESSION TYPE ASSIGNMENT -> all the children have type, we can just
-loop through and if its an expression that have a type just assign it
  */
 #include "../../Include/codegen/codegen.h"
 
@@ -90,7 +88,6 @@ void DonsusCodeGenerator::Finish() const {
 }
 
 void DonsusCodeGenerator::create_entry_point() {
-  // create an entry function which can be used in the first block
   llvm::FunctionType *FT =
       llvm::FunctionType::get(llvm::Type::getInt32Ty(*TheContext), false);
   std::string name = "main";
@@ -120,7 +117,6 @@ int DonsusCodeGenerator::create_object_file() {
 
   TheModule->setDataLayout(TheTargetMachine->createDataLayout());
 
-  // Checks the module or validity.
   if (llvm::verifyModule(*TheModule, &llvm::errs())) {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
@@ -184,9 +180,8 @@ void DonsusCodeGenerator::default_optimisation() {
 }
 
 void DonsusCodeGenerator::Link() const {
-  // Link
   std::vector<std::filesystem::path> obj_paths = {"output.o"};
-  // hard code it into linux
+
   std::filesystem::path exe_path = "test";
 
   std::string linker_cmd;
@@ -453,8 +448,6 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
     // handle multiple parameters here
     auto struct_for_func = llvm::StructType::create(*TheContext);
     llvm::AllocaInst *inst = Builder->CreateAlloca(struct_for_func);
-    // use struct for func
-    // use inst
 
     table->multiple_return.type_of_struct = struct_for_func;
     table->multiple_return.inst_of_struct = inst;
