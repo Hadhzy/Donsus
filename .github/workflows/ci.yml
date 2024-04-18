@@ -1,12 +1,12 @@
 name: CI
-on: [push, pull_request, workflow_dispatch]
+on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
-  build linux:
+  build_linux:
     name: Ubuntu build, Check, and TEST
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkouts@v1
+      - uses: actions/checkout@v2
       - name: Download LLVM
         run: |
           wget https://apt.llvm.org/llvm.sh
@@ -26,4 +26,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake  -S ../ -B . -DCMAKE_BUILD_TYPE=DEBUG
+          cmake -DCMAKE_BUILD_TYPE=DEBUG -S ../ -B . 
+          make
+          cd donsus_test
+          ./donsus_test

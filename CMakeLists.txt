@@ -71,7 +71,7 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "release")
 endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_definitions(-DDEBUG_MODE)
 endif ()
 
@@ -88,7 +88,7 @@ llvm_map_components_to_libnames(llvm_libs core irreader support)
 target_link_libraries(donsus PUBLIC ${llvm})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_subdirectory(donsus_test)
 endif ()
 
