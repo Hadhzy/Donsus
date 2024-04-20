@@ -33,7 +33,7 @@ TEST(IdentifierRvalueCheckInCorrect, IdentifierRvalueCheck) {
 
 TEST(IdentifierRvalueCheckInCorrectUndefined, IdentifierRvalueCheck) {
   std::string a = R"(
-        # b:int = 11;
+        # b:int = 11; -> except undefined here
 
          a:int = b;
     )";

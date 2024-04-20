@@ -1,6 +1,7 @@
 // pratt parser
 #include "../Include/parser.h"
 #include <iostream>
+#include <utility>
 
 // DEBUG
 class PrintAst {
@@ -80,7 +81,7 @@ public:
       print_type(ast_node->type, indent_level);
       print_number_expr(ast_node->get<donsus_ast::number_expr>(), indent_level);
 
-      if (ast_node->children.size() == 0) {
+      if (ast_node->children.empty()) {
         print_with_newline("children: {}", indent_level);
       } else {
         print_with_newline("children: ", indent_level);
@@ -112,7 +113,7 @@ public:
 
     case type::DONSUS_IF_STATEMENT: {
       print_type(ast_node->type, indent_level);
-      if (ast_node->children.size() == 0) {
+      if (ast_node->children.empty()) {
         print_with_newline("condition: {}", indent_level);
       } else {
         print_with_newline("condition: ", indent_level);
@@ -143,7 +144,7 @@ public:
     case type::DONSUS_EXPRESSION: {
       print_type(ast_node->type, indent_level);
       print_expression(ast_node->get<donsus_ast::expression>(), indent_level);
-      if (ast_node->children.size() == 0) {
+      if (ast_node->children.empty()) {
         print_with_newline("children: {}", indent_level);
       } else {
         print_with_newline("children: ", indent_level);
@@ -158,7 +159,7 @@ public:
 
     case type::DONSUS_RETURN_STATEMENT: {
       print_type(ast_node->type, indent_level);
-      if (ast_node->children.size() == 0) {
+      if (ast_node->children.empty()) {
         print_with_newline("children: {}", indent_level);
       } else {
         print_with_newline("children: ", indent_level);
@@ -288,7 +289,7 @@ public:
     for (auto node : statement.body) {
       print_ast_node(node, indent_level + 1);
     }
-    if (statement.alternate.size() == 0) {
+    if (statement.alternate.empty()) {
       print_with_newline("alternate: {}", indent_level);
     } else {
       for (auto node : statement.alternate) {
@@ -404,7 +405,7 @@ auto DonsusParser::donsus_parse() -> end_result {
 
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
-      if (result->children.size() == 0) {
+      if (result->children.empty()) {
         throw DonsusException(
             "Condition wasn't provided for if statement \n  at line: " +
             std::to_string(lexer.cur_line));
@@ -442,7 +443,7 @@ auto DonsusParser::make_new_num_node(donsus_token prev_token,
   new_node = create_number_expression(
       donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
   auto &expression = new_node->get<donsus_ast::number_expr>();
-  expression.value = prev_token;
+  expression.value = std::move(prev_token);
   new_node->children.push_back(left);
   new_node->children.push_back(right);
 
@@ -470,7 +471,7 @@ expressions:
     | assignment
     | arithmetic_expression
  * */
-auto DonsusParser::match_expressions(int ptp) -> parse_result {
+auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   // number expressions, string expressions etc.
   switch (cur_token.kind) {
   case DONSUS_LPAR:
@@ -491,10 +492,7 @@ auto DonsusParser::match_expressions(int ptp) -> parse_result {
     return string_expression();
   }
 
-  case DONSUS_TRUE_KW: {
-    return bool_expression();
-  }
-
+  case DONSUS_TRUE_KW:
   case DONSUS_FALSE_KW: {
     return bool_expression();
   }
@@ -518,14 +516,14 @@ auto DonsusParser::make_new_expr_node(donsus_token prev_token,
       create_expression(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, 10);
 
   auto &expression = new_expr_node->get<donsus_ast::expression>();
-  expression.value = prev_token;
+  expression.value = std::move(prev_token);
   new_expr_node->children.push_back(left);
   new_expr_node->children.push_back(right);
 
   return new_expr_node;
 }
 
-auto DonsusParser::donsus_expr(int ptp) -> parse_result {
+auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   // number expressions, string expressions etc.
   parse_result left;
   parse_result right;
@@ -848,7 +846,7 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
 
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
-      if (result->children.size() == 0) {
+      if (result->children.empty()) {
         throw DonsusException(
             "Condition wasn't provided for if statement \n  at line: " +
             std::to_string(lexer.cur_line));
@@ -978,6 +976,10 @@ auto DonsusParser::donsus_print() -> parse_result {
   while (cur_token.kind != DONSUS_RPAR) {
     parse_result expression = donsus_expr(0);
     print->children.push_back(expression);
+    if (cur_token.kind == DONSUS_COMM) {
+      donsus_parser_next();
+      continue;
+    }
   }
 
   donsus_parser_except_current(DONSUS_RPAR);

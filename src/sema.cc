@@ -135,10 +135,12 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
     std::string func_name = node->get<donsus_ast::function_call>().func_name;
     std::string qualified_fn_name = global_table->apply_scope(func_name);
-    if (global_table->sym_table.size() == 0)
+
+    if (global_table->sym_table.empty())
       throw ReDefinitionException(func_name + " has not been defined!");
 
     bool is_defined = sema.donsus_is_function_exist(func_name, global_table);
+
     if (!is_defined)
       throw ReDefinitionException(func_name + " has not been defined!");
 
@@ -389,10 +391,6 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
 }
 
-void DonsusSema::donsus_sema(utility::handle<donsus_ast::node> ast) {
-  // Entry Point
-}
-
 // check if its duplicated(true)
 auto DonsusSema::donsus_sema_is_duplicated(
     std::string &name, utility::handle<DonsusSymTable> table) -> bool {
@@ -407,9 +405,7 @@ auto DonsusSema::donsus_sema_is_exist(std::string &name,
                                       utility::handle<DonsusSymTable> table)
     -> bool {
   DonsusSymTable::sym result = table->get(name);
-  if (result.mod != -1)
-    return true;
-  return false;
+  return result.mod != -1;
 }
 
 auto DonsusSema::donsus_is_function_exist(std::string &name,
@@ -417,14 +413,11 @@ auto DonsusSema::donsus_is_function_exist(std::string &name,
     -> bool {
   // assuming that we are in the table of the function
   // TODO: make sure this works with multiple functions
+  // here we should start with global
   std::string qu_name = table->apply_scope(name);
-  bool is_exists = table->is_sym_table_exist(qu_name, table);
-  if (!is_exists) {
-    return false;
-  } else {
-    return true;
-  }
-};
+  bool is_exists = table->is_sym_table_exist(qu_name);
+  return is_exists;
+}
 
 /**
  * \brief Checks if the 2 types are compatible.
@@ -433,9 +426,7 @@ auto DonsusSema::donsus_typecheck_is_compatible(DONSUS_TYPE first,
                                                 DONSUS_TYPE second) -> bool {
 
   // call == overload
-  if (first == second)
-    return true;
-  return false;
+  return (first == second);
 }
 
 /**
