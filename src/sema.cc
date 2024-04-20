@@ -353,11 +353,10 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (!is_defined)
       throw ReDefinitionException(func_name + " has not been defined!");
     std::string qualified_fn_name = table->apply_scope(func_name);
-    if (table->sym_table.size() == 0)
-      throw ReDefinitionException(func_name + " has not been defined!");
     utility::handle<DonsusSymTable> current_table =
         table->get_sym_table(qualified_fn_name);
 
+    // Check whether the number of arguments is correct
     int i = 0;
     for (i = 0; i < node->get<donsus_ast::function_call>().arguments.size();
          ++i) {
