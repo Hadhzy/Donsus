@@ -44,6 +44,7 @@ utility::handle<DonsusSymTable>
 DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
   const utility::handle sym_ptr = allocator.r_alloc<DonsusSymTable>();
   sym_ptr->qa_sym = create_qualified_name(qa_sym_ex);
+  sym_ptr->short_name = qa_sym_ex;
   sym_ptr->parent = this;
   sym_table.push_back(sym_ptr);
   return sym_ptr;
@@ -61,10 +62,12 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
 DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {
   return underlying[index].type;
 }
-bool DonsusSymTable::is_sym_table_exist(
-    std::string &qa_sym_ex, utility::handle<DonsusSymTable> current_sym) {
+bool DonsusSymTable::is_sym_table_exist(std::string &qa_sym_ex) {
   int found = 0;
-  for (auto n : current_sym->sym_table) {
+  if (qa_sym == qa_sym_ex) {
+    return true;
+  }
+  for (auto n : sym_table) {
     if (n->qa_sym == qa_sym_ex)
       found++;
   }
@@ -135,9 +138,14 @@ std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
 }
 
 std::string DonsusSymTable::apply_scope(std::string &name) {
+  // propagate up - like recursion
   if (name.empty()) {
     // Handle empty string case
     return "";
+  }
+  if (name == short_name) {
+    // if the symbol name is same as the function
+    return qa_sym;
   }
   // Return substring excluding the last character
   std::string result = create_qualified_name(name);

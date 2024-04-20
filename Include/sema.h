@@ -30,7 +30,6 @@ public:
   using end_result = DonsusParser::end_result;
   using donsus_type = DONSUS_TYPE::kind;
   // BASIC SEMA
-  auto donsus_sema(utility::handle<donsus_ast::node> ast) -> void;
   // true if its duplicated
   auto donsus_sema_is_duplicated(std::string &name,
                                  utility::handle<DonsusSymTable> table) -> bool;

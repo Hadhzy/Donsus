@@ -15,6 +15,7 @@ class DonsusSymTable {
 public:
   std::vector<utility::handle<DonsusSymTable>> sym_table;
   std::string qa_sym = "global";
+  std::string short_name = "global";
   std::vector<DONSUS_TYPE> function_return_type; // only for function def
   llvm::Value *inst;
   // similar to inst - requires a loop to change the actual value
@@ -98,8 +99,9 @@ public:
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
-  bool is_sym_table_exist(std::string &qa_sym_ex,
-                          utility::handle<DonsusSymTable> current_sym);
+  // Check if table exists inside a symbol table
+  // it also checks itself as one of the options
+  bool is_sym_table_exist(std::string &qa_sym_ex);
 
   /*
    * Add symbol manually mainly for debugging
