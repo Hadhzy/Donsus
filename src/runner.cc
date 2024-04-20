@@ -21,7 +21,7 @@
 
 DonsusParser::end_result Du_Parse(std::string result) {
   // Lexer
-  donsus_lexer lexer(result); // initialise lexer
+  donsus_lexer lexer(std::move(result)); // initialise lexer
   DonsusParser parser(lexer);
   // Parser
   DonsusParser::end_result parser_result = parser.donsus_parse();
@@ -34,6 +34,7 @@ int Du_Main(int argc, char **argv) {
   std::string base_filename =
       path.substr(path.find_last_of("/\\") + 1); // Obtain file name from path
 
+  // check for extension
   std::string::size_type p(base_filename.find_last_of('.'));
 
   std::string file_without_extension =

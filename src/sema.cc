@@ -405,7 +405,7 @@ auto DonsusSema::donsus_sema_is_exist(std::string &name,
                                       utility::handle<DonsusSymTable> table)
     -> bool {
   DonsusSymTable::sym result = table->get(name);
-  return result.mod != 1;
+  return result.mod != -1;
 }
 
 auto DonsusSema::donsus_is_function_exist(std::string &name,
