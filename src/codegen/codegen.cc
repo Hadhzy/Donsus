@@ -295,11 +295,15 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
     if (is_definition) {
       auto result = compile(ast->children[0], table);
-      if (result->getType() != map_type(make_type(type))){
-        // casting is needed
-  /*        result = llvm::dyn_cast<llvm::ConstantFP>(result);*/
+      if (result->getType() != map_type(make_type(type))) {
+        // if cast is needed, as of now its always needed if the
+        // type is not one of the integer types
+        llvm::Type *type_l = map_type(make_type(type));
+        llvm::Value *new_value = Builder->CreateUIToFP(result, type_l);
+        Builder->CreateStore(new_value, c);
+      } else {
+        Builder->CreateStore(result, c);
       }
-      Builder->CreateStore(result, c);
     }
 
     table->setInst(name, c);
@@ -746,7 +750,16 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
+      // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
+      llvm::Value *loadedFloatValue =
+          Builder->CreateLoad(map_type(sym.type), sym.inst);
+      llvm::Value *new_value =
+          Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
+      Argsv.push_back(new_value);
+    } else {
+      Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+    }
   }
 
   return Builder->CreateCall(func, Argsv, "printfCall");
