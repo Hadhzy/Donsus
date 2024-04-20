@@ -40,6 +40,11 @@ int Du_Main(int argc, char **argv) {
   std::string file_without_extension =
       base_filename.substr(0, p); // Obtain file without the extension(.du)
 
+  std::string file_extension = base_filename.substr(p + 1);
+  if (file_extension != "du") {
+    throw std::runtime_error("File extension must be: .du");
+  }
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   DonsusParser::end_result parser_result = Du_Parse(result);
@@ -72,10 +77,10 @@ int Du_Main(int argc, char **argv) {
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllAsmPrinters();
 
-  if (codegen.Builder){
-  codegen.Finish();
-  codegen.create_object_file();
-  codegen.Link();
+  if (codegen.Builder) {
+    codegen.Finish();
+    codegen.create_object_file();
+    codegen.Link();
   }
 
   // codegen

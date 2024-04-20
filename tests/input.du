@@ -1,0 +1,14 @@
+/*
+def func(n: int) -> int {
+    if (n == 3){
+        printf("test");
+        func(n-1);
+        }
+        return 5;
+    }
+
+result: int = func();
+*/
+
+result: int = 342;
+printf("result: \n", result);
