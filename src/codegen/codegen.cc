@@ -22,7 +22,7 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
 
 /*
  Return whether the node is an r-value expression
- or an lvalue variable, for printf.
+ or a lvalue variable, for printf.
  * */
 auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   switch (node->type.type) {
@@ -299,6 +299,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         // if cast is needed, as of now its always needed if the
         // type is not one of the integer types
         llvm::Type *type_l = map_type(make_type(type));
+        // converts integer to float - needs to be changed in future.
         llvm::Value *new_value = Builder->CreateUIToFP(result, type_l);
         Builder->CreateStore(new_value, c);
       } else {
