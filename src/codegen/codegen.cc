@@ -728,18 +728,19 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   std::vector<llvm::Value *> Argsv;
 
+  std::string format_string{};
+  for (auto node : ast->children) {
+    format_string.append(printf_format(node));
+  }
+  Argsv.push_back(Builder->CreateGlobalString(format_string));
+
   for (auto node : ast->children) {
     if (is_expression(node)) {
-      // here some expression don't have a specific type
-      // e.g DONSUS_EXPRESSION itself does not contain any type
-      // here we will just obtain the type from the first child
-      Argsv.push_back(printf_format(node));
       Argsv.push_back(compile(node, table));
       continue;
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    Argsv.push_back(printf_format(node)); // sym.key is not really needed
     Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
   }
 
@@ -756,7 +757,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
-llvm::Value *
+std::string
 DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
   switch (node->real_type.type_un) {
   case DONSUS_TYPE::TYPE_BASIC_INT:
@@ -766,15 +767,15 @@ DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
   case DONSUS_TYPE::TYPE_I64:
   case DONSUS_TYPE::TYPE_I16:
   case DONSUS_TYPE::TYPE_U32: {
-    return Builder->CreateGlobalString("%d");
+    return "%d";
   }
   case DONSUS_TYPE::TYPE_STRING: {
-    return Builder->CreateGlobalString("%s");
+    return "%s";
   }
   default: {
   }
   }
-  return nullptr;
+  return {};
 }
 
 llvm::Value *

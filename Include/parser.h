@@ -61,8 +61,8 @@ public:
 
   // create node
   // parsing expression
-  auto donsus_expr(int ptp) -> parse_result;
-  auto match_expressions(int ptp) -> parse_result;
+  auto donsus_expr(unsigned int ptp) -> parse_result;
+  auto match_expressions(unsigned int ptp) -> parse_result;
   auto create_expression(donsus_ast::donsus_node_type type,
                          u_int64_t child_count) -> parse_result;
   auto make_new_expr_node(donsus_token prev_token, parse_result &left,
