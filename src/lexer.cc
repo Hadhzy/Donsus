@@ -8,7 +8,8 @@ std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER{
     {"int", DONSUS_BASIC_INT}, {"int8", DONSUS_I8},
     {"int16", DONSUS_I16},     {"int32", DONSUS_I32},
     {"int64", DONSUS_I64},     {"u32", DONSUS_U32},
-    {"u64", DONSUS_U64},       {"bool", DONSUS_BOOL},
+    {"u64", DONSUS_U64},       {"f32", DONSUS_F32},
+    {"f64", DONSUS_F64},       {"bool", DONSUS_BOOL},
     {"void", DONSUS_VOID},     {"string", DONSUS_STRING_TYPE},
 };
 
@@ -157,6 +158,12 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_U64:
     return "DONSUS_U64";
+
+  case DONSUS_F32:
+    return "DONSUS_F32";
+
+  case DONSUS_F64:
+    return "DONSUS_F64";
 
   case DONSUS_BOOL:
     return "DONSUS_BOOL";
