@@ -976,6 +976,10 @@ auto DonsusParser::donsus_print() -> parse_result {
   while (cur_token.kind != DONSUS_RPAR) {
     parse_result expression = donsus_expr(0);
     print->children.push_back(expression);
+    if (cur_token.kind == DONSUS_COMM) {
+      donsus_parser_next();
+      continue;
+    }
   }
 
   donsus_parser_except_current(DONSUS_RPAR);
