@@ -33,6 +33,12 @@ DONSUS_TYPE::kind DONSUS_TYPE::from_parse(donsus_token_kind type) {
   case DONSUS_U32:
     return TYPE_U32;
 
+  case DONSUS_F32:
+    return TYPE_F32;
+
+  case DONSUS_F64:
+    return TYPE_F64;
+
   case DONSUS_VOID:
     return TYPE_VOID;
 
@@ -77,6 +83,12 @@ donsus_token_kind DONSUS_TYPE::to_parse(DONSUS_TYPE::kind type) {
   case TYPE_U32:
     return DONSUS_U32;
 
+  case TYPE_F32:
+    return DONSUS_F32;
+
+  case TYPE_F64:
+    return DONSUS_F64;
+
   case TYPE_VOID:
     return DONSUS_VOID;
 
@@ -108,6 +120,10 @@ auto DONSUS_TYPE::to_string() const -> std::string {
     return "TYPE_I16";
   case TYPE_U32:
     return "TYPE_U32";
+  case TYPE_F32:
+    return "TYPE_F32";
+  case TYPE_F64:
+    return "TYPE_F64";
   case TYPE_VOID:
     return "TYPE_VOID";
   default: {
@@ -119,7 +135,8 @@ auto DONSUS_TYPE::is_integer() const -> bool {
   if (this->type_un == TYPE_BASIC_INT || this->type_un == TYPE_I32 ||
       this->type_un == TYPE_U64 || this->type_un == TYPE_I8 ||
       this->type_un == TYPE_I64 || this->type_un == TYPE_I16 ||
-      this->type_un == TYPE_U32) {
+      this->type_un == TYPE_U32 || this->type_un == TYPE_F32 ||
+      this->type_un == TYPE_F64) {
     return true;
   } else
     return false;

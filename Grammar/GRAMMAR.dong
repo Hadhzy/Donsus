@@ -65,9 +65,12 @@ donsus_type:
   | DONSUS_U32,
   | DONSUS_U64,
 
+  | DONSUS_F32,
+  | DONSUS_F64,
+
   | DONSUS_BOOL,
   | DONSUS_VOID,
-  | DONSUS_STRING_TYPE,
+  | DONSUS_STRING
 
 # expressions
 

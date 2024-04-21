@@ -120,7 +120,6 @@ public:
 
   // peeking functions
   auto peek_is_function_definition() -> bool;
-  auto peek_is_function_declaration() -> bool;
   auto peek_is_function_call() -> bool;
 
   // If statements
@@ -145,10 +144,6 @@ public:
   auto donsus_function_call(donsus_token &name) -> parse_result;
   auto create_function_call(donsus_ast::donsus_node_type type,
                             u_int64_t child_count) -> parse_result;
-
-  // this is only for number expressions
-  auto make_new_num_node(donsus_token prev_token, parse_result &left,
-                         parse_result &right) -> parse_result;
 
   // return statement
   auto donsus_return_statement() -> parse_result;

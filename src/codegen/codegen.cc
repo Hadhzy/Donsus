@@ -22,7 +22,7 @@ auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
 
 /*
  Return whether the node is an r-value expression
- or an lvalue variable, for printf.
+ or a lvalue variable, for printf.
  * */
 auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   switch (node->type.type) {
@@ -290,12 +290,21 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
           map_type(make_type(type))); // zero initializer
     }
 
-    llvm::GlobalVariable *c = new llvm::GlobalVariable(
+    auto *c = new llvm::GlobalVariable(
         *TheModule, map_type(make_type(type)), false,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
     if (is_definition) {
       auto result = compile(ast->children[0], table);
-      Builder->CreateStore(result, c);
+      if (result->getType() != map_type(make_type(type))) {
+        // if cast is needed, as of now its always needed if the
+        // type is not one of the integer types
+        llvm::Type *type_l = map_type(make_type(type));
+        // converts integer to float - needs to be changed in future.
+        llvm::Value *new_value = Builder->CreateUIToFP(result, type_l);
+        Builder->CreateStore(new_value, c);
+      } else {
+        Builder->CreateStore(result, c);
+      }
     }
 
     table->setInst(name, c);
@@ -341,7 +350,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   }
 
   DonsusSymTable::sym sym1 = table->get(identifier_name);
-  llvm::AllocaInst *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
+  auto *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
   llvm::Value *lhs_value =
       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
   switch (op.kind) {
@@ -389,6 +398,7 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::number_expr &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
+  // here we would need to cast
   return llvm::ConstantInt::get(
       *TheContext,
       llvm::APInt(32,
@@ -567,7 +577,7 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
   // Generate code for the else block
   Builder->SetInsertPoint(elseBlock);
   // TODO: make this better
-  if (ac_ast.alternate.size() != 0) {
+  if (!ac_ast.alternate.empty()) {
     for (auto node :
          ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
       compile(node, table);
@@ -741,7 +751,16 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
+      // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
+      llvm::Value *loadedFloatValue =
+          Builder->CreateLoad(map_type(sym.type), sym.inst);
+      llvm::Value *new_value =
+          Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
+      Argsv.push_back(new_value);
+    } else {
+      Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+    }
   }
 
   return Builder->CreateCall(func, Argsv, "printfCall");
@@ -772,6 +791,9 @@ DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
   case DONSUS_TYPE::TYPE_STRING: {
     return "%s";
   }
+  case DONSUS_TYPE::TYPE_F32:
+  case DONSUS_TYPE::TYPE_F64:
+    return "%f";
   default: {
   }
   }
@@ -814,6 +836,12 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
 
   case DONSUS_TYPE::TYPE_U32: {
     return Builder->getInt32Ty();
+  }
+  case DONSUS_TYPE::TYPE_F32: {
+    return Builder->getFloatTy();
+  }
+  case DONSUS_TYPE::TYPE_F64: {
+    return Builder->getDoubleTy();
   }
 
   case DONSUS_TYPE::TYPE_U64: {

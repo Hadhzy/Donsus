@@ -436,20 +436,6 @@ auto DonsusParser::donsus_parse() -> end_result {
   return donsus_tree;
 }
 
-auto DonsusParser::make_new_num_node(donsus_token prev_token,
-                                     parse_result &left, parse_result &right)
-    -> parse_result {
-  parse_result new_node;
-  new_node = create_number_expression(
-      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
-  auto &expression = new_node->get<donsus_ast::number_expr>();
-  expression.value = std::move(prev_token);
-  new_node->children.push_back(left);
-  new_node->children.push_back(right);
-
-  return new_node;
-}
-
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
   const parse_result node = create_number_expression(
@@ -1052,16 +1038,6 @@ auto DonsusParser::donsus_assignments() -> parse_result {
 
   const bool res = peek_for_token().kind == DONSUS_LPAR;
 }*/
-
-auto DonsusParser::peek_is_function_declaration() -> bool {
-  if (cur_token.kind != DONSUS_NAME) {
-    return false;
-  }
-  if (donsus_peek().kind == DONSUS_LPAR && cur_token.kind == DONSUS_NAME) {
-    return true;
-  }
-  return false;
-}
 
 auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
                                             uint64_t child_count)
