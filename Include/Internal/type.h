@@ -39,15 +39,20 @@ public:
             rhs.is_integer()) {
       return true;
     }
-
+    if ((this->type_un == DONSUS_TYPE::TYPE_F32 ||
+         this->type_un == DONSUS_TYPE::TYPE_F64) &&
+        (rhs.type_un == DONSUS_TYPE::TYPE_F32 ||
+         rhs.type_un == DONSUS_TYPE::TYPE_F64)) {
+      return true;
+    }
     if (this->type_un == rhs.type_un)
       return true;
     else
       return false;
   }
   bool operator!=(DONSUS_TYPE &rhs) const { return !(rhs == *this); }
-  auto to_string() const -> std::string;
-  auto is_integer() const -> bool;
+  [[nodiscard]] auto to_string() const -> std::string;
+  [[nodiscard]] auto is_integer() const -> bool;
 };
 
 /**

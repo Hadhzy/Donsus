@@ -64,7 +64,6 @@ auto sym_from_node(utility::handle<donsus_ast::node> &node,
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER:
     return table->get(node->get<donsus_ast::identifier>().identifier_name);
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
-    return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION:
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   default: {
@@ -301,10 +300,16 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       if (result->getType() != map_type(make_type(type))) {
         // if cast is needed, as of now its always needed if the
         // type is not one of the integer types
-        llvm::Type *type_l = map_type(make_type(type));
-        // converts integer to float - needs to be changed in future.
+
+        // convert from f32 to f64
+        if (make_type(type).type_un == DONSUS_TYPE::TYPE_F64){
+          llvm::Value* f64_g_v = Builder->CreateFPExt(result, Builder->getDoubleTy());
+          Builder->CreateStore(f64_g_v, c);
+        }
+/*        llvm::Type *type_l = map_type(make_type(type));
+        // converts integer to float - needs to be changed in the future.
         llvm::Value *new_value = Builder->CreateUIToFP(result, type_l);
-        Builder->CreateStore(new_value, c);
+        Builder->CreateStore(new_value, c);*/
       } else {
         Builder->CreateStore(result, c);
       }
