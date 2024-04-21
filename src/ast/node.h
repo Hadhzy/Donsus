@@ -22,6 +22,7 @@ struct donsus_node_type {
     DONSUS_ASSIGNMENT,           // just the type of the node
     DONSUS_IDENTIFIER,           // just the type of the node
     DONSUS_NUMBER_EXPRESSION,    // just the type of the node
+    DONSUS_FLOAT_EXPRESSION,     // just the type of the node
     DONSUS_EXPRESSION,           // just the type of the node
     DONSUS_FUNCTION_CALL,        // just the type of the node
     DONSUS_ELSE_STATEMENT,       // just the type of the node
