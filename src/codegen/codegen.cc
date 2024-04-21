@@ -226,6 +226,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
     return visit(n, n->get<donsus_ast::number_expr>(), table);
   }
+  case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION:
+    return visit(n, n->get<donsus_ast::float_expr>(), table);
+
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     return visit(n, n->get<donsus_ast::expression>(), table);
   }
@@ -647,6 +650,16 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
 
   return Builder->CreateGlobalStringPtr(
       llvm::StringRef(PreprocessedString.data()));
+}
+
+llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                                        donsus_ast::float_expr &ca_ast,
+                                        utility::handle<DonsusSymTable> &table)
+
+{
+  return llvm::ConstantFP::get(
+      *TheContext,
+      llvm::APFloat(std::stof(ast->get<donsus_ast::float_expr>().value.value)));
 }
 
 llvm::Value *
