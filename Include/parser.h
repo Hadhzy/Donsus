@@ -82,6 +82,12 @@ public:
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
+  // float
+  auto donsus_float_number(donsus_ast::donsus_node_type type,
+                           uint64_t child_count) -> parse_result;
+
+  auto create_float_expression(donsus_ast::donsus_node_type type,
+                               u_int64_t child_count) -> parse_result;
   // print expression
   auto donsus_print() -> parse_result;
   auto create_donsus_print(donsus_ast::donsus_node_type type,
@@ -117,10 +123,6 @@ public:
   auto donsus_function_signature()
       -> std::vector<utility::handle<donsus_ast::node>>;
   auto donsus_function_args() -> std::vector<utility::handle<donsus_ast::node>>;
-
-  // peeking functions
-  auto peek_is_function_definition() -> bool;
-  auto peek_is_function_call() -> bool;
 
   // If statements
   auto donsus_if_statement() -> parse_result;

@@ -33,6 +33,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_NUMBER:
     return "DONSUS_NUMBER";
 
+  case DONSUS_FLOAT:
+    return "DONSUS_FLOAT";
+
   case DONSUS_STRING_TYPE:
     return "DONSUS_STRING_TYPE";
 
@@ -276,10 +279,21 @@ static std::string next_number(DonsusParser &parser, donsus_token token,
     token.length++;
 
     eat(parser);
-  };
+  }
 
   return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
-};
+}
+
+std::string donsus_float(DonsusParser &parser, donsus_token &token,
+                         unsigned int start_pos) {
+  std::string integer_part = next_number(parser, token, start_pos);
+  std::string fractional_part{};
+  if (parser.lexer.cur_char == '.') {
+    eat(parser);
+    fractional_part = next_number(parser, token, start_pos);
+  }
+  return fractional_part;
+}
 
 static std::string next_identifier(DonsusParser &parser, donsus_token token,
                                    unsigned int start_pos) {
@@ -903,7 +917,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
   case '\"': {
 
-    int start_pos = parser.lexer.cur_pos;
+    unsigned int start_pos = parser.lexer.cur_pos;
     cur_token.kind = DONSUS_STRING;
 
     cur_token.length = 0;
@@ -944,7 +958,6 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
     // numbers
     if (isdigit(parser.lexer.cur_char)) {
-
       cur_token.kind = DONSUS_NUMBER;
 
       cur_token.length = 0; // will be changed during next_number
@@ -952,6 +965,15 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.line = parser.lexer.cur_line;
 
+      // float part
+      if (parser.lexer.cur_char == '.') {
+        cur_token.kind = DONSUS_FLOAT;
+        cur_token.length = 0;
+        cur_token.value +=
+            donsus_float(parser, cur_token, parser.lexer.cur_pos);
+
+        cur_token.line = parser.lexer.cur_line;
+      }
       return cur_token;
     }
 

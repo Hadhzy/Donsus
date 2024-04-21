@@ -8,6 +8,7 @@ typedef enum {
   DONSUS_NAME,    // IDENTIFIER
   DONSUS_END,     // mark the end of the code
   DONSUS_NUMBER,  // 69
+  DONSUS_FLOAT,   // 12.73
   DONSUS_STRING,  // "hello world"
   DONSUS_NEWLINE, // \n
 

@@ -26,10 +26,10 @@ struct donsus_node_type {
     DONSUS_FUNCTION_CALL,        // just the type of the node
     DONSUS_ELSE_STATEMENT,       // just the type of the node
     DONSUS_RETURN_STATEMENT,     // just the type of the node
-    DONSUS_STRING_EXPRESSION,
-    DONSUS_BOOL_EXPRESSION,
-    DONSUS_UNARY_EXPRESSION,
-    DONSUS_PRINT_EXPRESSION
+    DONSUS_STRING_EXPRESSION,    // just the type of the node
+    DONSUS_BOOL_EXPRESSION,      // just the type of the node
+    DONSUS_UNARY_EXPRESSION,     // just the type of the node
+    DONSUS_PRINT_EXPRESSION      // just the type of the node
   };
 
   donsus_node_type() = default;
@@ -52,6 +52,10 @@ struct variable_decl {
 };
 // actual node structure containing extra properties
 struct number_expr {
+  donsus_token value;
+};
+
+struct float_expr{
   donsus_token value;
 };
 
@@ -145,35 +149,6 @@ struct node : node_properties {
       children;          // size type in the future
   donsus_node_type type; // This is the node's type
   DONSUS_TYPE real_type; // This type is assigned during type checking
-
-  int constant_propagation(utility::handle<donsus_ast::node> &node) {
-    if (node->children.size() == 0 &&
-        node->type.type ==
-            donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
-      // If it's a number expression, return its value
-      return std::stoi(node->get<number_expr>().value.value);
-    } else {
-      auto leftValue = constant_propagation(node->children[0]);
-      auto rightValue = constant_propagation(node->children[1]);
-
-      // Perform the operation based on the operator
-      auto op = node->get<number_expr>().value.value;
-      if (op == "+") {
-        return leftValue + rightValue;
-      } else if (op == "-") {
-        return leftValue - rightValue;
-      } else if (op == "*") {
-        return leftValue * rightValue;
-      } else if (op == "/") {
-        if (rightValue == 0) {
-          throw std::runtime_error("Division by zero");
-        }
-        return leftValue / rightValue;
-      } else {
-        throw std::runtime_error("Invalid operator");
-      }
-    }
-  }
 };
-}; // namespace donsus_ast
+} // namespace donsus_ast
 #endif
