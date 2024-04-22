@@ -626,7 +626,6 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
       return donsus_variable_definition(declaration);
     } else {
 
-      declaration->type = donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG;
       // decl only
       if (donsus_peek().kind == DONSUS_SEMICOLON) {
         donsus_parser_except(DONSUS_SEMICOLON);
@@ -744,6 +743,7 @@ auto DonsusParser::donsus_function_signature()
     try {
       donsus_parser_except(DONSUS_NAME);
       parse_result v_d = donsus_variable_decl(); // catch its value
+      v_d->type = donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG;
 
       a.push_back(v_d);
     } catch (DonsusException &e) {

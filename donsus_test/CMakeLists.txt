@@ -14,7 +14,7 @@ enable_testing()
 
 
 add_executable(donsus_test
-        parser/test_variables.cc
+        parser/test_variables_parser.cc
         parser/test_functions.cc
         parser/test_if_statements.cc
         parser/test_expressions.cc
