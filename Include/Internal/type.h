@@ -16,6 +16,8 @@ public:
     TYPE_BOOL,
     TYPE_I16,
     TYPE_U32,
+    TYPE_F32,
+    TYPE_F64,
     TYPE_VOID
   };
 

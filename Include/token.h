@@ -55,6 +55,10 @@ typedef enum {
   DONSUS_U32,       // [FROM 0 TO 2^32 -1]
   DONSUS_U64,       // [FROM 0 TO 2^64 − 1]
 
+  // FLOAT
+  DONSUS_F32, // float
+  DONSUS_F64,
+
   DONSUS_BOOL,        // bool
   DONSUS_VOID,        // void
   DONSUS_ARROW,       // ->
