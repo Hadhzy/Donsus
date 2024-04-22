@@ -53,6 +53,9 @@ public:
   auto
   donsus_typecheck_is_return_type_valid(utility::handle<donsus_ast::node> node)
       -> void;
+  auto donsus_typecheck_is_return_type_valid_for_children(
+      utility::handle<donsus_ast::node> node, std::vector<DONSUS_TYPE> expect,
+      int &found) -> void;
 
 private:
   bool error;

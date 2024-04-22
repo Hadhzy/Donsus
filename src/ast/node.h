@@ -27,10 +27,13 @@ struct donsus_node_type {
     DONSUS_FUNCTION_CALL,        // just the type of the node
     DONSUS_ELSE_STATEMENT,       // just the type of the node
     DONSUS_RETURN_STATEMENT,     // just the type of the node
-    DONSUS_STRING_EXPRESSION,    // just the type of the node
-    DONSUS_BOOL_EXPRESSION,      // just the type of the node
-    DONSUS_UNARY_EXPRESSION,     // just the type of the node
-    DONSUS_PRINT_EXPRESSION      // just the type of the node
+
+    DONSUS_STRING_EXPRESSION,
+    DONSUS_BOOL_EXPRESSION,
+    DONSUS_UNARY_EXPRESSION,
+    DONSUS_PRINT_EXPRESSION,
+    DONSUS_FUNCTION_ARG
+
   };
 
   donsus_node_type() = default;

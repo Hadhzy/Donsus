@@ -55,6 +55,13 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG: {
+    node->real_type.type_un =
+        make_type(node->get<donsus_ast::variable_decl>().identifier_type)
+            .type_un;
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node, table, global_table);
     sema.donsus_typecheck_support_between_types(node);
@@ -220,6 +227,17 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG: {
+    auto arg_name = node->get<donsus_ast::variable_decl>().identifier_name;
+
+    bool is_declared = sema.donsus_sema_is_duplicated(
+        node->get<donsus_ast::variable_decl>().identifier_name, table);
+
+    if (is_declared)
+      throw ReDefinitionException(arg_name + " has been already declared!");
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
     // make sure it is not defined already
     // make sure the type is correct
@@ -305,11 +323,12 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
       throw ReDefinitionException(func_name + "has been already declared");
 
     // loop through the function, assign types and then come back
-    // need to call this later
     sema.donsus_typecheck_is_return_type_valid(node);
+    // need to call this later
     // check for function def specific stuff then just recursion
     if (node->get<donsus_ast::function_def>().body.size() != 0) {
       for (auto &children : node->get<donsus_ast::function_def>().body) {
+
         donsus_sym(children, table, global_table);
       }
     }
@@ -356,13 +375,22 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (!is_defined)
       throw ReDefinitionException(func_name + " has not been defined!");
     std::string qualified_fn_name = table->apply_scope(func_name);
-    if (table->sym_table.size() == 0)
-      throw ReDefinitionException(func_name + " has not been defined!");
     utility::handle<DonsusSymTable> current_table =
         table->get_sym_table(qualified_fn_name);
 
-    int i = 0;
-    for (i = 0; i < node->get<donsus_ast::function_call>().arguments.size();
+    // Check whether the number of arguments is correct
+    int number_of_args =
+        node->get<donsus_ast::function_call>().arguments.size();
+    int number_of_args_defined = current_table->get_function_argument_size();
+
+    if (number_of_args != number_of_args_defined)
+      throw InCompatibleTypeException(
+          "Number of arguments in function call: " + func_name +
+          " is not correct, " + std::to_string(number_of_args) +
+          "were provided " + std::to_string(number_of_args_defined) +
+          "were defined");
+
+    for (int i = 0; i < node->get<donsus_ast::function_call>().arguments.size();
          ++i) {
       DONSUS_TYPE function_arg = current_table->get_function_argument(i);
       DONSUS_TYPE function_call_arg =
@@ -519,26 +547,19 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
     utility::handle<donsus_ast::node> node) -> void {
   std::vector<DONSUS_TYPE> expect =
       node->get<donsus_ast::function_def>().return_type;
+  int found = 0;
 
   for (auto n : node->get<donsus_ast::function_def>().body) {
-    if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
-      // examine it here
-      // if the type is void
-      if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
-        throw ReturnTypeException("Return is not possible when  type is void");
+    donsus_typecheck_is_return_type_valid_for_children(
+        n, node->get<donsus_ast::function_def>().return_type, found);
+    if (n->type.type == donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT) {
+      for (auto n : n->get<donsus_ast::if_statement>().body) {
+        donsus_typecheck_is_return_type_valid_for_children(
+            n, node->get<donsus_ast::function_def>().return_type, found);
       }
-      if (n->get<donsus_ast::return_kw>().types == expect)
-        return;
-      // multiple return types
-      if (expect.size() > 1) {
-        for (auto type : expect) {
-          for (auto type2 : n->get<donsus_ast::return_kw>().types) {
-            if (type != type2) {
-              throw ReturnTypeException("Return is not correct");
-            }
-          }
-        }
-        return;
+      for (auto n : n->get<donsus_ast::if_statement>().alternate) {
+        donsus_typecheck_is_return_type_valid_for_children(
+            n, node->get<donsus_ast::function_def>().return_type, found);
       }
     }
   }
@@ -546,5 +567,31 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
   if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
     return;
   }
-  throw ReturnTypeException("Return statement is not correct, TBD!");
+  if (found == 0) {
+    throw ReturnTypeException("Return statement is not correct, TBD!");
+  }
+}
+
+auto DonsusSema::donsus_typecheck_is_return_type_valid_for_children(
+    utility::handle<donsus_ast::node> n, std::vector<DONSUS_TYPE> expect,
+    int &found) -> void {
+  if (n->type.type == donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT) {
+    // examine it here
+    // if the type is void
+    if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
+      throw ReturnTypeException("Return is not possible when  type is void");
+    }
+    if (n->get<donsus_ast::return_kw>().types == expect)
+      found++;
+    // multiple return types
+    if (expect.size() > 1) {
+      for (auto type : expect) {
+        for (auto type2 : n->get<donsus_ast::return_kw>().types) {
+          if (type != type2) {
+            throw ReturnTypeException("Return is not correct");
+          }
+        }
+      }
+    }
+  }
 }
