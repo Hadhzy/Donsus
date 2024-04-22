@@ -27,6 +27,7 @@ public:
   utility::handle<DonsusSymTable> parent = nullptr; //
   struct sym {
     int mod;
+    bool is_function_arg = false;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
     llvm::Value
@@ -80,6 +81,9 @@ public:
   std::string add(std::string short_name, DONSUS_TYPE type);
 
   std::string add(std::string short_name, std::vector<DONSUS_TYPE> &type);
+
+  std::string add(std::string short_name, DONSUS_TYPE type,
+                  bool is_function_argument);
   /*
    * Add symbol table to global.
    * */
@@ -87,6 +91,8 @@ public:
 
   DONSUS_TYPE
   get_function_argument(int index);
+
+  int get_function_argument_size();
 
   /*
    * Applies the qualified name to a pass name to compare
