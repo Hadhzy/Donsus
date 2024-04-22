@@ -59,3 +59,4 @@ nav:
   - Language reference:
       - language_ref/index.md
       - Variables: language_ref/variables/index.md
+  - Glossary: glossary/index.md

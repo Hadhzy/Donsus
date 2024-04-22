@@ -23,6 +23,7 @@ add_executable(donsus_test
         parser/test_assignments.cc
         parser/test_print.cc
         parser/test_unary_expressions.cc
+        parser/test_float.cc
 
         # typecheck
         typecheck/test_return.cc
