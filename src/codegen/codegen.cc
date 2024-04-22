@@ -67,6 +67,8 @@ auto sym_from_node(utility::handle<donsus_ast::node> &node,
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION:
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG:
+    return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   default: {
   }
   }

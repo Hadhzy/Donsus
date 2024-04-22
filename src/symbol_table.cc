@@ -34,6 +34,21 @@ std::string DonsusSymTable::add(std::string short_name,
   return qualified_name;
 }
 
+std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type,
+                                bool is_function_argument) {
+  auto qualified_name = create_qualified_name(short_name);
+  sym t_symbol = {
+      .is_function_arg = is_function_argument,
+      .type = type,
+      .index = underlying.size(),
+      .key = qualified_name,
+      .short_name = short_name,
+      .kind = sym::SYMBOL_PLACEHOLDER,
+  };
+  underlying.push_back(t_symbol);
+  return qualified_name;
+}
+
 std::string DonsusSymTable::add_symbol(DonsusSymTable::sym symbol) {
   underlying.push_back(symbol);
   auto qualified_name = create_qualified_name(symbol.short_name);
@@ -52,11 +67,23 @@ DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
 
 utility::handle<DonsusSymTable>
 DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
+  if (qa_sym == qa_sym_ex)
+    return this;
   for (auto n : sym_table) {
     if (n->qa_sym == qa_sym_ex)
       return n;
   }
   return nullptr;
+}
+
+int DonsusSymTable::get_function_argument_size() {
+  int size = 0;
+  for (auto n : underlying) {
+    if (n.is_function_arg) {
+      size++;
+    }
+  }
+  return size;
 }
 
 DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {

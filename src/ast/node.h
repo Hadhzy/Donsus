@@ -29,7 +29,8 @@ struct donsus_node_type {
     DONSUS_STRING_EXPRESSION,
     DONSUS_BOOL_EXPRESSION,
     DONSUS_UNARY_EXPRESSION,
-    DONSUS_PRINT_EXPRESSION
+    DONSUS_PRINT_EXPRESSION,
+    DONSUS_FUNCTION_ARG
   };
 
   donsus_node_type() = default;

@@ -59,6 +59,12 @@ public:
       break;
     }
 
+    case type::DONSUS_FUNCTION_ARG: {
+      print_type(ast_node->type, indent_level);
+      print_var_decl(ast_node->get<donsus_ast::variable_decl>(), indent_level);
+      break;
+    }
+
     case type::DONSUS_PRINT_EXPRESSION: {
       print_type(ast_node->type, indent_level);
       indent_level++;
@@ -723,6 +729,8 @@ auto DonsusParser::donsus_function_signature()
     try {
       donsus_parser_except(DONSUS_NAME);
       parse_result v_d = donsus_variable_decl(); // catch its value
+      v_d->type = donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG;
+
       a.push_back(v_d);
     } catch (DonsusException &e) {
       std::cerr << e.what() << std::endl;
