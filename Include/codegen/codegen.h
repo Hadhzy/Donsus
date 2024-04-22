@@ -82,7 +82,6 @@ public:
 
   llvm::StructType multiple_return_types(std::vector<DONSUS_TYPE>);
 
-  void compile_donsus_expr(DonsusParser::end_result &ast);
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,
                        utility::handle<DonsusSymTable> &table);
 
@@ -123,6 +122,10 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(donsus_ast::string_expr &ast,
+                     utility::handle<DonsusSymTable> &table);
+
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
+                     donsus_ast::float_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,

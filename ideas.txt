@@ -19,7 +19,7 @@
 (18) - Donsus's grammar is context-free(NOT PEG).
 (20) - async syntax support(concurrency)
 (21) - generators support
-(22) - Exception handling
+(22) - No exceptions - only error codes, similar to GO
 (23) - REALLY DETAILED ERROR MESSAGES(like rust's error messages)
 (24) - Cross-platform support(custom codegen or llvm?)
 (25) - Add the possibility for creating a new type natively
@@ -58,5 +58,8 @@ While keeping the language high-level.
 (57) - ability to mutate variables with the = keyword
 (58) - meta-programming(templates)
 (59) - integer constants(https://en.cppreference.com/w/c/language/integer_constant)
-
-
+(60) - Might add implicit conversions - only if the data won't be lessed - smaller to bigger
+(61) - Keeping the implicit conversions impossible and making it explicit would be nice - only allow conversations from constants
+(62) - Do not mix pointers with arrays
+(63) - unified type system, comptime code, flow-sensitive typing
+(64) - Untyped constants similar to go and odin

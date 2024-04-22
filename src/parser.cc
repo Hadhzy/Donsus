@@ -98,6 +98,24 @@ public:
       }
       break;
     }
+
+    case type::DONSUS_FLOAT_EXPRESSION: {
+      print_type(ast_node->type, indent_level);
+      print_float_expression(ast_node->get<donsus_ast::float_expr>(),
+                             indent_level);
+
+      if (ast_node->children.empty()) {
+        print_with_newline("children: {}", indent_level);
+      } else {
+        print_with_newline("children: ", indent_level);
+        for (auto children : ast_node->children) {
+          print_ast_node(children, indent_level + 1);
+          print_with_newline(" ", indent_level);
+        }
+      }
+      break;
+    }
+
     case type::DONSUS_IDENTIFIER: {
       print_type(ast_node->type, indent_level);
       print_identifier(ast_node->get<donsus_ast::identifier>(), indent_level);
@@ -207,6 +225,20 @@ public:
                        indent_level);
     print_with_newline("precedence: " +
                            std::to_string(num_expr.value.precedence),
+                       indent_level);
+  }
+
+  void print_float_expression(donsus_ast::float_expr &float_expr,
+                              int indent_level) {
+    print_with_newline("kind: " + de_get_name_from_token(float_expr.value.kind),
+                       indent_level);
+    print_with_newline("value: " + float_expr.value.value, indent_level);
+    print_with_newline("length: " + std::to_string(float_expr.value.length),
+                       indent_level);
+    print_with_newline("line: " + std::to_string(float_expr.value.line),
+                       indent_level);
+    print_with_newline("precedence: " +
+                           std::to_string(float_expr.value.precedence),
                        indent_level);
   }
 
@@ -453,6 +485,16 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
   return node;
 }
 
+auto DonsusParser::donsus_float_number(donsus_ast::donsus_node_type type,
+                                       uint64_t child_count) -> parse_result {
+  const parse_result node = create_float_expression(
+      donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION, 10);
+  auto &expression = node->get<donsus_ast::float_expr>();
+  expression.value = cur_token;
+
+  return node;
+}
+
 // r-value expressions
 /*
 assignment_value:
@@ -469,7 +511,11 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   case DONSUS_LPAR:
   case DONSUS_NUMBER: {
     return donsus_number_primary(
-        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 20);
+        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION, 10);
+  }
+  case DONSUS_FLOAT: {
+    return donsus_float_number(
+        donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION, 10);
   }
 
   case DONSUS_NAME: {
@@ -1069,6 +1115,12 @@ auto DonsusParser::create_unary_expression(donsus_ast::donsus_node_type type,
                                            uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::unary_expr>(type, child_count);
+}
+
+auto DonsusParser::create_float_expression(donsus_ast::donsus_node_type type,
+                                           u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::float_expr>(type, child_count);
 }
 
 auto DonsusParser::create_donsus_print(donsus_ast::donsus_node_type type,

@@ -43,7 +43,10 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
     break;
   }
-
+  case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION: {
+    node->real_type.type_un = DONSUS_TYPE::TYPE_F32;
+    break;
+  }
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
 
     node->real_type.type_un =
@@ -471,6 +474,7 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
   case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION:
     return true;
 
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION:
@@ -529,7 +533,7 @@ void DonsusSema::donsus_typecheck_support_between_types(
 
     // Check for inconsistent types within the expression
     if (childTypes->size() > 1) {
-      std::string types = "";
+      std::string types{};
       for (auto &type : *childTypes) {
         types += " " + type.to_string() + ",";
       }
