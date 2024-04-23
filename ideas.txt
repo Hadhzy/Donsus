@@ -63,3 +63,5 @@ While keeping the language high-level.
 (62) - Do not mix pointers with arrays
 (63) - unified type system, comptime code, flow-sensitive typing
 (64) - Untyped constants similar to go and odin
+(65) - array programming
+(66) - bounds checking
