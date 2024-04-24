@@ -1,14 +1,15 @@
-/*
-def func(n: int) -> int {
-    if (n == 3){
-        printf("test");
-        func(n-1);
-        }
+// recursive
+def func() -> int {
+    b:int = 12;
+    printf("in the loop \n");
+    if (b < 10){
+        return 4;
+    } else {
+        func();
         return 5;
-    }
+  }
+  printf("test");
+}
 
-result: int = func();
-*/
-
-result: int = 342;
-printf("result: \n", result);
+a:int = func();
+printf(a);

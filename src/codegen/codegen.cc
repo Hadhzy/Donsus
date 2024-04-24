@@ -304,14 +304,15 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         // type is not one of the integer types
 
         // convert from f32 to f64
-        if (make_type(type).type_un == DONSUS_TYPE::TYPE_F64){
-          llvm::Value* f64_g_v = Builder->CreateFPExt(result, Builder->getDoubleTy());
+        if (make_type(type).type_un == DONSUS_TYPE::TYPE_F64) {
+          llvm::Value *f64_g_v =
+              Builder->CreateFPExt(result, Builder->getDoubleTy());
           Builder->CreateStore(f64_g_v, c);
         }
-/*        llvm::Type *type_l = map_type(make_type(type));
-        // converts integer to float - needs to be changed in the future.
-        llvm::Value *new_value = Builder->CreateUIToFP(result, type_l);
-        Builder->CreateStore(new_value, c);*/
+        /*        llvm::Type *type_l = map_type(make_type(type));
+                // converts integer to float - needs to be changed in the
+           future. llvm::Value *new_value = Builder->CreateUIToFP(result,
+           type_l); Builder->CreateStore(new_value, c);*/
       } else {
         Builder->CreateStore(result, c);
       }
@@ -516,6 +517,16 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   for (auto node : ast.body) {
     compile(node, table);
   }
+  // insert unreachable instruction
+  // if the merge block is empty
+  // if the merge block does not have end terminator
+  for (llvm::BasicBlock &BB : *F) {
+    if ((BB.getName() == "merge" && BB.empty()) ||
+        (BB.getName() == "merge" && !BB.getTerminator())) {
+      Builder->SetInsertPoint(&BB);
+      Builder->CreateUnreachable();
+    }
+  }
   // handle void here
   if (ast.return_type[0].type_un == DONSUS_TYPE::TYPE_VOID) {
 
@@ -557,14 +568,16 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
   // Visit the condition expression
   llvm::Value *conditionValue = compile(ast->children[0], table);
 
-  // Ensure the condition value is of type i1
+  // for true and false
   if (conditionValue->getType()->isIntegerTy(8)) {
     conditionValue = Builder->CreateICmpNE(
         conditionValue, llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0)),
         "conditionAsI1");
   }
 
-  // Create basic blocks for if and else (if present) bodies
+  // gets teh current function object that is being built.
+  // It gets this by asking the builder for the current BasicBlock, anda asking
+  // that block for its parent(the function it is currently embedded into).
   llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
   llvm::BasicBlock *if_block =
@@ -572,31 +585,47 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
   llvm::BasicBlock *elseBlock =
       llvm::BasicBlock::Create(*TheContext, "else", TheFunction);
   llvm::BasicBlock *mergeBlock =
-      llvm::BasicBlock::Create(*TheContext, "ifcont", TheFunction);
+      llvm::BasicBlock::Create(*TheContext, "merge", TheFunction);
 
   // conditional branch
   Builder->CreateCondBr(conditionValue, if_block, elseBlock);
 
   // Generate code for the if block
   Builder->SetInsertPoint(if_block);
+  llvm::Value *last_if = nullptr;
   for (auto node : ac_ast.body) {
-    compile(node, table);
+    last_if = compile(node, table);
   }
-  Builder->CreateBr(mergeBlock);
 
-  // Generate code for the else block
+  if (last_if != nullptr && llvm::isa<llvm::ReturnInst>(last_if)) {
+
+  } else {
+    // if it doesn't return
+    Builder->CreateBr(mergeBlock);
+  }
+
+  llvm::Value *last_else = nullptr;
   Builder->SetInsertPoint(elseBlock);
-  // TODO: make this better
   if (!ac_ast.alternate.empty()) {
     for (auto node :
          ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
-      compile(node, table);
+      last_else = compile(node, table);
     }
   }
-  Builder->CreateBr(mergeBlock);
 
-  // Set insertion point to the merge block
+  // here if the instruction does not exist, it's wrong because llvm::isa fails
+  if (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)) {
+
+  } else {
+    // if it doesn't return
+    Builder->CreateBr(mergeBlock);
+  }
+  /*  if (!((last_if != nullptr && llvm::isa<llvm::ReturnInst>(last_if)) &&
+          (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)))) {
+      Builder->SetInsertPoint(mergeBlock);
+    }*/
   Builder->SetInsertPoint(mergeBlock);
+  /*  Builder->CreateUnreachable();*/
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
 }
 
@@ -695,7 +724,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
     }
   }
-
+  // comparisons
   case DONSUS_DOUBLE_EQUAL: {
     // Handle ==
     llvm::Value *lhs = compile(ast->children[0], table);
