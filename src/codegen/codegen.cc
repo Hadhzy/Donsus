@@ -517,6 +517,16 @@ DonsusCodeGenerator::visit(donsus_ast::function_def &ast,
   for (auto node : ast.body) {
     compile(node, table);
   }
+  // insert unreachable instruction
+  // if the merge block is empty
+  // if the merge block does not have end terminator
+  for (llvm::BasicBlock &BB : *F) {
+    if ((BB.getName() == "merge" && BB.empty()) ||
+        (BB.getName() == "merge" && !BB.getTerminator())) {
+      Builder->SetInsertPoint(&BB);
+      Builder->CreateUnreachable();
+    }
+  }
   // handle void here
   if (ast.return_type[0].type_un == DONSUS_TYPE::TYPE_VOID) {
 
@@ -582,36 +592,40 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
 
   // Generate code for the if block
   Builder->SetInsertPoint(if_block);
-  llvm::Value *last;
+  llvm::Value *last_if = nullptr;
   for (auto node : ac_ast.body) {
-    last = compile(node, table);
+    last_if = compile(node, table);
   }
-  if (last != nullptr && llvm::isa<llvm::ReturnInst>(last)) {
+
+  if (last_if != nullptr && llvm::isa<llvm::ReturnInst>(last_if)) {
 
   } else {
     // if it doesn't return
     Builder->CreateBr(mergeBlock);
   }
 
+  llvm::Value *last_else = nullptr;
   Builder->SetInsertPoint(elseBlock);
   if (!ac_ast.alternate.empty()) {
     for (auto node :
          ac_ast.alternate[0]->get<donsus_ast::else_statement>().body) {
-      last = compile(node, table);
+      last_else = compile(node, table);
     }
   }
 
-  if (last != nullptr && llvm::isa<llvm::ReturnInst>(last)) {
+  // here if the instruction does not exist, it's wrong because llvm::isa fails
+  if (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)) {
 
   } else {
     // if it doesn't return
     Builder->CreateBr(mergeBlock);
   }
-
-  // Todo: recognise if code is unreachable
-  // Set insertion point to the merge block
+  /*  if (!((last_if != nullptr && llvm::isa<llvm::ReturnInst>(last_if)) &&
+          (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)))) {
+      Builder->SetInsertPoint(mergeBlock);
+    }*/
   Builder->SetInsertPoint(mergeBlock);
-  Builder->CreateUnreachable();
+  /*  Builder->CreateUnreachable();*/
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
 }
 
