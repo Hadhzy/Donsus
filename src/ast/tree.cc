@@ -117,6 +117,20 @@ void tree::traverse_nodes(
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    auto stuff = n->get<donsus_ast::array_decl>();
+    sym->add(stuff.identifier_name,
+             make_type(n->get<donsus_ast::array_decl>().type));
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
+    auto stuff = n->get<donsus_ast::array_def>();
+    sym->add(stuff.identifier_name,
+             make_type(n->get<donsus_ast::array_def>().type));
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
     auto stuff = n->get<donsus_ast::else_statement>();
     for (auto &children : stuff.body) {
