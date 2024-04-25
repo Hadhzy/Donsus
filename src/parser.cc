@@ -128,6 +128,18 @@ public:
       break;
     }
 
+    case type::DONSUS_ARRAY_DECLARATION: {
+      print_type(ast_node->type, indent_level);
+      print_array_decl(ast_node->get<donsus_ast::array_decl>(), indent_level);
+      break;
+    }
+
+    case type::DONSUS_ARRAY_DEFINITION: {
+      print_type(ast_node->type, indent_level);
+      print_array_def(ast_node->get<donsus_ast::array_def>(), indent_level);
+      break;
+    }
+
     case type::DONSUS_FUNCTION_DEF: {
       print_type(ast_node->type, indent_level);
       print_function_def(ast_node->get<donsus_ast::function_def>(),
@@ -358,6 +370,25 @@ public:
                        indent_level);
   }
 
+  void print_array_decl(donsus_ast::array_decl &decl, int indent_level) {
+    print_with_newline("identifier_type: " + de_get_name_from_token(decl.type),
+                       indent_level);
+    print_with_newline("identifier_name: " + decl.identifier_name,
+                       indent_level);
+  };
+
+  void print_array_def(donsus_ast::array_def &def, int indent_level) {
+    print_with_newline("identifier_type: " + de_get_name_from_token(def.type),
+                       indent_level);
+    print_with_newline("identifier_name: " + def.identifier_name, indent_level);
+    print_with_newline("size: " + std::to_string(def.size), indent_level);
+    print_with_newline("elements: ", indent_level);
+    for (auto e : def.elements) {
+      print_ast_node(e, indent_level + 1);
+      print_with_newline(" ", indent_level);
+    }
+  };
+
   void print_with_newline(const std::string &s, int indent_level) {
     std::cout << generate_indentation(indent_level) << s << '\n';
   }
@@ -373,6 +404,10 @@ public:
   std::string generate_indentation(int level) {
     return std::string(2 * level, ' ');
   }
+};
+
+std::string generate_indentation(int level) {
+  return std::string(2 * level, ' ');
 };
 
 static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
@@ -656,8 +691,19 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
           DONSUS_VARIABLE_DEFINITION; // overwrite//
                                       // type
       return donsus_variable_definition(declaration);
+    } else if (donsus_peek().kind == DONSUS_LSQB &&
+               donsus_peek(2).kind == DONSUS_RSQB) {
+      // array
+      donsus_parser_next(); // move to '['
+      donsus_parser_next(); // move to ']'
+      donsus_parser_next(); // move to '=' or ';'
+      // check if its an array declaration or definition
+      if (cur_token.kind == DONSUS_EQUAL) {
+        return donsus_array_definition(declaration);
+      } else if (cur_token.kind == DONSUS_SEMICOLON) {
+        return donsus_array_declaration(declaration);
+      }
     } else {
-
       // decl only
       if (donsus_peek().kind == DONSUS_SEMICOLON) {
         donsus_parser_except(DONSUS_SEMICOLON);
@@ -668,6 +714,45 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
       }
     }
   }
+}
+
+auto DonsusParser::donsus_array_declaration(
+    utility::handle<donsus_ast::node> &declaration) -> parse_result {
+  // move to the next token
+  parse_result array_declaration = create_array_declaration(
+      donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION, 10);
+
+  auto &expression = array_declaration->get<donsus_ast::array_decl>();
+  expression.identifier_name =
+      declaration->get<donsus_ast::variable_decl>().identifier_name;
+  expression.type =
+      declaration->get<donsus_ast::variable_decl>().identifier_type;
+  return array_declaration;
+}
+
+auto DonsusParser::donsus_array_definition(
+    utility::handle<donsus_ast::node> &declaration) -> parse_result {
+  // move to the next token
+  parse_result array_definition = create_array_definition(
+      donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION, 10);
+
+  auto &expression = array_definition->get<donsus_ast::array_def>();
+  expression.identifier_name =
+      declaration->get<donsus_ast::variable_decl>().identifier_name;
+  expression.type =
+      declaration->get<donsus_ast::variable_decl>().identifier_type;
+
+  donsus_parser_except(DONSUS_LSQB); // expect next token to be '['
+  donsus_parser_next();              // move to the next token
+  while (cur_token.kind != DONSUS_RSQB) {
+    parse_result element = donsus_expr(0);
+    expression.elements.push_back(element);
+    if (cur_token.kind == DONSUS_COMM) {
+      donsus_parser_next();
+    }
+  }
+
+  return array_definition;
 }
 
 /*
@@ -1131,6 +1216,18 @@ auto DonsusParser::create_donsus_print(donsus_ast::donsus_node_type type,
 auto DonsusParser::create_variable_declaration(
     donsus_ast::donsus_node_type type, uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::variable_decl>(type, child_count);
+}
+
+auto DonsusParser::create_array_declaration(donsus_ast::donsus_node_type type,
+                                            u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::array_decl>(type, child_count);
+}
+
+auto DonsusParser::create_array_definition(donsus_ast::donsus_node_type type,
+                                           u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::array_def>(type, child_count);
 }
 
 auto DonsusParser::create_function_decl(donsus_ast::donsus_node_type type,

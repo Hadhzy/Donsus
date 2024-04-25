@@ -43,6 +43,13 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
     break;
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
+    for (auto &n : node->get<donsus_ast::array_def>().elements) {
+      assign_type_to_node(n, table, global_table);
+    }
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION: {
     node->real_type.type_un = DONSUS_TYPE::TYPE_F32;
     break;
@@ -235,6 +242,45 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (is_declared)
       throw ReDefinitionException(arg_name + " has been already declared!");
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    auto decl_name = node->get<donsus_ast::array_decl>().identifier_name;
+
+    bool is_declared = sema.donsus_sema_is_duplicated(
+        node->get<donsus_ast::array_decl>().identifier_name, table);
+
+    if (is_declared)
+      throw ReDefinitionException(decl_name + " has been already declared!");
+    break;
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
+    auto def_name = node->get<donsus_ast::array_def>().identifier_name;
+
+    bool is_declared = sema.donsus_sema_is_duplicated(
+        node->get<donsus_ast::array_def>().identifier_name, table);
+
+    if (is_declared)
+      throw ReDefinitionException(def_name + " has been already declared!");
+
+    // Match type of elements in array against the type of the array
+    for (auto &n : node->get<donsus_ast::array_def>().elements) {
+      sema.donsus_typecheck_support_between_types(n);
+      DONSUS_TYPE type_of_array_element = sema.donsus_typecheck_type_expr(n);
+      DONSUS_TYPE type_of_array =
+          make_type(node->get<donsus_ast::array_def>().type); // type of array
+
+      bool are_the_same = sema.donsus_typecheck_is_compatible(
+          type_of_array, type_of_array_element);
+      if (!are_the_same) {
+        throw InCompatibleTypeException(
+            "Operation between: " + type_of_array.to_string() + " and " +
+            type_of_array_element.to_string() + " are not supported");
+      }
+    }
+
     break;
   }
 
