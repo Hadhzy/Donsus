@@ -38,7 +38,10 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_BOOL_EXPRESSION";
   case DONSUS_PRINT_EXPRESSION:
     return "DONSUS_PRINT_EXPRESSION";
-
+  case DONSUS_ARRAY_DECLARATION:
+    return "DONSUS_ARRAY_DECLARATION";
+  case DONSUS_ARRAY_DEFINITION:
+    return "DONSUS_ARRAY_DEFINITION";
   case DONSUS_FLOAT_EXPRESSION:
     return "DONSUS_FLOAT_EXPRESSION";
 
@@ -110,6 +113,14 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
 
   case donsus_node_type::DONSUS_FUNCTION_ARG: {
     return "DONSUS_FUNCTION_ARG";
+  }
+
+  case donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    return "DONSUS_ARRAY_DECLARATION";
+  }
+
+  case donsus_node_type::DONSUS_ARRAY_DEFINITION: {
+    return "DONSUS_ARRAY_DEFINITION";
   }
 
   default: {

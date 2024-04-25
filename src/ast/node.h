@@ -27,7 +27,8 @@ struct donsus_node_type {
     DONSUS_FUNCTION_CALL,        // just the type of the node
     DONSUS_ELSE_STATEMENT,       // just the type of the node
     DONSUS_RETURN_STATEMENT,     // just the type of the node
-
+    DONSUS_ARRAY_DEFINITION,     // just the type of the node
+    DONSUS_ARRAY_DECLARATION,    // just the type of the node
     DONSUS_STRING_EXPRESSION,
     DONSUS_BOOL_EXPRESSION,
     DONSUS_UNARY_EXPRESSION,
@@ -59,8 +60,20 @@ struct number_expr {
   donsus_token value;
 };
 
-struct float_expr{
+struct float_expr {
   donsus_token value;
+};
+
+struct array_def {
+  std::string identifier_name;
+  donsus_token_kind type;
+  std::vector<utility::handle<donsus_ast::node>> elements;
+  int size;
+};
+
+struct array_decl {
+  std::string identifier_name;
+  donsus_token_kind type;
 };
 
 struct bool_expr {
