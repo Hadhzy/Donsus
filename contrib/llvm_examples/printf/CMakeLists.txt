@@ -17,7 +17,7 @@ set(ENABLE_LLVM_SHARED 1)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-add_library(donsus_lib STATIC
+add_library(printf_lib STATIC
         main.cc
 )
 
@@ -27,13 +27,13 @@ add_link_options(-fsanitize=address) # ASAN]]
 
 execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
-target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
+target_link_libraries(printf_lib PUBLIC ${LLVM_LIBS})
 
 set(CMAKE_BUILD_TYPE Debug)
 
-add_executable(donsus main.cc)
+add_executable(printf main.cc)
 
 llvm_map_components_to_libnames(llvm_libs core irreader support)
-target_link_libraries(donsus PUBLIC ${llvm})
-target_link_libraries(donsus PUBLIC donsus_lib)
+target_link_libraries(printf PUBLIC ${llvm})
+target_link_libraries(printf PUBLIC printf_lib)
 

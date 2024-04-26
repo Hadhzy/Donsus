@@ -255,6 +255,14 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION: {
     return visit(n, n->get<donsus_ast::unary_expr>(), table);
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    return visit(n, n->get<donsus_ast::array_decl>(), table);
+  }
+
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
+    return visit(n, n->get<donsus_ast::array_def>(), table);
+  }
   }
 }
 
@@ -861,6 +869,20 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 }
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::array_decl &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
+
+  /*llvm::ArrayType *arrayType =
+   * llvm::ArrayType::get(map_type(make_type(ca_ast.type)), ca_ast.);*/
+  return nullptr;
+}
+
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::array_def &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {}
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
   case DONSUS_TYPE::TYPE_I8: {
