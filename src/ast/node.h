@@ -65,6 +65,7 @@ struct float_expr {
 };
 
 struct array_def {
+  std::string array_type;
   std::string identifier_name;
   donsus_token_kind type;
   std::vector<utility::handle<donsus_ast::node>> elements;
@@ -72,6 +73,7 @@ struct array_def {
 };
 
 struct array_decl {
+  std::string array_type;
   std::string identifier_name;
   donsus_token_kind type;
 };
