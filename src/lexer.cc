@@ -369,11 +369,14 @@ void consume_spaces(DonsusParser &parser) {
       if (peek_for_char(parser) == '*') {
         eat(parser); // consume '*'
         eat(parser); // consume '/'
-        while (parser.lexer.cur_char != '*' && peek_for_char(parser) != '/') {
+        while (parser.lexer.cur_char != '*') {
           eat(parser); // get next token
         }
-        eat(parser); // consume '/' after '*'
-        eat(parser); // consume '/' after '*'
+        if (peek_for_char(parser) == '/') {
+          eat(parser); // consume '/' after '*'
+          eat(parser); // consume '/' after '*'
+        }
+
         break;
       } else {
         // It's a divisor(DONSUS_SLASH) operator and not a comment

@@ -64,16 +64,33 @@ struct float_expr {
   donsus_token value;
 };
 
+enum ArrayType {
+  FIXED,  // fixed size array a:int[3] = [1,2,3];
+  STATIC, // static size array a:int[]. = [1,2,3];
+  DYNAMIC // dynamic size array a:int[] = [1,2,3];
+};
+
 struct array_def {
+  ArrayType array_type; // the type of the array either
   std::string identifier_name;
   donsus_token_kind type;
   std::vector<utility::handle<donsus_ast::node>> elements;
-  int size;
+  /*If the array_type is dynamic the size will be zero and ignored
+    If the array_type is static then the size must be provided
+  */
+  int size; // Represents the number between the square brackets a:int[3] =
+            // [1,2,3]; here it is 3
 };
 
 struct array_decl {
+  ArrayType array_type;
   std::string identifier_name;
   donsus_token_kind type;
+  /*If the array_type is dynamic the size will be zero and ignored
+    If the array_type is static then the size must be provided
+  */
+  int size; // Represents the number between the square brackets a:int[3] =
+            // [1,2,3]; here it is 3
 };
 
 struct bool_expr {

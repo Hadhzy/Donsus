@@ -691,18 +691,51 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
           DONSUS_VARIABLE_DEFINITION; // overwrite//
                                       // type
       return donsus_variable_definition(declaration);
-    } else if (donsus_peek().kind == DONSUS_LSQB &&
-               donsus_peek(2).kind == DONSUS_RSQB) {
+    } else if (donsus_peek().kind == DONSUS_LSQB) {
+
       // array
       donsus_parser_next(); // move to '['
-      donsus_parser_next(); // move to ']'
-      donsus_parser_next(); // move to '=' or ';'
-      // check if its an array declaration or definition
-      if (cur_token.kind == DONSUS_EQUAL) {
-        return donsus_array_definition(declaration);
-      } else if (cur_token.kind == DONSUS_SEMICOLON) {
-        return donsus_array_declaration(declaration);
+      if (donsus_peek().kind == DONSUS_RSQB) {
+        // dynamic array
+        donsus_parser_next(); // move to ']'
+        donsus_parser_next(); // move to '=' or ';'
+        // check if its an array declaration or definition
+        if (cur_token.kind == DONSUS_EQUAL) {
+          return donsus_array_definition(declaration,
+                                         donsus_ast::ArrayType::DYNAMIC, 0);
+        } else if (cur_token.kind == DONSUS_SEMICOLON) {
+          return donsus_array_declaration(declaration,
+                                          donsus_ast::ArrayType::DYNAMIC, 0);
+        }
+      } else if (donsus_peek().kind == DONSUS_NUMBER) {
+        // fixed size array
+
+        donsus_parser_next(); // move to the number
+        int size = std::stoi(cur_token.value);
+        donsus_parser_next(); // move to ']'
+        donsus_parser_next(); // move to '=' or ';' or .
+                              // check if its an array declaration or definition
+        if (cur_token.kind == DONSUS_DOT) {
+          donsus_parser_next(); // move to the next token
+          if (cur_token.kind == DONSUS_EQUAL) {
+            return donsus_array_definition(declaration,
+                                           donsus_ast::ArrayType::STATIC, size);
+          } else if (cur_token.kind == DONSUS_SEMICOLON) {
+            return donsus_array_declaration(
+                declaration, donsus_ast::ArrayType::STATIC, size);
+          }
+        }
+        if (cur_token.kind == DONSUS_EQUAL) {
+          return donsus_array_definition(declaration,
+                                         donsus_ast::ArrayType::FIXED, size);
+        } else if (cur_token.kind == DONSUS_SEMICOLON) {
+          return donsus_array_declaration(declaration,
+                                          donsus_ast::ArrayType::FIXED, size);
+        }
       }
+      // // array
+      // donsus_parser_next(); // move to '['
+
     } else {
       // decl only
       if (donsus_peek().kind == DONSUS_SEMICOLON) {
@@ -717,7 +750,8 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 }
 
 auto DonsusParser::donsus_array_declaration(
-    utility::handle<donsus_ast::node> &declaration) -> parse_result {
+    utility::handle<donsus_ast::node> &declaration,
+    donsus_ast::ArrayType array_type, int size = 0) -> parse_result {
   // move to the next token
   parse_result array_declaration = create_array_declaration(
       donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION, 10);
@@ -727,11 +761,14 @@ auto DonsusParser::donsus_array_declaration(
       declaration->get<donsus_ast::variable_decl>().identifier_name;
   expression.type =
       declaration->get<donsus_ast::variable_decl>().identifier_type;
+  expression.array_type = array_type;
+
   return array_declaration;
 }
 
 auto DonsusParser::donsus_array_definition(
-    utility::handle<donsus_ast::node> &declaration) -> parse_result {
+    utility::handle<donsus_ast::node> &declaration,
+    donsus_ast::ArrayType array_type, int size = 0) -> parse_result {
   // move to the next token
   parse_result array_definition = create_array_definition(
       donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION, 10);
@@ -742,13 +779,27 @@ auto DonsusParser::donsus_array_definition(
   expression.type =
       declaration->get<donsus_ast::variable_decl>().identifier_type;
 
+  expression.array_type = array_type;
+
+  expression.size = size;
+
   donsus_parser_except(DONSUS_LSQB); // expect next token to be '['
   donsus_parser_next();              // move to the next token
-  while (cur_token.kind != DONSUS_RSQB) {
-    parse_result element = donsus_expr(0);
-    expression.elements.push_back(element);
-    if (cur_token.kind == DONSUS_COMM) {
-      donsus_parser_next();
+  if (expression.size == 0) {
+    while (cur_token.kind != DONSUS_RSQB) {
+      parse_result element = donsus_expr(0);
+      expression.elements.push_back(element);
+      if (cur_token.kind == DONSUS_COMM) {
+        donsus_parser_next();
+      }
+    }
+  } else {
+    while (cur_token.kind != DONSUS_RSQB) {
+      parse_result element = donsus_expr(0);
+      expression.elements.push_back(element);
+      if (cur_token.kind == DONSUS_COMM) {
+        donsus_parser_next();
+      }
     }
   }
 

@@ -77,12 +77,16 @@ public:
                                    u_int64_t child_count) -> parse_result;
 
   // parsing array definition
-  auto donsus_array_definition(parse_result &declaration) -> parse_result;
+  auto donsus_array_definition(utility::handle<donsus_ast::node> &declaration,
+                               donsus_ast::ArrayType array_type, int size)
+      -> parse_result;
   auto create_array_definition(donsus_ast::donsus_node_type type,
                                u_int64_t child_count) -> parse_result;
 
   // parsing array declaration
-  auto donsus_array_declaration(parse_result &declaration) -> parse_result;
+  auto donsus_array_declaration(utility::handle<donsus_ast::node> &declaration,
+                                donsus_ast::ArrayType array_type, int size)
+      -> parse_result;
   auto create_array_declaration(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
