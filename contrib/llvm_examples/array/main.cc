@@ -28,15 +28,16 @@ public:
         llvm::ConstantDataArray::get(*TheContext, v);
 
     llvm::GlobalVariable *array = new llvm::GlobalVariable(
-        *TheModule, arrayType, true, llvm::GlobalVariable::PrivateLinkage,
+        *TheModule, arrayType, false, llvm::GlobalVariable::PrivateLinkage,
         array_initializer, "array");
 
     // here it must be  ArrayRef<Value *>
-    std::vector<llvm::Value*> indices;
+    std::vector<llvm::Value *> indices;
     indices.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
     indices.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1)));
-    llvm::Value* res = Builder->CreateGEP(arrayType, array, indices);
-    llvm::Value* store = Builder->CreateStore(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)), res);
+    llvm::Value *res = Builder->CreateGEP(arrayType, array, indices);
+    llvm::Value *store = Builder->CreateStore(
+        llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)), res);
 
     // now we can use this value everywhere
     Builder->CreateLoad(Builder->getInt32Ty(), res);

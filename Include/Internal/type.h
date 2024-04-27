@@ -18,7 +18,11 @@ public:
     TYPE_U32,
     TYPE_F32,
     TYPE_F64,
-    TYPE_VOID
+    TYPE_VOID,
+    // arrays
+    TYPE_FIXED_ARRAY,
+    TYPE_STATIC_ARRAY,
+    TYPE_DYNAMIC_ARRAY
   };
 
   bool operator<(

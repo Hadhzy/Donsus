@@ -51,4 +51,9 @@ public:
   UnsignedTypeException(const std::string &message)
       : DonsusException(message) {}
 };
+class OutOfBoundException : public DonsusException {
+public:
+  OutOfBoundException() = default;
+  OutOfBoundException(const std::string &message) : DonsusException(message) {}
+};
 #endif

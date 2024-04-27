@@ -38,6 +38,7 @@ public:
                             utility::handle<DonsusSymTable> table) -> bool;
   auto donsus_is_function_exist(std::string &name,
                                 utility::handle<DonsusSymTable> table) -> bool;
+  auto donsus_sema_array_bound_check(unsigned int element_num, std::vector<utility::handle<donsus_ast::node>> elements) -> bool;
   // TYPECHECK
   auto donsus_typecheck_is_integer() -> bool;
   auto donsus_typecheck_is_compatible(DONSUS_TYPE first, DONSUS_TYPE second)

@@ -5,7 +5,7 @@ There are a lot of useful llvm examples there - helping you to understand our co
 ```
 mkdir Debug
 cd Debug
-cmake -DCMAKE_BUILD_TYPE=Debug ..
+cmake -DCMAKE_BUILD_TYPE=DEBUG ..
 make
 
 ```
