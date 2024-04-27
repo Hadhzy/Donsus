@@ -1,5 +1,6 @@
 #ifndef donsus_node_h
 #define donsus_node_h
+
 #include <iostream>
 #include <variant>
 #include <vector>
@@ -38,9 +39,11 @@ struct donsus_node_type {
   };
 
   donsus_node_type() = default;
+
   donsus_node_type(underlying type);
 
   [[nodiscard]] auto to_string() const -> std::string;
+
   underlying type;
 };
 
@@ -78,6 +81,7 @@ struct array_def {
   /*If the array_type is dynamic the size will be zero and ignored
     If the array_type is static then the size must be provided
   */
+  int number_of_elements;
   int size; // Represents the number between the square brackets a:int[3] =
             // [1,2,3]; here it is 3
 };
@@ -89,6 +93,7 @@ struct array_decl {
   /*If the array_type is dynamic the size will be zero and ignored
     If the array_type is static then the size must be provided
   */
+  int number_of_elements;
   int size; // Represents the number between the square brackets a:int[3] =
             // [1,2,3]; here it is 3
 };

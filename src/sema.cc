@@ -1,6 +1,7 @@
 #include "../Include/sema.h"
 
 DonsusSema sema;
+
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
                          utility::handle<DonsusSymTable> table,
                          utility::handle<DonsusSymTable> global_table) -> void;
@@ -272,10 +273,8 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (is_declared)
       throw ReDefinitionException(def_name + " has been already declared!");
 
-    unsigned int against{};
     // Match type of elements in array against the type of the array
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
-      against++;
       sema.donsus_typecheck_support_between_types(n);
       DONSUS_TYPE type_of_array_element = sema.donsus_typecheck_type_expr(n);
       DONSUS_TYPE type_of_array =
@@ -290,14 +289,15 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
       }
     }
     // perform bound check if the array is:
-    // fixed sized or static
-    if (against > node->get<donsus_ast::array_def>().size &&
+    // fixed sized or static - this might be optional in the future
+    if (node->get<donsus_ast::array_def>().number_of_elements >
+            node->get<donsus_ast::array_def>().size &&
         (node->get<donsus_ast::array_def>().array_type ==
              donsus_ast::ArrayType::FIXED ||
          node->get<donsus_ast::array_def>().array_type ==
              donsus_ast::ArrayType::STATIC)) {
       throw OutOfBoundException(
-          "array:" + node->get<donsus_ast::array_def>().identifier_name +
+          "array: " + node->get<donsus_ast::array_def>().identifier_name +
           " is out of bounds");
     }
 

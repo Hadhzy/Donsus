@@ -48,6 +48,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   }
   }
 }
+
 /*
  Get the symbol based on node's name, this will just simply
  call table->get().
@@ -83,6 +84,7 @@ Bitness GetBitness() {
             << " is not supported because it is not 32bit or 64bit";
   abort();
 }
+
 void DonsusCodeGenerator::Finish() const {
   Builder->SetInsertPoint(main_block);
   Builder->CreateRet(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
@@ -95,6 +97,8 @@ void DonsusCodeGenerator::create_entry_point() {
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, name, *TheModule);
+
+  main_func = F;
 }
 
 int DonsusCodeGenerator::create_object_file() {
@@ -190,6 +194,7 @@ void DonsusCodeGenerator::Link() const {
   std::cout << "command: " << linker_cmd;
   system(linker_cmd.c_str());
 }
+
 llvm::Value *
 DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
                              utility::handle<DonsusSymTable> &table) {
@@ -631,14 +636,20 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
           (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)))) {
       Builder->SetInsertPoint(mergeBlock);
     }*/
-  Builder->SetInsertPoint(mergeBlock);
+  // if its global go back to main
+  if (TheFunction == main_func) {
+    Builder->SetInsertPoint(mergeBlock);
+    Builder->CreateBr(main_block);
+  } else {
+    Builder->SetInsertPoint(mergeBlock);
+  }
   /*  Builder->CreateUnreachable();*/
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
 }
 
 llvm::Value *
-DonsusCodeGenerator ::visit(donsus_ast::else_statement &ast,
-                            utility::handle<DonsusSymTable> &table) {}
+DonsusCodeGenerator::visit(donsus_ast::else_statement &ast,
+                           utility::handle<DonsusSymTable> &table) {}
 
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
@@ -688,6 +699,41 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
       ++i;
       continue;
     }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'a') {
+      PreprocessedString.push_back(0x07);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'b') {
+      PreprocessedString.push_back(0x08);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'e') {
+      PreprocessedString.push_back(0x1b);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'f') {
+      PreprocessedString.push_back(0x0c);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'r') {
+      PreprocessedString.push_back(0x0d);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 't') {
+      PreprocessedString.push_back(0x09);
+      i++;
+      continue;
+    }
+    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'v') {
+      PreprocessedString.push_back(0x0b);
+      i++;
+      continue;
+    }
     PreprocessedString.push_back(ast.value.value[i]);
   }
 
@@ -695,11 +741,10 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
       llvm::StringRef(PreprocessedString.data()));
 }
 
-llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
-                                        donsus_ast::float_expr &ca_ast,
-                                        utility::handle<DonsusSymTable> &table)
-
-{
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::float_expr &ca_ast,
+                           utility::handle<DonsusSymTable> &table) {
   return llvm::ConstantFP::get(
       *TheContext,
       llvm::APFloat(std::stof(ast->get<donsus_ast::float_expr>().value.value)));
@@ -731,7 +776,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
     }
   }
-  // comparisons
+    // comparisons
   case DONSUS_DOUBLE_EQUAL: {
     // Handle ==
     llvm::Value *lhs = compile(ast->children[0], table);
@@ -866,6 +911,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
     }*/
 }
+
 /*Maps DONSUS_TYPE to llvm TYPE.
  **/
 llvm::Value *
@@ -924,6 +970,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   }
   return nullptr;
 }
+
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
   case DONSUS_TYPE::TYPE_I8: {

@@ -295,6 +295,7 @@ public:
                            de_get_name_from_token(assignment.op.kind),
                        indent_level);
   }
+
   void print_type(donsus_ast::donsus_node_type type, int indent_level) {
     print_with_newline("type: " + type.to_string(), indent_level);
   }
@@ -375,6 +376,10 @@ public:
                        indent_level);
     print_with_newline("identifier_name: " + decl.identifier_name,
                        indent_level);
+    print_with_newline("size: " + std::to_string(decl.size), indent_level);
+    print_with_newline("number_of_elements: " +
+                           std::to_string(decl.number_of_elements),
+                       indent_level);
   };
 
   void print_array_def(donsus_ast::array_def &def, int indent_level) {
@@ -382,6 +387,9 @@ public:
                        indent_level);
     print_with_newline("identifier_name: " + def.identifier_name, indent_level);
     print_with_newline("size: " + std::to_string(def.size), indent_level);
+    print_with_newline("number_of_elements: " +
+                           std::to_string(def.number_of_elements),
+                       indent_level);
     print_with_newline("elements: ", indent_level);
     for (auto e : def.elements) {
       print_ast_node(e, indent_level + 1);
@@ -489,15 +497,13 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_PRINT_KW) {
       parse_result result = donsus_print();
       donsus_tree->add_node(result);
-    }
-
-    else if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
+    } else if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
       parse_result result = donsus_function_definition();
       donsus_tree->add_node(result);
     }
     donsus_parser_next(); // move to the next token
-    // if (peek_function_definition()) {
-    // }
+                          // if (peek_function_definition()) {
+                          // }
   }
 #ifdef DEBUG
   std::cout << "AST: "
@@ -581,6 +587,7 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   }
   }
 }
+
 auto DonsusParser::make_new_expr_node(donsus_token prev_token,
                                       parse_result &left, parse_result &right)
     -> parse_result {
@@ -689,7 +696,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
       donsus_parser_next();
       declaration->type = donsus_ast::donsus_node_type::
           DONSUS_VARIABLE_DEFINITION; // overwrite//
-                                      // type
+      // type
       return donsus_variable_definition(declaration);
     } else if (donsus_peek().kind == DONSUS_LSQB) {
 
@@ -714,7 +721,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
         int size = std::stoi(cur_token.value);
         donsus_parser_next(); // move to ']'
         donsus_parser_next(); // move to '=' or ';' or .
-                              // check if its an array declaration or definition
+        // check if its an array declaration or definition
         if (cur_token.kind == DONSUS_DOT) {
           donsus_parser_next(); // move to the next token
           if (cur_token.kind == DONSUS_EQUAL) {
@@ -785,21 +792,12 @@ auto DonsusParser::donsus_array_definition(
 
   donsus_parser_except(DONSUS_LSQB); // expect next token to be '['
   donsus_parser_next();              // move to the next token
-  if (expression.size == 0) {
-    while (cur_token.kind != DONSUS_RSQB) {
-      parse_result element = donsus_expr(0);
-      expression.elements.push_back(element);
-      if (cur_token.kind == DONSUS_COMM) {
-        donsus_parser_next();
-      }
-    }
-  } else {
-    while (cur_token.kind != DONSUS_RSQB) {
-      parse_result element = donsus_expr(0);
-      expression.elements.push_back(element);
-      if (cur_token.kind == DONSUS_COMM) {
-        donsus_parser_next();
-      }
+  while (cur_token.kind != DONSUS_RSQB) {
+    parse_result element = donsus_expr(0);
+    expression.elements.push_back(element);
+    expression.number_of_elements++;
+    if (cur_token.kind == DONSUS_COMM) {
+      donsus_parser_next();
     }
   }
 
@@ -898,6 +896,7 @@ auto DonsusParser::donsus_function_call(donsus_token &name) -> parse_result {
 
   return function_call;
 }
+
 /*
 donsus_function_proto: var_decl* [,] [donsus_function_proto]
  */
@@ -1221,6 +1220,7 @@ auto DonsusParser::donsus_assignments() -> parse_result {
 
   return assignment;
 }
+
 /*auto DonsusParser::peek_is_function_definition() -> bool {
   if (peek_for_token().kind != DONSUS_NAME) {
     return false;
@@ -1331,6 +1331,7 @@ auto DonsusParser::create_function_call(donsus_ast::donsus_node_type type,
                                         u_int64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::function_call>(type, child_count);
 }
+
 // Throws exception
 void DonsusParser::donsus_parser_except(donsus_token_kind type) {
   donsus_token a = donsus_parser_next();

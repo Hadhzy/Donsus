@@ -220,6 +220,13 @@ char peek_for_char(DonsusParser &parser) {
   char next_char = parser.lexer.string[parser.lexer.cur_pos + 1];
   return (next_char == '\0') ? '\0' : next_char;
 }
+
+// should be only used if the current token is not the first one
+char peek_back_for_char(DonsusParser &parser) {
+  char back_char = parser.lexer.string[parser.lexer.cur_pos - 1];
+  return back_char;
+}
+
 static bool isstart_identifier(char c) {
 
   // entry point of an identifier
@@ -269,6 +276,16 @@ static std::string get_text_between_pos(DonsusParser &parser,
           std::begin(parser.lexer.string) + end};
 }
 
+// gets rid of escape sequences
+static std::string get_rid_of_esc_seq(std::string &formal) {
+  for (size_t i = 1; i < formal.length(); i++) {
+    if (formal[i] == '\"' && formal[i - 1] == '\\') {
+      formal.erase(i - 1, 1);
+    }
+  }
+  return formal;
+}
+
 static std::string next_number(DonsusParser &parser, donsus_token token,
                                unsigned int start_pos) {
 
@@ -306,6 +323,17 @@ static std::string next_identifier(DonsusParser &parser, donsus_token token,
   }
 
   return get_text_between_pos(parser, start_pos, parser.lexer.cur_pos);
+}
+
+static bool next_string(DonsusParser &parser) {
+  if (eat(parser) && peek_for_char(parser) != '\"') {
+    return true;
+  }
+  if (parser.lexer.cur_char == '\\' && peek_for_char(parser) == '\"') {
+    parser.lexer.cur_char = '\0';
+    return true;
+  }
+  return false;
 }
 
 static donsus_token make_type(DonsusParser &parser, std::string &value,
@@ -411,6 +439,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
     return cur_token;
   }
+
   case '+': {
     // Check for +=
     if (peek_for_char(parser) == '=') {
@@ -919,25 +948,25 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
   }
 
   case '\"': {
-
     unsigned int start_pos = parser.lexer.cur_pos;
     cur_token.kind = DONSUS_STRING;
 
     cur_token.length = 0;
 
-    while (eat(parser) && parser.lexer.cur_char != '\"') {
+    while (next_string(parser)) {
       cur_token.length++;
     }
 
+    eat(parser);
     if (parser.lexer.cur_char == '\"') {
       eat(parser); // Consume the closing double quote
-      cur_token.value =
+      std::string formal =
           get_text_between_pos(parser, start_pos + 1, parser.lexer.cur_pos - 1);
+      cur_token.value = get_rid_of_esc_seq(formal);
     } else {
       std::cerr << "Error: Unterminated string literal at line "
                 << cur_token.line << std::endl;
     }
-
     cur_token.line = parser.lexer.cur_line;
 
     return cur_token;
@@ -998,9 +1027,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       if (is_keyword(c_value)) {
 
         return make_keyword(parser, c_value, cur_token.length);
-      }
-
-      else {
+      } else {
 
         cur_token.value = c_value; // default choice
       }

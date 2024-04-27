@@ -17,6 +17,17 @@ TEST(IfStatements, IfStatementsNodeType) {
           ->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
 }
+TEST(IfStatements, IfStatementsGlobal){
+std::string a = R"(
+    if(1) {}
+    )";
+DonsusParser::end_result result = Du_Parse(a);
+donsus_ast::donsus_node_type::underlying type =
+        result->get_nodes()[0]
+                ->type.type;
+
+EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
+}
 
 TEST(IfStatements, IfStatementsCondition) {
   std::string a = R"(
