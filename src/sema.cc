@@ -213,6 +213,13 @@ auto DonsusSema::donsus_typecheck_is_valid_operator(donsus_token_kind kind)
   return false;
 }
 
+auto DonsusSema::donsus_sema_array_bound_check(
+    unsigned int element_num,
+    std::vector<utility::handle<donsus_ast::node>> elements) -> bool {
+  unsigned int against{};
+  for (auto node : elements) {
+  }
+}
 // utility
 
 //  Typechecking
@@ -265,8 +272,10 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     if (is_declared)
       throw ReDefinitionException(def_name + " has been already declared!");
 
+    unsigned int against{};
     // Match type of elements in array against the type of the array
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
+      against++;
       sema.donsus_typecheck_support_between_types(n);
       DONSUS_TYPE type_of_array_element = sema.donsus_typecheck_type_expr(n);
       DONSUS_TYPE type_of_array =
@@ -279,6 +288,17 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
             "Operation between: " + type_of_array.to_string() + " and " +
             type_of_array_element.to_string() + " are not supported");
       }
+    }
+    // perform bound check if the array is:
+    // fixed sized or static
+    if (against > node->get<donsus_ast::array_def>().size &&
+        (node->get<donsus_ast::array_def>().array_type ==
+             donsus_ast::ArrayType::FIXED ||
+         node->get<donsus_ast::array_def>().array_type ==
+             donsus_ast::ArrayType::STATIC)) {
+      throw OutOfBoundException(
+          "array:" + node->get<donsus_ast::array_def>().identifier_name +
+          " is out of bounds");
     }
 
     break;
@@ -344,7 +364,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     // see if the operations are supported
     sema.donsus_typecheck_support_between_types(node->children[0]);
 
-    if (node->get<donsus_ast::if_statement>().body.size() != 0) {
+    if (!node->get<donsus_ast::if_statement>().body.empty()) {
       for (auto &children : node->get<donsus_ast::if_statement>().body) {
         donsus_sym(children, table, global_table);
       }
@@ -372,7 +392,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     sema.donsus_typecheck_is_return_type_valid(node);
     // need to call this later
     // check for function def specific stuff then just recursion
-    if (node->get<donsus_ast::function_def>().body.size() != 0) {
+    if (!node->get<donsus_ast::function_def>().body.empty()) {
       for (auto &children : node->get<donsus_ast::function_def>().body) {
 
         donsus_sym(children, table, global_table);
@@ -425,7 +445,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
         table->get_sym_table(qualified_fn_name);
 
     // Check whether the number of arguments is correct
-    int number_of_args =
+    unsigned int number_of_args =
         node->get<donsus_ast::function_call>().arguments.size();
     int number_of_args_defined = current_table->get_function_argument_size();
 
@@ -531,6 +551,9 @@ auto DonsusSema::donsus_typecheck_type_is_bool_conversion(
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT:
   case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT:
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT:
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION:
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION:
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG:
     return false;
   }
 }

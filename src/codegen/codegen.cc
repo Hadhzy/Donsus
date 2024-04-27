@@ -293,7 +293,6 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   // instead of putting them in the main, they should be created globals
   if (is_global_sym(name, table)) {
-    // it must have an initial value thus we can't do it with declarations
     llvm::Constant *initial_value;
     if (is_definition) {
       initial_value = llvm::Constant::getNullValue(map_type(make_type(type)));
@@ -882,7 +881,49 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::array_def &ca_ast,
-                           utility::handle<DonsusSymTable> &table) {}
+                           utility::handle<DonsusSymTable> &table) {
+  auto type = ca_ast.type;
+  auto name = ca_ast.identifier_name;
+  if (is_global_sym(name, table)) {
+    llvm::ArrayType *arrayType =
+        llvm::ArrayType::get(map_type(make_type(type)), ca_ast.size);
+    llvm::AllocaInst *allocaInst = Builder->CreateAlloca(arrayType, 0, nullptr);
+
+    std::vector<llvm::Constant *> v;
+
+    for (auto node : ca_ast.elements) {
+      llvm::Value *local = compile(node, table);
+      local->print(llvm::outs());
+      auto *constant = llvm::dyn_cast<llvm::Constant>(local);
+      if (constant) {
+        v.push_back(constant);
+      } else {
+        // dynamic initialisation is needed
+        v.push_back(constant);
+      }
+    }
+
+    // both can share a constant initializer
+    llvm::Constant *array_initializer = llvm::ConstantArray::get(arrayType, v);
+
+    if (ca_ast.array_type == donsus_ast::ArrayType::FIXED) {
+      auto *array = new llvm::GlobalVariable(
+          *TheModule, arrayType, false, llvm::GlobalVariable::PrivateLinkage,
+          array_initializer);
+      return array;
+    } else if (ca_ast.array_type == donsus_ast::ArrayType::STATIC) {
+      // isConstant - true -> makes it immutable
+      auto *array = new llvm::GlobalVariable(
+          *TheModule, arrayType, true, llvm::GlobalVariable::PrivateLinkage,
+          array_initializer);
+      return array;
+    }
+
+  } else {
+    // local on the stack or smt
+  }
+  return nullptr;
+}
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
   case DONSUS_TYPE::TYPE_I8: {
@@ -893,11 +934,9 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
     return Builder->getInt16Ty();
   }
 
-  case DONSUS_TYPE::TYPE_BASIC_INT: {
-    return Builder->getInt32Ty();
-  }
-
-  case DONSUS_TYPE::TYPE_I32: {
+  case DONSUS_TYPE::TYPE_BASIC_INT:
+  case DONSUS_TYPE::TYPE_I32:
+  case DONSUS_TYPE::TYPE_U32: {
     return Builder->getInt32Ty();
   }
 
@@ -905,9 +944,6 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
     return Builder->getInt64Ty();
   }
 
-  case DONSUS_TYPE::TYPE_U32: {
-    return Builder->getInt32Ty();
-  }
   case DONSUS_TYPE::TYPE_F32: {
     return Builder->getFloatTy();
   }
@@ -926,6 +962,12 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
   case DONSUS_TYPE::TYPE_VOID: {
     return Builder->getVoidTy();
+  }
+  case DONSUS_TYPE::TYPE_FIXED_ARRAY: {
+  }
+  case DONSUS_TYPE::TYPE_STATIC_ARRAY: {
+  }
+  case DONSUS_TYPE::TYPE_DYNAMIC_ARRAY: {
   }
   default: {
   }

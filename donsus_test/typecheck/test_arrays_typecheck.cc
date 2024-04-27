@@ -57,3 +57,15 @@ TEST(ArrayTestTypecheckincorrect1, ArrayTypeCheck) {
       { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
       InCompatibleTypeException);
 }
+TEST(ArrayOutOfBounds, ArrayTypeCheck) {
+  std::string a = R"(
+    a:int[1] = [1, 2];
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  parse_result->init_traverse();
+
+  EXPECT_THROW(
+      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
+      OutOfBoundException);
+}
