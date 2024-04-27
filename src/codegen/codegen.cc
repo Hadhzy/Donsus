@@ -97,6 +97,8 @@ namespace DonsusCodegen {
 
         llvm::Function *F = llvm::Function::Create(
                 FT, llvm::Function::ExternalLinkage, name, *TheModule);
+
+        main_func = F;
     }
 
     int DonsusCodeGenerator::create_object_file() {
@@ -634,7 +636,14 @@ std::vector<llvm::Type *> DonsusCodeGenerator::parameters_for_function(
                 (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)))) {
             Builder->SetInsertPoint(mergeBlock);
           }*/
-        Builder->SetInsertPoint(mergeBlock);
+        //if its global go back to main
+        if (TheFunction == main_func){
+            Builder->SetInsertPoint(mergeBlock);
+            Builder->CreateBr(main_block);
+        } else
+        {
+            Builder->SetInsertPoint(mergeBlock);
+        }
         /*  Builder->CreateUnreachable();*/
         return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
     }

@@ -156,6 +156,7 @@ public:
   llvm::Type *map_type(DONSUS_TYPE type);
   // meta
   llvm::BasicBlock *main_block;
+  llvm::Function *main_func;
   std::unique_ptr<llvm::LLVMContext> TheContext;
   std::unique_ptr<llvm::IRBuilder<>> Builder;
   std::unique_ptr<llvm::Module> TheModule;
