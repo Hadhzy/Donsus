@@ -126,6 +126,12 @@ auto DONSUS_TYPE::to_string() const -> std::string {
     return "TYPE_F64";
   case TYPE_VOID:
     return "TYPE_VOID";
+  case TYPE_FIXED_ARRAY:
+    return "TYPE_FIXED_ARRAY";
+  case TYPE_DYNAMIC_ARRAY:
+    return "TYPE_DYNAMIC_ARRAY";
+  case TYPE_STATIC_ARRAY:
+    return "TYPE_STATIC_ARRAY";
   default: {
   }
   }

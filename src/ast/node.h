@@ -180,7 +180,7 @@ struct expression {
 struct print_expr {};
 
 using node_properties =
-    utility::property<variable_decl, number_expr, function_decl, function_def>;
+    utility::property<>;
 
 struct node : node_properties {
   //  // children tbd

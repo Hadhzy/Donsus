@@ -49,6 +49,36 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
       assign_type_to_node(n, table, global_table);
     }
+    switch (node->get<donsus_ast::array_def>().array_type) {
+    case donsus_ast::DYNAMIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_DYNAMIC_ARRAY;
+      break;
+    }
+    case donsus_ast::FIXED: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_FIXED_ARRAY;
+      break;
+    }
+    case donsus_ast::STATIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_STATIC_ARRAY;
+      break;
+    }
+    }
+  }
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    switch (node->get<donsus_ast::array_decl>().array_type) {
+    case donsus_ast::DYNAMIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_DYNAMIC_ARRAY;
+      break;
+    }
+    case donsus_ast::FIXED: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_FIXED_ARRAY;
+      break;
+    }
+    case donsus_ast::STATIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_STATIC_ARRAY;
+      break;
+    }
+    }
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION: {
@@ -261,6 +291,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (is_declared)
       throw ReDefinitionException(decl_name + " has been already declared!");
+
     break;
   }
 
