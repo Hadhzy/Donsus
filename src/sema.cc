@@ -49,6 +49,36 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
       assign_type_to_node(n, table, global_table);
     }
+    switch (node->get<donsus_ast::array_def>().array_type) {
+    case donsus_ast::DYNAMIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_DYNAMIC_ARRAY;
+      break;
+    }
+    case donsus_ast::FIXED: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_FIXED_ARRAY;
+      break;
+    }
+    case donsus_ast::STATIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_STATIC_ARRAY;
+      break;
+    }
+    }
+  }
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
+    switch (node->get<donsus_ast::array_decl>().array_type) {
+    case donsus_ast::DYNAMIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_DYNAMIC_ARRAY;
+      break;
+    }
+    case donsus_ast::FIXED: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_FIXED_ARRAY;
+      break;
+    }
+    case donsus_ast::STATIC: {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_STATIC_ARRAY;
+      break;
+    }
+    }
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION: {
@@ -261,6 +291,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (is_declared)
       throw ReDefinitionException(decl_name + " has been already declared!");
+
     break;
   }
 
@@ -437,9 +468,6 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
     std::string func_name = node->get<donsus_ast::function_call>().func_name;
 
-    bool is_defined = sema.donsus_is_function_exist(func_name, table);
-    if (!is_defined)
-      throw ReDefinitionException(func_name + " has not been defined!");
     std::string qualified_fn_name = table->apply_scope(func_name);
     utility::handle<DonsusSymTable> current_table =
         table->get_sym_table(qualified_fn_name);
@@ -512,6 +540,7 @@ auto DonsusSema::donsus_is_function_exist(std::string &name,
   // TODO: make sure this works with multiple functions
   // here we should start with global
   std::string qu_name = table->apply_scope(name);
+  std::cout << "qu_name:" << qu_name << "\n";
   bool is_exists = table->is_sym_table_exist(qu_name);
   return is_exists;
 }
