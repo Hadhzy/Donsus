@@ -25,6 +25,7 @@ add_executable(donsus_test
         parser/test_unary_expressions.cc
         parser/test_float.cc
         parser/test_arrays.cc
+        parser/test_one_line_mul_var.cc
 
         # typecheck
         typecheck/test_return.cc

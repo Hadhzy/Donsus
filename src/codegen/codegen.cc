@@ -877,8 +877,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
-std::string
-DonsusCodeGenerator::printf_format(utility::handle<donsus_ast::node> node) {
+std::string DonsusCodeGenerator::printf_format(
+    utility::handle<donsus_ast::node> node) const {
   switch (node->real_type.type_un) {
   case DONSUS_TYPE::TYPE_BASIC_INT:
   case DONSUS_TYPE::TYPE_I32:
