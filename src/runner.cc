@@ -78,6 +78,7 @@ int Du_Main(int argc, char **argv) {
   llvm::InitializeAllAsmPrinters();
 
   if (codegen.Builder) {
+    /*    codegen.Builder->SetInsertPoint(codegen.main_block);*/
     codegen.Finish();
     codegen.create_object_file();
     codegen.Link();

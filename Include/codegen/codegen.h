@@ -77,6 +77,8 @@ public:
 
   void create_entry_point();
 
+  // helper functions
+
   std::vector<llvm::Type *>
       parameters_for_function(std::vector<NAME_DATA_PAIR>);
 
@@ -143,7 +145,7 @@ public:
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
-  std::string printf_format(utility::handle<donsus_ast::node> node);
+  [[nodiscard]] std::string printf_format(utility::handle<donsus_ast::node> node) const;
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::array_decl &ca_ast,

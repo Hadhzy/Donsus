@@ -2,17 +2,17 @@
 
 DonsusSymTable::DonsusSymTable() : allocator(1024) {}
 
-std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type) {
+std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type) {
   /*
    * add a minimal version of the symbol to the symbol table
    * */
-  auto qualified_name = create_qualified_name(short_name);
+  auto qualified_name = create_qualified_name(short_name_c);
   // mymodule.short_name
   sym t_symbol = {
       .type = type,
       .index = underlying.size(),
       .key = qualified_name,
-      .short_name = short_name,
+      .short_name = short_name_c,
       .kind = sym::SYMBOL_PLACEHOLDER,
   };
 
@@ -20,21 +20,21 @@ std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type) {
   return qualified_name;
 }
 
-std::string DonsusSymTable::add(std::string short_name,
+std::string DonsusSymTable::add(std::string short_name_c,
                                 std::vector<DONSUS_TYPE> &types) {
   auto qualified_name = create_qualified_name(short_name);
   sym t_symbol = {
       .types = types,
       .index = underlying.size(),
       .key = qualified_name,
-      .short_name = short_name,
+      .short_name = short_name_c,
       .kind = sym::SYMBOL_PLACEHOLDER,
   };
   underlying.push_back(t_symbol);
   return qualified_name;
 }
 
-std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type,
+std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
                                 bool is_function_argument) {
   auto qualified_name = create_qualified_name(short_name);
   sym t_symbol = {
@@ -42,7 +42,7 @@ std::string DonsusSymTable::add(std::string short_name, DONSUS_TYPE type,
       .type = type,
       .index = underlying.size(),
       .key = qualified_name,
-      .short_name = short_name,
+      .short_name = short_name_c,
       .kind = sym::SYMBOL_PLACEHOLDER,
   };
   underlying.push_back(t_symbol);
@@ -69,16 +69,26 @@ utility::handle<DonsusSymTable>
 DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   if (qa_sym == qa_sym_ex)
     return this;
+
   for (auto n : sym_table) {
     if (n->qa_sym == qa_sym_ex)
       return n;
   }
+
+  while (parent) {
+    if (parent->qa_sym == qa_sym_ex) {
+      return parent;
+    } else {
+      parent = parent->parent;
+    }
+  }
+
   return nullptr;
 }
 
 int DonsusSymTable::get_function_argument_size() {
   int size = 0;
-  for (auto n : underlying) {
+  for (auto &n : underlying) {
     if (n.is_function_arg) {
       size++;
     }
@@ -90,16 +100,9 @@ DONSUS_TYPE DonsusSymTable::get_function_argument(int index) {
   return underlying[index].type;
 }
 bool DonsusSymTable::is_sym_table_exist(std::string &qa_sym_ex) {
-  int found = 0;
-  if (qa_sym == qa_sym_ex) {
+  if (get_sym_table(qa_sym_ex)) {
     return true;
   }
-  for (auto n : sym_table) {
-    if (n->qa_sym == qa_sym_ex)
-      found++;
-  }
-  if (found == 1)
-    return true;
   return false;
 }
 
@@ -143,7 +146,7 @@ auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
     -> sym {
   sym a;
   int found = 0;
-  for (auto n : underlying) {
+  for (auto &n : underlying) {
     if (n.key == create_qualified_name(qualified_name)) {
       a = n;
       ++found;
@@ -160,8 +163,8 @@ auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
   return n;
 }
 
-std::string DonsusSymTable::create_qualified_name(std::string &short_name) {
-  return this->qa_sym + '.' + short_name;
+std::string DonsusSymTable::create_qualified_name(std::string &short_name_c) {
+  return this->qa_sym + '.' + short_name_c;
 }
 
 std::string DonsusSymTable::apply_scope(std::string &name) {
