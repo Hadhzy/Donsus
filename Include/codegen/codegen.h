@@ -145,7 +145,8 @@ public:
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
-  [[nodiscard]] std::string printf_format(utility::handle<donsus_ast::node> node) const;
+  [[nodiscard]] std::string
+  printf_format(utility::handle<donsus_ast::node> node) const;
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::array_decl &ca_ast,

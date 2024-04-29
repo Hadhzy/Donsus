@@ -211,7 +211,8 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     std::string iden_name = node->get<donsus_ast::identifier>().identifier_name;
     bool is_exist = sema.donsus_sema_is_exist(iden_name, table);
-    if (!is_exist)
+    bool is_exist_global = sema.donsus_sema_is_exist(iden_name, global_table);
+    if (!is_exist && !is_exist_global)
       throw DonsusUndefinedException(iden_name + " is not defined");
 
     DonsusSymTable::sym identifier_symbol_local = table->get(iden_name);
@@ -343,8 +344,10 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     // ODR
     auto def_name = node->get<donsus_ast::variable_decl>().identifier_name;
     bool is_exist = sema.donsus_sema_is_duplicated(def_name, table);
+    bool is_exist_global =
+        sema.donsus_sema_is_duplicated(def_name, global_table);
 
-    if (is_exist)
+    if (is_exist && is_exist_global)
       throw ReDefinitionException(def_name + " has been already defined!");
 
     // check for signed and unsigned
