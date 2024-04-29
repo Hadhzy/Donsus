@@ -477,6 +477,9 @@ auto DonsusParser::donsus_parse() -> end_result {
                  donsus_peek().kind == DONSUS_STAR_EQUAL) {
         parse_result result = donsus_assignments();
         donsus_tree->add_node(result);
+      } else if (donsus_peek().kind == DONSUS_COMM &&
+                 donsus_peek(2).kind == DONSUS_NAME) {
+        donsus_variable_multi_decl_def();
       } else {
         throw DonsusException(
             "Unexpected token: '" + cur_token.value +
@@ -514,6 +517,68 @@ auto DonsusParser::donsus_parse() -> end_result {
 #endif
   return donsus_tree;
 }
+
+auto DonsusParser::donsus_variable_multi_decl_def() -> void {
+  parse_result result;
+  std::vector<std::string> identifier_names;
+  donsus_token_kind type;
+  bool is_def = false;
+  while (cur_token.kind != DONSUS_SEMICOLON && cur_token.kind != DONSUS_END) {
+    if (cur_token.kind == DONSUS_EQUAL) {
+      is_def = true;
+      donsus_parser_next(); // move to the expression
+      result = donsus_expr(0);
+    }
+    if (cur_token.kind == DONSUS_COLO) {
+      donsus_parser_next();
+      if (!(DONSUS_TYPES_LEXER.find(cur_token.value) !=
+            DONSUS_TYPES_LEXER.end()))
+        throw DonsusException("Type provided: '" + cur_token.value +
+                              "' is not valid in the declaration of: '" +
+                              identifier_names[0] +
+                              "'\n at line: " + std::to_string(lexer.cur_line));
+
+      type = cur_token.kind;
+    }
+    if (cur_token.kind == DONSUS_COMM) {
+      donsus_parser_next();
+    }
+    if (cur_token.kind == DONSUS_NAME) {
+      identifier_names.push_back(cur_token.value);
+    }
+    donsus_parser_next();
+  }
+
+  for (auto &name : identifier_names) {
+    parse_result declaration = create_variable_declaration(
+        donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
+
+    auto &expression = declaration->get<donsus_ast::variable_decl>();
+    expression.identifier_name = cur_token.value;
+
+    expression.identifier_name = name;
+    expression.identifier_type = type;
+
+    if (type == DONSUS_VOID) {
+      throw DonsusException("Void can't be used as a variable type");
+    }
+
+    if (is_def) {
+      declaration->type =
+          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION;
+      declaration->children.push_back(result);
+    }
+
+    donsus_tree->add_node(declaration);
+  }
+  // expression.identifier_type = type;
+
+  // if (is_def) {
+  //   declaration->type =
+  //       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION;
+  //   declaration->children.push_back(result);
+  // }
+};
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {

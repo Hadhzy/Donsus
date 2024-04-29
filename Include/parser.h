@@ -70,6 +70,8 @@ public:
   // parsing number expressions
   auto donsus_number_primary(donsus_ast::donsus_node_type type,
                              uint64_t child_count) -> parse_result;
+  // parsing multiple var decl, def in one line
+  auto donsus_variable_multi_decl_def() -> void;
 
   // parsing variable declaration
   auto donsus_variable_decl() -> parse_result;
