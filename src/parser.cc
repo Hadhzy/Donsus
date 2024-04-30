@@ -546,6 +546,10 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
     if (cur_token.kind == DONSUS_NAME) {
       identifier_names.push_back(cur_token.value);
     }
+    if (cur_token.kind == DONSUS_SEMICOLON) {
+      break;
+    }
+
     donsus_parser_next();
   }
 
