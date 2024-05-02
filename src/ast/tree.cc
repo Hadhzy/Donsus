@@ -89,6 +89,7 @@ void tree::traverse_nodes(
   switch (n->type.type) {
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     auto stuff = n->get<donsus_ast::function_def>();
+    std::string qu_name = sym->apply_scope(stuff.func_name);
     auto b = sym->add_sym_table(stuff.func_name);
     b->function_return_type = stuff.return_type;
 

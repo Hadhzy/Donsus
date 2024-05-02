@@ -160,6 +160,16 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
+    for (auto &param : node->get<donsus_ast::function_decl>().parameters) {
+      assign_type_to_node(param, table, global_table);
+    }
+
+    node->real_type.type_un =
+        node->get<donsus_ast::function_decl>().return_type[0].type_un;
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
     for (auto &n : node->get<donsus_ast::if_statement>().body) {
       if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
@@ -275,7 +285,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
     bool is_declared = sema.donsus_sema_is_duplicated(
-        node->get<donsus_ast::variable_decl>().identifier_name, table);
+        node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
       throw ReDefinitionException(decl_name + " has been already declared!");
@@ -286,7 +296,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     auto arg_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
     bool is_declared = sema.donsus_sema_is_duplicated(
-        node->get<donsus_ast::variable_decl>().identifier_name, table);
+        node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
       throw ReDefinitionException(arg_name + " has been already declared!");
@@ -297,7 +307,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     auto decl_name = node->get<donsus_ast::array_decl>().identifier_name;
 
     bool is_declared = sema.donsus_sema_is_duplicated(
-        node->get<donsus_ast::array_decl>().identifier_name, table);
+        node->get<donsus_ast::array_decl>().identifier_name, table, false);
 
     if (is_declared)
       throw ReDefinitionException(decl_name + " has been already declared!");
@@ -309,7 +319,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     auto def_name = node->get<donsus_ast::array_def>().identifier_name;
 
     bool is_declared = sema.donsus_sema_is_duplicated(
-        node->get<donsus_ast::array_def>().identifier_name, table);
+        node->get<donsus_ast::array_def>().identifier_name, table, false);
 
     if (is_declared)
       throw ReDefinitionException(def_name + " has been already declared!");
@@ -363,9 +373,9 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     // ODR
     auto def_name = node->get<donsus_ast::variable_decl>().identifier_name;
-    bool is_exist = sema.donsus_sema_is_duplicated(def_name, table);
+    bool is_exist = sema.donsus_sema_is_duplicated(def_name, table, false);
     bool is_exist_global =
-        sema.donsus_sema_is_duplicated(def_name, global_table);
+        sema.donsus_sema_is_duplicated(def_name, global_table, false);
 
     if (is_exist && is_exist_global)
       throw ReDefinitionException(def_name + " has been already defined!");
@@ -428,19 +438,20 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
     auto func_name = node->get<donsus_ast::function_decl>().func_name;
-    bool is_func_declared = sema.donsus_sema_is_duplicated(func_name, table);
+    bool is_func_declared =
+        sema.donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_func_declared)
-      throw ReDefinitionException(func_name + "has been already declared");
+      throw ReDefinitionException(func_name + " has been already declared");
 
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     auto func_name = node->get<donsus_ast::function_def>().func_name;
-    bool is_defined = sema.donsus_sema_is_duplicated(func_name, table);
+    bool is_defined = sema.donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_defined)
-      throw ReDefinitionException(func_name + "has been already declared");
+      throw ReDefinitionException(func_name + " has been already declared");
 
     // loop through the function, assign types and then come back
     sema.donsus_typecheck_is_return_type_valid(node);
@@ -544,12 +555,23 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
 // check if its duplicated(true)
 auto DonsusSema::donsus_sema_is_duplicated(
-    std::string &name, utility::handle<DonsusSymTable> table) -> bool {
+    std::string &name, utility::handle<DonsusSymTable> table, bool for_function)
+    -> bool {
   // check if the
-  DonsusSymTable::sym result = table->get(name);
-  if (result.duplicated)
-    return true;
-  return false;
+  // for_function is a boolean that is true when we are checking for a function
+  // we have to use get_sym_table when we are checking for a function
+  if (for_function) {
+    std::string qu_name = table->apply_scope(name);
+    utility::handle<DonsusSymTable> result = table->get_sym_table(qu_name);
+    if (result && result->duplicated)
+      return true;
+    return false;
+  } else {
+    DonsusSymTable::sym result = table->get(name);
+    if (result.duplicated)
+      return true;
+    return false;
+  }
 }
 
 auto DonsusSema::donsus_sema_is_exist(std::string &name,
