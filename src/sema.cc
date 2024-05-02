@@ -342,6 +342,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
           " is out of bounds");
     }
 
+    // combine this with out of bounds error
+    if (node->get<donsus_ast::array_def>().number_of_elements !=
+        node->get<donsus_ast::array_def>().size) {
+      throw NotMatchingSubscript("The size of the array must match with the "
+                                 "one specified as the subscript");
+    }
+
     break;
   }
 

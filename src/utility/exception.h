@@ -56,4 +56,9 @@ public:
   OutOfBoundException() = default;
   OutOfBoundException(const std::string &message) : DonsusException(message) {}
 };
+class NotMatchingSubscript : public DonsusException {
+public:
+  NotMatchingSubscript() = default;
+  NotMatchingSubscript(const std::string &message) : DonsusException(message) {}
+};
 #endif

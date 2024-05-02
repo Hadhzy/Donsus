@@ -67,6 +67,7 @@ auto sym_from_node(utility::handle<donsus_ast::node> &node,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG:
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   default: {
+    throw std::runtime_error("Does not work with expressions");
   }
   }
 }
@@ -833,15 +834,17 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   std::string format_string{};
 
   for (auto node : ast->children) {
+    if (!is_expression(node)) {
+      DonsusSymTable::sym sym = sym_from_node(node, table);
+      if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
+          sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
+          sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
 
-    DonsusSymTable::sym sym = sym_from_node(node, table);
-    if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
-        sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
-        sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
-      for (size_t i = 0; i < sym.array.insts.size(); ++i) {
-        format_string.append(printf_format(sym.array.type));
+        for (size_t i = 0; i < sym.array.insts.size(); ++i) {
+          format_string.append(printf_format(sym.array.type));
+        }
+        break;
       }
-      break;
     } else {
 
       format_string.append(printf_format(node->real_type));
