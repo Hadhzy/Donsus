@@ -1,3 +1,11 @@
+//===----------------------------------------------------------------------===//
+//
+//  Creates a table with symbols representing where an identifier "lives" inside
+//  a program, for example referring back to already defined variables.
+//  In some cases it might use propagation to look for symbols not directly
+//  available in the current scope.
+//===----------------------------------------------------------------------===//
+
 #include "../Include/symbol_table.h"
 
 DonsusSymTable::DonsusSymTable() : allocator(1024) {}
@@ -133,6 +141,14 @@ auto DonsusSymTable::setInst(std::string qualified_name, llvm::Value *inst)
   }
 }
 
+void DonsusSymTable::setSym(std::string qualified_name,
+                            DonsusSymTable::sym &symbol) {
+  for (auto &n : underlying) {
+    if (n.key == qualified_name) {
+      n = symbol;
+    }
+  }
+}
 int DonsusSymTable::add_desc(sym &desc) {
   if (desc.mod != -1 && desc.kind != sym::SYMBOL_PLACEHOLDER) {
     std::cout << "report error here";

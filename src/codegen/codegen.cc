@@ -1,14 +1,11 @@
-/*
- Codegen for the DONSUS COMPILER
-Todo:
-- build vtable: https://itanium-cxx-abi.github.io/cxx-abi/abi.html#vtable
-- IRBuilder
-- assign them in symbol table
- - forward declaration
-- multiple return type
- */
-#include "../../Include/codegen/codegen.h"
+//===----------------------------------------------------------------------===//
+//
+//  This file implements code generation for the Donsus compiler.
+//  The Codegen is done with LLVM.
+//
+//===----------------------------------------------------------------------===//
 
+#include "../../Include/codegen/codegen.h"
 namespace DonsusCodegen {
 // similar to donsus_sema_is_exist
 auto is_global_sym(std::string &name, utility::handle<DonsusSymTable> table)
@@ -834,18 +831,44 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   std::vector<llvm::Value *> Argsv;
 
   std::string format_string{};
+
   for (auto node : ast->children) {
-    format_string.append(printf_format(node));
+
+    DonsusSymTable::sym sym = sym_from_node(node, table);
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
+      for (size_t i = 0; i < sym.array.insts.size(); ++i) {
+        format_string.append(printf_format(sym.array.type));
+      }
+      break;
+    } else {
+
+      format_string.append(printf_format(node->real_type));
+    }
   }
   Argsv.push_back(Builder->CreateGlobalString(format_string));
 
   for (auto node : ast->children) {
+
     if (is_expression(node)) {
       Argsv.push_back(compile(node, table));
       continue;
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
+      for (auto i : sym.array.insts) {
+        if (!i->getType()->isPointerTy()) {
+          Argsv.push_back(i);
+          continue;
+        }
+        Argsv.push_back(Builder->CreateLoad(map_type(sym.array.type), i));
+      }
+      break;
+    }
     if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
       llvm::Value *loadedFloatValue =
@@ -871,9 +894,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(8, 0, false));
 }
 
-std::string DonsusCodeGenerator::printf_format(
-    utility::handle<donsus_ast::node> node) const {
-  switch (node->real_type.type_un) {
+std::string DonsusCodeGenerator::printf_format(DONSUS_TYPE type) const {
+  switch (type.type_un) {
   case DONSUS_TYPE::TYPE_BASIC_INT:
   case DONSUS_TYPE::TYPE_I32:
   case DONSUS_TYPE::TYPE_U64:
@@ -925,24 +947,37 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   auto type = ca_ast.type;
   auto name = ca_ast.identifier_name;
   if (is_global_sym(name, table)) {
+    DonsusSymTable::sym symbol = table->get(name);
+
+    /*
+     * llvm::ArrayType::get(map_type(make_type(type))
+     * */
     llvm::ArrayType *arrayType =
         llvm::ArrayType::get(map_type(make_type(type)), ca_ast.size);
+
     llvm::AllocaInst *allocaInst = Builder->CreateAlloca(arrayType, 0, nullptr);
 
+    // create array
+    DonsusSymTable::sym::donsus_array don_a;
+    don_a.num_of_elems = ca_ast.size;
     std::vector<llvm::Constant *> v;
 
     for (auto node : ca_ast.elements) {
       llvm::Value *local = compile(node, table);
-      local->print(llvm::outs());
       auto *constant = llvm::dyn_cast<llvm::Constant>(local);
       if (constant) {
+        // might not duplicated it
+        don_a.insts.push_back(local);
         v.push_back(constant);
       } else {
         // dynamic initialisation is needed
+        don_a.insts.push_back(local);
         v.push_back(constant);
       }
     }
-
+    don_a.type = make_type(type);
+    // set array(local copy again)
+    symbol.array = don_a;
     // both can share a constant initializer
     llvm::Constant *array_initializer = llvm::ConstantArray::get(arrayType, v);
 
@@ -950,18 +985,26 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       auto *array = new llvm::GlobalVariable(
           *TheModule, arrayType, false, llvm::GlobalVariable::PrivateLinkage,
           array_initializer);
+
+      symbol.inst = array;
+      table->setSym(symbol.key, symbol);
+      TheModule->print(llvm::errs(), nullptr);
       return array;
     } else if (ca_ast.array_type == donsus_ast::ArrayType::STATIC) {
       // isConstant - true -> makes it immutable
       auto *array = new llvm::GlobalVariable(
           *TheModule, arrayType, true, llvm::GlobalVariable::PrivateLinkage,
           array_initializer);
+      symbol.inst = array; // re_load
+      table->setSym(symbol.key, symbol);
       return array;
     }
 
   } else {
+    // we dont support dynamic array codegen yet
     // local on the stack or smt
   }
+
   return nullptr;
 }
 
@@ -1015,4 +1058,6 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
   return nullptr;
 }
+llvm::Type *
+DonsusCodegen::DonsusCodeGenerator::map_pointer_type(DONSUS_TYPE type) {}
 } // namespace DonsusCodegen

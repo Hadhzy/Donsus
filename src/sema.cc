@@ -1,3 +1,12 @@
+//===----------------------------------------------------------------------===//
+//
+// Performs semantic analysis and typechecking recursively.
+// It assigns DONSUS_TYPE(s) to nodes then performs typechecking by matching
+// different properties with each other. It might also as well check for
+// whether a concept contextually makes sense - although this is highly unlikely
+// as the parser catches most of the mistakes and processes everything.
+//===----------------------------------------------------------------------===//
+
 #include "../Include/sema.h"
 
 DonsusSema sema;

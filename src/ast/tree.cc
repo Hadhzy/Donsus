@@ -1,15 +1,19 @@
+//===----------------------------------------------------------------------===//
+//
+// This file loops through the AST provided by the parser and produces symbols
+// as well as visits each of the node for typechecking and type-assignment.
+// It really is a tree traversal.
+//===----------------------------------------------------------------------===//
+
 #include "tree.h"
 #include "../../Include/codegen/codegen.h"
 using namespace donsus_ast;
-
-// sym_table helpers
-
 tree::tree() : allocator(1024) {}
 
 void tree::add_node(utility::handle<node> node) { nodes.push_back(node); }
 
 // Recursion is not possible
-// AST WALKER
+// AST WALKER - creates symbols and symbol table
 void tree::traverse(
     std::function<void(utility::handle<node>,
                        utility::handle<DonsusSymTable> table,
@@ -120,14 +124,14 @@ void tree::traverse_nodes(
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
     auto stuff = n->get<donsus_ast::array_decl>();
     sym->add(stuff.identifier_name,
-             make_type(n->get<donsus_ast::array_decl>().type));
+             make_type_array(n->get<donsus_ast::array_decl>().array_type));
     break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     auto stuff = n->get<donsus_ast::array_def>();
     sym->add(stuff.identifier_name,
-             make_type(n->get<donsus_ast::array_def>().type));
+             make_type_array(n->get<donsus_ast::array_def>().array_type));
     break;
   }
 

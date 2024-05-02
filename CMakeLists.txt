@@ -21,7 +21,6 @@ add_library(donsus_lib STATIC
         src/lexer.cc
         src/runner.cc
         src/sema.cc
-        src/ir.cc
 
         # type
         src/type.cc
@@ -50,7 +49,6 @@ add_library(donsus_lib STATIC
         src/ast/tree.cc
 
         # optimisation
-        src/optimisation_ast.cc
 )
 
 #[[
@@ -74,7 +72,6 @@ endif ()
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_definitions(-DDEBUG_MODE)
 endif ()
-
 
 # Add include directories for the library
 target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include")

@@ -145,8 +145,9 @@ public:
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
+
   [[nodiscard]] std::string
-  printf_format(utility::handle<donsus_ast::node> node) const;
+  printf_format(DONSUS_TYPE type) const;
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::array_decl &ca_ast,
@@ -157,6 +158,8 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Type *map_type(DONSUS_TYPE type);
+  llvm::Type * map_pointer_type(DONSUS_TYPE type);
+
   // meta
   llvm::BasicBlock *main_block;
   llvm::Function *main_func;
