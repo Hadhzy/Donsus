@@ -15,6 +15,18 @@ public:
     create_entry_point();
   }
 
+
+  void create_printf(llvm::ArrayType *arrayType){
+  std::vector<llvm::Type *> printf_arg_types;
+  printf_arg_types.push_back(Builder->getPtrTy());
+
+    llvm::FunctionType *FT1 = llvm::FunctionType::get(
+        llvm::Type::getInt32Ty(*TheContext), printf_arg_types, true);
+
+    llvm::Function *func =
+        llvm::Function::Create(FT1, llvm::Function::ExternalLinkage,
+                               llvm::Twine("printf"), TheModule.get());
+  }
   void create_global_array() {
 
     llvm::ArrayType *arrayType = llvm::ArrayType::get(Builder->getInt32Ty(), 4);

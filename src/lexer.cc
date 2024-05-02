@@ -1,4 +1,8 @@
-// Lexer of the Donsus compiler
+//===----------------------------------------------------------------------===//
+//
+// This file is the lexer of the Donsus Compiler. It produces tokens on the fly.
+//
+//===----------------------------------------------------------------------===//
 
 #include "../Include/parser.h"
 #include <iostream>

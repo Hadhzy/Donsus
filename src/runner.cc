@@ -1,4 +1,8 @@
-// Running each step in the compiler
+//===----------------------------------------------------------------------===//
+// Main entry point for the Donsus Compiler.
+// It calls all the steps needed from the top to the bottom.
+//===----------------------------------------------------------------------===//
+
 #include "../Include/codegen/codegen.h"
 #include "../Include/file.h"
 #include "../Include/sema.h"
@@ -8,12 +12,8 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
-#include "llvm/MC/TargetRegistry.h"
-#include "llvm/Support/FileSystem.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetOptions.h"
 #include "llvm/TargetParser/Host.h"
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
 

@@ -1,4 +1,10 @@
-// pratt parser
+//===----------------------------------------------------------------------===//
+//
+// Produces a tree data structure(AST) from the tokens.
+// It uses pratt parsing and is responsible for making syntactic sense out of
+// the language.
+//===----------------------------------------------------------------------===//
+
 #include "../Include/parser.h"
 #include <iostream>
 #include <utility>

@@ -1,3 +1,11 @@
+//===----------------------------------------------------------------------===//
+//
+//  Creates a table with symbols representing where an identifier "lives" inside
+//  a program, for example referring back to already defined variables.
+//  In some cases it might use propagation to look for symbols not directly
+//  available in the current scope.
+//===----------------------------------------------------------------------===//
+
 #include "../Include/symbol_table.h"
 
 DonsusSymTable::DonsusSymTable() : allocator(1024) {}
@@ -86,6 +94,30 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   return nullptr;
 }
 
+utility::handle<DonsusSymTable>
+DonsusSymTable::get_sym_table_from_unqualified(std::string &short_name) {
+
+  for (auto n : sym_table) {
+    if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+      return n;
+    }
+  }
+
+  while (parent) {
+    for (auto n : parent->sym_table) {
+      std::cout << n->qa_sym << ":" << n->short_name + '.' + short_name;
+      if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+        return n;
+      }
+    }
+    if (parent->qa_sym == parent->qa_sym + '.' + short_name) {
+      return parent;
+    } else {
+      parent = parent->parent;
+    }
+  }
+  return nullptr;
+}
 int DonsusSymTable::get_function_argument_size() {
   int size = 0;
   for (auto &n : underlying) {
@@ -133,6 +165,14 @@ auto DonsusSymTable::setInst(std::string qualified_name, llvm::Value *inst)
   }
 }
 
+void DonsusSymTable::setSym(std::string qualified_name,
+                            DonsusSymTable::sym &symbol) {
+  for (auto &n : underlying) {
+    if (n.key == qualified_name) {
+      n = symbol;
+    }
+  }
+}
 int DonsusSymTable::add_desc(sym &desc) {
   if (desc.mod != -1 && desc.kind != sym::SYMBOL_PLACEHOLDER) {
     std::cout << "report error here";

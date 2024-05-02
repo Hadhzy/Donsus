@@ -27,6 +27,18 @@ public:
   utility::handle<DonsusSymTable> parent = nullptr; //
   struct sym {
     int mod;
+
+    struct donsus_array {
+      // used for looping
+      unsigned int num_of_elems;
+      // for example - we can load this in printf
+      std::vector<llvm::Value *> insts;
+      DONSUS_TYPE type; // all elements must have same type
+    };
+
+    // set if symbol holds an array
+    donsus_array array;
+
     bool is_function_arg = false;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
@@ -36,11 +48,7 @@ public:
     std::size_t index;       // the order in which the addition happened
     std::string key;         // qualified_name
     std::string short_name;  // the name from which the qualified_name obtained
-    enum : int { SORT_WHITE, SORT_GREY, SORT_BLACK };
     enum : int { SYMBOL_GLOBAL, SYMBOL_TYPE, SYMBOL_PLACEHOLDER } kind;
-    /*    union {
-          d_proc, d_global, d_type, d_imas
-        }; // d_proc, d_global, d_type, d_imas*/
     bool operator==(sym const &rhs) const {
       // use when debugging
       return key == rhs.key && type == rhs.type && short_name == rhs.short_name;
@@ -49,7 +57,7 @@ public:
   };
   using sym = DonsusSymTable::sym;
   // Debug print for symbol
-  friend std::ostream &operator<<(std::ostream &o, sym sma) {
+  friend std::ostream &operator<<(std::ostream &o, sym &sma) {
     o << "key: " << sma.key << "\n";
     o << "short_name: " << sma.short_name << "\n";
     o << "index: " << sma.index << "\n";
@@ -105,6 +113,8 @@ public:
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
+  utility::handle<DonsusSymTable>
+  get_sym_table_from_unqualified(std::string &qa_sym_ex);
   // Check if table exists inside a symbol table
   // it also checks itself as one of the options
   bool is_sym_table_exist(std::string &qa_sym_ex);
@@ -120,6 +130,7 @@ public:
   // set inst field from CreateAlloca or a function
   void setInst(std::string qualified_name, llvm::Value *inst);
 
+  void setSym(std::string qualified_name, DonsusSymTable::sym &symbol);
   // for debugging purposes
   bool operator==(DonsusSymTable const &rhs) const {
     return underlying == rhs.underlying && sym_table == rhs.sym_table;
