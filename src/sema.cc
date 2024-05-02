@@ -491,12 +491,12 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
     std::string func_name = node->get<donsus_ast::function_call>().func_name;
 
-    bool is_defined = sema.donsus_is_function_exist(func_name, table);
-    if (!is_defined)
+    if (!table->get_sym_table_from_unqualified(func_name)) {
       throw ReDefinitionException(func_name + " has not been defined!");
-    std::string qualified_fn_name = table->apply_scope(func_name);
+    }
+
     utility::handle<DonsusSymTable> current_table =
-        table->get_sym_table(qualified_fn_name);
+        table->get_sym_table_from_unqualified(func_name);
 
     // Check whether the number of arguments is correct
     unsigned int number_of_args =
@@ -566,6 +566,7 @@ auto DonsusSema::donsus_is_function_exist(std::string &name,
   // TODO: make sure this works with multiple functions
   // here we should start with global
   std::string qu_name = table->apply_scope(name);
+
   bool is_exists = table->is_sym_table_exist(qu_name);
   return is_exists;
 }

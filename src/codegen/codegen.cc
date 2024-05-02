@@ -550,10 +550,9 @@ llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::function_call &ast,
                            utility::handle<DonsusSymTable> &table) {
 
-  std::string qualified_fn_name = table->apply_scope(ast.func_name);
-
   utility::handle<DonsusSymTable> sym_table =
-      table->get_sym_table(qualified_fn_name); // the funcion's table
+      table->get_sym_table_from_unqualified(
+          ast.func_name); // the funcion's table
 
   std::vector<llvm::Value *> args;
   // llvm::CallInst *call =

@@ -94,6 +94,30 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
   return nullptr;
 }
 
+utility::handle<DonsusSymTable>
+DonsusSymTable::get_sym_table_from_unqualified(std::string &short_name) {
+
+  for (auto n : sym_table) {
+    if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+      return n;
+    }
+  }
+
+  while (parent) {
+    for (auto n : parent->sym_table) {
+      std::cout << n->qa_sym << ":" << n->short_name + '.' + short_name;
+      if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+        return n;
+      }
+    }
+    if (parent->qa_sym == parent->qa_sym + '.' + short_name) {
+      return parent;
+    } else {
+      parent = parent->parent;
+    }
+  }
+  return nullptr;
+}
 int DonsusSymTable::get_function_argument_size() {
   int size = 0;
   for (auto &n : underlying) {

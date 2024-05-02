@@ -113,6 +113,8 @@ public:
    * */
   utility::handle<DonsusSymTable> get_sym_table(std::string &qa_sym_ex);
 
+  utility::handle<DonsusSymTable>
+  get_sym_table_from_unqualified(std::string &qa_sym_ex);
   // Check if table exists inside a symbol table
   // it also checks itself as one of the options
   bool is_sym_table_exist(std::string &qa_sym_ex);
