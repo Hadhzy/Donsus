@@ -844,6 +844,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         }
         break;
       }
+      // not nice: I know
+      // not expression but not an array might remove this
+      format_string.append(printf_format(node->real_type));
+
     } else {
 
       format_string.append(printf_format(node->real_type));
