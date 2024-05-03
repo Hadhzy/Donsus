@@ -101,7 +101,7 @@ struct array_decl {
 
 struct array_access {
   std::string identifier_name;
-  int index;
+  utility::handle<donsus_ast::node> index;
 };
 
 struct bool_expr {

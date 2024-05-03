@@ -205,10 +205,8 @@ public:
           "identifier_name: " +
               ast_node->get<donsus_ast::array_access>().identifier_name,
           indent_level);
-      print_with_newline(
-          "index: " +
-              std::to_string(ast_node->get<donsus_ast::array_access>().index),
-          indent_level);
+      print_ast_node(ast_node->get<donsus_ast::array_access>().index,
+                     indent_level);
       break;
     }
 
@@ -632,7 +630,9 @@ auto DonsusParser::donsus_array_access() -> parse_result {
 
   donsus_parser_next(); // move to '['
   donsus_parser_next(); // move to the index
-  expression.index = std::stoi(cur_token.value);
+  // parse down index as expression
+  auto index_expression = donsus_expr(0);
+  expression.index = index_expression;
 
   donsus_parser_next(); // move to ']'
   return node;
@@ -664,8 +664,7 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   case DONSUS_NAME: {
     if (donsus_peek().kind == DONSUS_LPAR) {
       return donsus_function_decl();
-    } else if (donsus_peek().kind == DONSUS_LSQB &&
-               donsus_peek(3).kind == DONSUS_RSQB) {
+    } else if (donsus_peek().kind == DONSUS_LSQB) {
       return donsus_array_access();
     } else {
       return donsus_identifier();
