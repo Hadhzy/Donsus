@@ -28,6 +28,32 @@ std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type) {
   return qualified_name;
 }
 
+std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
+                                unsigned int num_of_elems,
+                                DONSUS_TYPE array_type) {
+  /*
+   * add a minimal version of the symbol to the symbol table, this is only for
+   * arrays
+   * */
+  auto qualified_name = create_qualified_name(short_name_c);
+  // mymodule.short_name
+  sym t_symbol = {
+      .array =
+          {
+              .num_of_elems = num_of_elems,
+              .type = array_type,
+          },
+      .type = type,
+      .index = underlying.size(),
+      .key = qualified_name,
+      .short_name = short_name_c,
+      .kind = sym::SYMBOL_PLACEHOLDER,
+  };
+
+  underlying.push_back(t_symbol);
+  return qualified_name;
+}
+
 std::string DonsusSymTable::add(std::string short_name_c,
                                 std::vector<DONSUS_TYPE> &types) {
   auto qualified_name = create_qualified_name(short_name);

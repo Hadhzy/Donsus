@@ -54,6 +54,23 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS: {
+    // make sure the array is defined
+    // make sure the index is correct
+    // assign the type based on the array
+
+    std::string array_name =
+        node->get<donsus_ast::array_access>().identifier_name;
+    bool is_exist = sema.donsus_sema_is_exist(array_name, table);
+    bool is_exist_global = sema.donsus_sema_is_exist(array_name, global_table);
+    if (!is_exist && !is_exist_global)
+      throw DonsusUndefinedException(array_name + " is not defined");
+
+    DONSUS_TYPE array_type = table->get(array_name).array.type;
+    node->real_type = array_type;
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
       assign_type_to_node(n, table, global_table);

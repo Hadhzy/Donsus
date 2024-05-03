@@ -92,6 +92,9 @@ public:
 
   std::string add(std::string short_name, DONSUS_TYPE type,
                   bool is_function_argument);
+
+  std::string add(std::string short_name_c, DONSUS_TYPE type,
+                  unsigned int num_of_elems, DONSUS_TYPE array_type);
   /*
    * Add symbol table to global.
    * */
