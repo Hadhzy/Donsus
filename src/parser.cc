@@ -199,6 +199,19 @@ public:
       break;
     }
 
+    case type::DONSUS_ARRAY_ACCESS: {
+      print_type(ast_node->type, indent_level);
+      print_with_newline(
+          "identifier_name: " +
+              ast_node->get<donsus_ast::array_access>().identifier_name,
+          indent_level);
+      print_with_newline(
+          "index: " +
+              std::to_string(ast_node->get<donsus_ast::array_access>().index),
+          indent_level);
+      break;
+    }
+
     case type::DONSUS_RETURN_STATEMENT: {
       print_type(ast_node->type, indent_level);
       if (ast_node->children.empty()) {
@@ -611,6 +624,20 @@ auto DonsusParser::donsus_float_number(donsus_ast::donsus_node_type type,
   return node;
 }
 
+auto DonsusParser::donsus_array_access() -> parse_result {
+  parse_result node = create_array_access(
+      donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS, 10);
+  auto &expression = node->get<donsus_ast::array_access>();
+  expression.identifier_name = cur_token.value;
+
+  donsus_parser_next(); // move to '['
+  donsus_parser_next(); // move to the index
+  expression.index = std::stoi(cur_token.value);
+
+  donsus_parser_next(); // move to ']'
+  return node;
+}
+
 // r-value expressions
 /*
 assignment_value:
@@ -637,6 +664,9 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   case DONSUS_NAME: {
     if (donsus_peek().kind == DONSUS_LPAR) {
       return donsus_function_decl();
+    } else if (donsus_peek().kind == DONSUS_LSQB &&
+               donsus_peek(3).kind == DONSUS_RSQB) {
+      return donsus_array_access();
     } else {
       return donsus_identifier();
     }
@@ -1390,6 +1420,11 @@ auto DonsusParser::create_return_statement(donsus_ast::donsus_node_type type,
     -> parse_result {
 
   return donsus_tree->create_node<donsus_ast::return_kw>(type, child_count);
+}
+
+auto DonsusParser::create_array_access(donsus_ast::donsus_node_type type,
+                                       u_int64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::array_access>(type, child_count);
 }
 
 auto DonsusParser::create_identifier(donsus_ast::donsus_node_type type,

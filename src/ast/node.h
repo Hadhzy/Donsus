@@ -34,6 +34,7 @@ struct donsus_node_type {
     DONSUS_BOOL_EXPRESSION,
     DONSUS_UNARY_EXPRESSION,
     DONSUS_PRINT_EXPRESSION,
+    DONSUS_ARRAY_ACCESS,
     DONSUS_FUNCTION_ARG
 
   };
@@ -96,6 +97,11 @@ struct array_decl {
   int number_of_elements;
   int size; // Represents the number between the square brackets a:int[3] =
             // [1,2,3]; here it is 3
+};
+
+struct array_access {
+  std::string identifier_name;
+  int index;
 };
 
 struct bool_expr {
@@ -179,8 +185,7 @@ struct expression {
 
 struct print_expr {};
 
-using node_properties =
-    utility::property<>;
+using node_properties = utility::property<>;
 
 struct node : node_properties {
   //  // children tbd

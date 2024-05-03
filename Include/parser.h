@@ -114,6 +114,11 @@ public:
   auto create_function_decl(donsus_ast::donsus_node_type type,
                             u_int64_t child_count) -> parse_result;
 
+  // Array access
+  auto donsus_array_access() -> parse_result;
+  auto create_array_access(donsus_ast::donsus_node_type type,
+                           u_int64_t child_count) -> parse_result;
+
   // parsing string expressions
   auto string_expression() -> parse_result;
   auto create_string_expression(donsus_ast::donsus_node_type type,
