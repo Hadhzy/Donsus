@@ -16,6 +16,7 @@ public:
   std::vector<utility::handle<DonsusSymTable>> sym_table;
   std::string qa_sym = "global";
   std::string short_name = "global";
+  bool duplicated = false; // true if its duplicated in the symbol_table
   std::vector<DONSUS_TYPE> function_return_type; // only for function def
   llvm::Value *inst;
   // similar to inst - requires a loop to change the actual value
@@ -38,16 +39,15 @@ public:
 
     // set if symbol holds an array
     donsus_array array;
-
+    bool duplicated = false;
     bool is_function_arg = false;
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
     llvm::Value
         *inst; // This can represent AllocaDef, or a function as an lvalue
-    bool duplicated = false; // true if its duplicated in the symbol_table
-    std::size_t index;       // the order in which the addition happened
-    std::string key;         // qualified_name
-    std::string short_name;  // the name from which the qualified_name obtained
+    std::size_t index;      // the order in which the addition happened
+    std::string key;        // qualified_name
+    std::string short_name; // the name from which the qualified_name obtained
     enum : int { SYMBOL_GLOBAL, SYMBOL_TYPE, SYMBOL_PLACEHOLDER } kind;
     bool operator==(sym const &rhs) const {
       // use when debugging

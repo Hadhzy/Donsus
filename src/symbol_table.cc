@@ -75,12 +75,19 @@ DonsusSymTable::add_sym_table(std::string qa_sym_ex) {
 
 utility::handle<DonsusSymTable>
 DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
+  int found = 0;
+
   if (qa_sym == qa_sym_ex)
     return this;
 
   for (auto n : sym_table) {
-    if (n->qa_sym == qa_sym_ex)
+    if (n->qa_sym == qa_sym_ex) {
+      found++;
+      if (found >= 2) {
+        n->duplicated = true;
+      }
       return n;
+    }
   }
 
   while (parent) {
