@@ -49,6 +49,8 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_ARRAY_DEFINITION";
   case DONSUS_FLOAT_EXPRESSION:
     return "DONSUS_FLOAT_EXPRESSION";
+  case DONSUS_ARRAY_ACCESS:
+    return "DONSUS_ARRAY_ACCESS";
 
   case DONSUS_FUNCTION_ARG:
     return "DONSUS_FUNCTION_ARG";
@@ -126,6 +128,10 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
 
   case donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     return "DONSUS_ARRAY_DEFINITION";
+  }
+
+  case donsus_node_type::DONSUS_ARRAY_ACCESS: {
+    return "DONSUS_ARRAY_ACCESS";
   }
 
   default: {

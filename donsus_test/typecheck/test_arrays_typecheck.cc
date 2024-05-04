@@ -69,3 +69,32 @@ TEST(ArrayOutOfBounds, ArrayTypeCheck) {
       { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
       OutOfBoundException);
 }
+
+TEST(ArrayAccessIncorrect, ArrayTypeCheck) {
+  std::string a = R"(
+    a:string[] = ["string"];
+
+    b:int = a[0];
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  parse_result->init_traverse();
+
+  EXPECT_THROW(
+      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
+      InCompatibleTypeException);
+}
+
+TEST(ArrayAccessCorrect, ArrayTypeCheck) {
+  std::string a = R"(
+    a:int[] = [0];
+
+    b:int = a[0];
+)";
+  DonsusParser::end_result parse_result = Du_Parse(a);
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  parse_result->init_traverse();
+
+  EXPECT_NO_THROW(
+      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+}

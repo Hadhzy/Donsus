@@ -125,14 +125,20 @@ void tree::traverse_nodes(
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
     auto stuff = n->get<donsus_ast::array_decl>();
     sym->add(stuff.identifier_name,
-             make_type_array(n->get<donsus_ast::array_decl>().array_type));
+             make_type_array(n->get<donsus_ast::array_def>().array_type),
+             stuff.number_of_elements,
+             make_type(n->get<donsus_ast::array_def>().type));
+
     break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     auto stuff = n->get<donsus_ast::array_def>();
     sym->add(stuff.identifier_name,
-             make_type_array(n->get<donsus_ast::array_def>().array_type));
+             make_type_array(n->get<donsus_ast::array_def>().array_type),
+             stuff.number_of_elements,
+             make_type(n->get<donsus_ast::array_def>().type));
+
     break;
   }
 
