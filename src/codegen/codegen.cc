@@ -5,6 +5,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+/*
+ * Todo:
+ *    codegen down dynamic arrays
+ *    allow variables in array initialisation
+ * */
 #include "../../Include/codegen/codegen.h"
 namespace DonsusCodegen {
 // similar to donsus_sema_is_exist
@@ -727,7 +732,6 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
     }
     PreprocessedString.push_back(ast.value.value[i]);
   }
-
   return Builder->CreateGlobalStringPtr(
       llvm::StringRef(PreprocessedString.data()));
 }
@@ -842,8 +846,12 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         for (size_t i = 0; i < sym.array.insts.size(); ++i) {
           format_string.append(printf_format(sym.array.type));
         }
-        break;
+        continue;
       }
+      // not nice: I know
+      // not expression but not an array might remove this
+      format_string.append(printf_format(node->real_type));
+
     } else {
 
       format_string.append(printf_format(node->real_type));
@@ -869,7 +877,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         }
         Argsv.push_back(Builder->CreateLoad(map_type(sym.array.type), i));
       }
-      break;
+      continue;
     }
     if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
@@ -878,9 +886,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       llvm::Value *new_value =
           Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
       Argsv.push_back(new_value);
-    } else {
-      Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+      continue;
     }
+
+    Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
   }
 
   return Builder->CreateCall(func, Argsv, "printfCall");
@@ -963,18 +972,20 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     DonsusSymTable::sym::donsus_array don_a;
     don_a.num_of_elems = ca_ast.size;
     std::vector<llvm::Constant *> v;
+    std::vector<llvm::Value *> dynamic;
 
     for (auto node : ca_ast.elements) {
       llvm::Value *local = compile(node, table);
       auto *constant = llvm::dyn_cast<llvm::Constant>(local);
       if (constant) {
-        // might not duplicated it
+        // make it nicer
         don_a.insts.push_back(local);
+        dynamic.push_back(local);
         v.push_back(constant);
       } else {
         // dynamic initialisation is needed
         don_a.insts.push_back(local);
-        v.push_back(constant);
+        dynamic.push_back(local); // might create a different iterator for this
       }
     }
     don_a.type = make_type(type);
@@ -990,7 +1001,6 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
       symbol.inst = array;
       table->setSym(symbol.key, symbol);
-      TheModule->print(llvm::errs(), nullptr);
       return array;
     } else if (ca_ast.array_type == donsus_ast::ArrayType::STATIC) {
       // isConstant - true -> makes it immutable
@@ -1000,11 +1010,33 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       symbol.inst = array; // re_load
       table->setSym(symbol.key, symbol);
       return array;
+    } else if (ca_ast.array_type == donsus_ast::ArrayType::DYNAMIC) {
+
+      auto *zero = llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+
+      auto index = 0;
+
+      auto *array = new llvm::GlobalVariable(
+          *TheModule, arrayType, false, llvm::GlobalVariable::PrivateLinkage,
+          llvm::Constant::getNullValue(arrayType), "array");
+      symbol.inst = array;
+      table->setSym(symbol.key, symbol);
+      for (auto dy_value : dynamic) {
+        std::vector<llvm::Value *> idx_list;
+        idx_list.push_back(zero);
+        idx_list.push_back(
+            llvm::ConstantInt::get(*TheContext, llvm::APInt(32, index)));
+        index++;
+        auto *gep = Builder->CreateGEP(arrayType, array, idx_list);
+        Builder->CreateStore(dy_value, gep);
+      }
+      return array;
     }
 
   } else {
     // we dont support dynamic array codegen yet
     // local on the stack or smt
+    // global variable is not needed here
   }
 
   return nullptr;
