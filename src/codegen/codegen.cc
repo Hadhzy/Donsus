@@ -732,7 +732,6 @@ DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
     }
     PreprocessedString.push_back(ast.value.value[i]);
   }
-
   return Builder->CreateGlobalStringPtr(
       llvm::StringRef(PreprocessedString.data()));
 }
@@ -847,7 +846,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         for (size_t i = 0; i < sym.array.insts.size(); ++i) {
           format_string.append(printf_format(sym.array.type));
         }
-        break;
+        continue;
       }
       // not nice: I know
       // not expression but not an array might remove this
@@ -878,7 +877,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         }
         Argsv.push_back(Builder->CreateLoad(map_type(sym.array.type), i));
       }
-      break;
+      continue;
     }
     if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
@@ -887,9 +886,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       llvm::Value *new_value =
           Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
       Argsv.push_back(new_value);
-    } else {
-      Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
+      continue;
     }
+
+    Argsv.push_back(Builder->CreateLoad(map_type(sym.type), sym.inst));
   }
 
   return Builder->CreateCall(func, Argsv, "printfCall");
