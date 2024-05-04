@@ -362,6 +362,10 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
       throw NotMatchingSubscript("The size of the array must match with the "
                                  "one specified as the subscript");
     }
+    // ensure the size is the same as number of elements
+    // e.g dynamic array will have it when doing codegen
+    node->get<donsus_ast::array_def>().size =
+        node->get<donsus_ast::array_def>().number_of_elements;
 
     break;
   }
