@@ -473,7 +473,7 @@ donsus_token DonsusParser::donsus_peek(int loop) {
 }
 
 auto DonsusParser::donsus_parse() -> end_result {
-#ifdef DEBUG
+#if DEBUG
   std::cout << "LEXER: "
             << "\n";
   DonsusParser save = *this;
@@ -525,7 +525,7 @@ auto DonsusParser::donsus_parse() -> end_result {
                           // if (peek_function_definition()) {
                           // }
   }
-#ifdef DEBUG
+#if DEBUG
   std::cout << "AST: "
             << "\n";
   PrintAst print_ast;

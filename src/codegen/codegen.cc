@@ -5,11 +5,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-/*
- * Todo:
- *    codegen down dynamic arrays
- *    allow variables in array initialisation
- * */
 #include "../../Include/codegen/codegen.h"
 namespace DonsusCodegen {
 // similar to donsus_sema_is_exist
@@ -104,7 +99,9 @@ void DonsusCodeGenerator::create_entry_point() {
 }
 
 int DonsusCodeGenerator::create_object_file() {
-  // default_optimisation();
+#if !DEBUG
+  default_optimisation();
+#endif
   const auto TargetTriple = llvm::sys::getDefaultTargetTriple();
   TheModule->setTargetTriple(TargetTriple);
 
@@ -149,8 +146,9 @@ int DonsusCodeGenerator::create_object_file() {
   pass.run(*TheModule);
 
   dest.flush();
-
+#if DEBUG
   llvm::outs() << "Wrote " << Filename << "\n";
+#endif
   return 0;
 }
 
@@ -193,7 +191,9 @@ void DonsusCodeGenerator::Link() const {
 
   std::string linker_cmd;
   linker_cmd = platform.GetLinkerCommand(obj_paths, exe_path, GetBitness());
+#if DEBUG
   std::cout << "command: " << linker_cmd;
+#endif
   system(linker_cmd.c_str());
 }
 
@@ -270,6 +270,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     return visit(n, n->get<donsus_ast::array_def>(), table);
   }
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS: {
+    return visit(n, n->get<donsus_ast::array_access>(), table);
+  }
   }
 }
 
@@ -341,7 +344,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   if (is_definition) {
     // CreateAlloca (Type *Ty, Value *ArraySize=nullptr, const Twine &Name="")
     llvm::AllocaInst *Allocadef =
-        Builder->CreateAlloca(map_type(make_type(type)), 0, name);
+        Builder->CreateAlloca(map_type(make_type(type)), nullptr, name);
     table->setInst(name, Allocadef);
     llvm::Value *def_value = compile(ast->children[0], table);
     Builder->CreateStore(def_value, Allocadef);
@@ -351,7 +354,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   }
 
   llvm::AllocaInst *Alloca =
-      Builder->CreateAlloca(map_type(make_type(type)), 0, name);
+      Builder->CreateAlloca(map_type(make_type(type)), nullptr, name);
 
   table->setInst(name, Alloca);
   llvm::Value *decl_value =
@@ -1042,6 +1045,21 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return nullptr;
 }
 
+llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
+    utility::handle<donsus_ast::node> &ast, donsus_ast::array_access &ca_ast,
+    utility::handle<DonsusSymTable> &table) {
+
+  DonsusSymTable::sym symbol = table->get(ca_ast.identifier_name);
+  if (!ast->children.empty()) {
+    // arr[i] = smt;
+    /*    auto *value = Builder->CreateGEP(symbol.array)*/
+    return nullptr;
+  } else {
+    // arr[i]
+    return nullptr;
+  }
+  return nullptr;
+}
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {
   case DONSUS_TYPE::TYPE_I8: {

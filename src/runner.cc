@@ -48,12 +48,13 @@ int Du_Main(int argc, char **argv) {
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   DonsusParser::end_result parser_result = Du_Parse(result);
+#if DEBUG
   std::cout << "\n";
 
   std::cout << "-----Parsing completed successfully-----\n";
 
   std::cout << "\n";
-
+#endif
   // codegen
   std::unique_ptr<llvm::LLVMContext> TheContext =
       std::make_unique<llvm::LLVMContext>();
@@ -85,7 +86,7 @@ int Du_Main(int argc, char **argv) {
   }
 
   // codegen
-#ifdef DEBUG
+#if DEBUG
   std::cout << "\n";
   std::cout << "SYMBOL TABLE:" << std::endl;
   std::cout << "GLOBAL: " << std::endl;
@@ -93,7 +94,7 @@ int Du_Main(int argc, char **argv) {
 #endif
 
 // print out llvm IR
-#ifdef DEBUG
+#if DEBUG
   std::cout << "-------------------------------------"
             << "\n";
   llvm::errs() << *codegen.TheModule;

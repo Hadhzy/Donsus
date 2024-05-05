@@ -70,6 +70,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
+    add_compile_definitions(DEBUG=1)
     add_definitions(-DDEBUG_MODE)
 endif ()
 
