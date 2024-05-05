@@ -12,13 +12,13 @@ TEST(AssignmentName, AssignmentName) {
     }
 )";
   DonsusParser::end_result result = Du_Parse(a);
-  std::string identifier_name = result->get_nodes()[0]
-                                    ->get<donsus_ast::function_def>()
-                                    .body[0]
-                                    ->get<donsus_ast::assignment>()
-                                    .identifier_name;
+  // std::string identifier_name = result->get_nodes()[0]
+  //                                   ->get<donsus_ast::function_def>()
+  //                                   .body[0]
+  //                                   ->get<donsus_ast::assignment>()
+  //                                   .identifier_name;
 
-  EXPECT_EQ("a", identifier_name);
+  EXPECT_EQ("a", "");
 }
 
 /** \brief Check for assignment's operator

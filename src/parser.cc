@@ -306,8 +306,10 @@ public:
   }
 
   void print_assignment(donsus_ast::assignment &assignment, int indent_level) {
-    print_with_newline("identifier_name: " + assignment.identifier_name,
-                       indent_level);
+    print_with_newline("lvalue: ", indent_level);
+    print_ast_node(assignment.lvalue, indent_level + 1);
+    print_with_newline("rvalue: ", indent_level);
+    print_ast_node(assignment.rvalue, indent_level + 1);
     print_with_newline("identifier_op: " +
                            de_get_name_from_token(assignment.op.kind),
                        indent_level);
@@ -488,10 +490,12 @@ auto DonsusParser::donsus_parse() -> end_result {
       } else if (donsus_peek().kind == DONSUS_COLO) {
         parse_result result = donsus_variable_decl();
         donsus_tree->add_node(result);
-      } else if (donsus_peek().kind == DONSUS_PLUS_EQUAL ||
-                 donsus_peek().kind == DONSUS_MINUS_EQUAL ||
-                 donsus_peek().kind == DONSUS_SLASH_EQUAL ||
-                 donsus_peek().kind == DONSUS_STAR_EQUAL) {
+      } else if ((donsus_peek().kind == DONSUS_PLUS_EQUAL ||
+                  donsus_peek().kind == DONSUS_MINUS_EQUAL ||
+                  donsus_peek().kind == DONSUS_SLASH_EQUAL ||
+                  donsus_peek().kind == DONSUS_STAR_EQUAL ||
+                  donsus_peek().kind == DONSUS_EQUAL) ||
+                 (donsus_peek().kind == DONSUS_LSQB)) {
         parse_result result = donsus_assignments();
         donsus_tree->add_node(result);
       } else if (donsus_peek().kind == DONSUS_COMM &&
@@ -724,6 +728,9 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
     }
   }
 
+  if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS) {
+    return left;
+  }
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
 
@@ -1140,7 +1147,7 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
     | DONSUS_NUMBER
     | func_call
     */
-    if (cur_token.kind == DONSUS_NAME || cur_token.kind == DONSUS_NUMBER) {
+    if ((cur_token.kind == DONSUS_NAME || cur_token.kind == DONSUS_NUMBER)) {
       /*
         assignment_op:
         | DONSUS_PLUS_EQUAL
@@ -1293,9 +1300,11 @@ auto DonsusParser::donsus_assignments() -> parse_result {
       create_assignments(donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT, 10);
 
   auto &expression = assignment->get<donsus_ast::assignment>();
-  expression.identifier_name = cur_token.value;
+  // parse lvalue as an expression
+  parse_result lvalue = donsus_expr(0);
+  expression.lvalue = lvalue;
 
-  donsus_parser_next(); // one of the possible assignment operators
+  // donsus_parser_next(); // one of the possible assignment operators
   /*
    | DONSUS_PLUS_EQUAL
    | DONSUS_MINUS_EQUAL
@@ -1308,7 +1317,7 @@ auto DonsusParser::donsus_assignments() -> parse_result {
   donsus_parser_next();
   while (cur_token.kind != DONSUS_SEMICOLON) {
     parse_result expression_child = donsus_expr(0);
-    assignment->children.push_back(expression_child);
+    expression.rvalue = expression_child;
     if (cur_token.kind == DONSUS_SEMICOLON) {
       break;
     }
