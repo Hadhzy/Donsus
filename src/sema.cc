@@ -496,20 +496,28 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     // if (!is_defined)
     //   throw DonsusUndefinedException(assignment_name + " is not defined");
 
-    // assign_type_to_node(node->children[0], table, global_table);
+    assign_type_to_node(node->get<donsus_ast::assignment>().lvalue, table,
+                        global_table);
+    assign_type_to_node(node->get<donsus_ast::assignment>().rvalue, table,
+                        global_table);
 
-    // sema.donsus_typecheck_support_between_types(node->children[0]);
-    // DONSUS_TYPE rvalue_expression_type =
-    //     sema.donsus_typecheck_type_expr(node->children[0]);
-    // DONSUS_TYPE assigned_value_type = table->get(assignment_name).type;
+    sema.donsus_typecheck_support_between_types(
+        node->get<donsus_ast::assignment>().lvalue);
 
-    // bool are_the_same = sema.donsus_typecheck_is_compatible(
-    //     assigned_value_type, rvalue_expression_type);
-    // if (!are_the_same) {
-    //   throw InCompatibleTypeException(
-    //       "Operation between: " + assigned_value_type.to_string() + " and " +
-    //       rvalue_expression_type.to_string() + " are not supported");
-    // }
+    sema.donsus_typecheck_support_between_types(
+        node->get<donsus_ast::assignment>().rvalue);
+
+    bool are_the_same = sema.donsus_typecheck_is_compatible(
+        node->get<donsus_ast::assignment>().lvalue->real_type,
+        node->get<donsus_ast::assignment>().rvalue->real_type);
+    if (!are_the_same) {
+      throw InCompatibleTypeException(
+          "Operation between: " +
+          node->get<donsus_ast::assignment>().lvalue->real_type.to_string() +
+          " and " +
+          node->get<donsus_ast::assignment>().rvalue->real_type.to_string() +
+          " are not supported");
+    }
     break;
   }
 
