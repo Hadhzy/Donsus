@@ -40,6 +40,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   case donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS:
     return true;
   default: {
   }
@@ -66,6 +67,9 @@ auto sym_from_node(utility::handle<donsus_ast::node> &node,
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG:
     return table->get(node->get<donsus_ast::variable_decl>().identifier_name);
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS: {
+    return table->get(node->get<donsus_ast::array_access>().identifier_name);
+  }
   default: {
     throw std::runtime_error("Does not work with expressions");
   }
@@ -223,10 +227,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
     return visit(n->get<donsus_ast::if_statement>(), n, table);
   }
-
-    // case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
-    //   return visit(n, n->get<donsus_ast::assignment>(), table);
-    // }
+  case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
+    return visit(n, n->get<donsus_ast::assignment>(), table);
+  }
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     return visit(n->get<donsus_ast::identifier>(), table);
@@ -365,56 +368,63 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return CurVardef;
 }
 
-// llvm::Value *
-// DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
-//                            donsus_ast::assignment &ac_ast,
-//                            utility::handle<DonsusSymTable> &table) {
-//   llvm::Value *res;
-//   auto identifier_name = ac_ast.identifier_name;
-//   auto op = ac_ast.op;
+llvm::Value *
+DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+                           donsus_ast::assignment &ac_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  // array[1] = 3;
 
-//   if (is_global_sym(identifier_name, table)) {
-//     Builder->SetInsertPoint(main_block);
-//   }
+  llvm::Value *res;
+  auto identifier_name = ac_ast.identifier_name;
+  auto op = ac_ast.op;
 
-//   DonsusSymTable::sym sym1 = table->get(identifier_name);
-//   auto *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
-//   llvm::Value *lhs_value =
-//       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
-//   switch (op.kind) {
-//   case donsus_token_kind::DONSUS_PLUS_EQUAL: {
-//     res = Builder->CreateAdd(lhs_value, compile(ast->children[0], table));
-//     break;
-//   }
-//   case donsus_token_kind::DONSUS_MINUS_EQUAL: {
-//     res = Builder->CreateSub(lhs_value, compile(ast->children[0], table));
-//     break;
-//   }
-//   case donsus_token_kind::DONSUS_STAR_EQUAL: {
-//     res = Builder->CreateMul(lhs_value, compile(ast->children[0], table));
-//     break;
-//   }
-//   case donsus_token_kind::DONSUS_SLASH_EQUAL: {
-//     res = Builder->CreateSDiv(lhs_value, compile(ast->children[0], table));
-//     break;
-//   }
-//   case donsus_token_kind::DONSUS_EQUAL: {
-//     res = compile(ast->children[0], table);
-//     break;
-//   }
-//   default: {
-//   }
-//   }
+  if (is_global_sym(identifier_name, table)) {
+    Builder->SetInsertPoint(main_block);
+  }
 
-//   Builder->CreateStore(res, sym1.inst);
-//   return Builder->CreateLoad(A->getAllocatedType(), sym1.inst,
-//   identifier_name);
-// }
+  DonsusSymTable::sym sym1 = table->get(identifier_name);
+  llvm::Value *lhs_value;
+  if (sym1.array.array_type) {
+    lhs_value = Builder->CreateLoad(
+        sym1.array.array_type, compile(ac_ast.lvalue, table), sym1.short_name);
+  } else {
+    lhs_value =
+        Builder->CreateLoad(sym1.inst->getType(), sym1.inst, sym1.short_name);
+  }
+
+  switch (op.kind) {
+  case donsus_token_kind::DONSUS_PLUS_EQUAL: {
+    res = Builder->CreateAdd(lhs_value, compile(ac_ast.rvalue, table));
+    break;
+  }
+  case donsus_token_kind::DONSUS_MINUS_EQUAL: {
+    res = Builder->CreateSub(lhs_value, compile(ac_ast.rvalue, table));
+    break;
+  }
+  case donsus_token_kind::DONSUS_STAR_EQUAL: {
+    res = Builder->CreateMul(lhs_value, compile(ac_ast.rvalue, table));
+    break;
+  }
+  case donsus_token_kind::DONSUS_SLASH_EQUAL: {
+    res = Builder->CreateSDiv(lhs_value, compile(ac_ast.rvalue, table));
+    break;
+  }
+  case donsus_token_kind::DONSUS_EQUAL: {
+    res = compile(ac_ast.rvalue, table);
+    break;
+  }
+  default: {
+  }
+  }
+
+  Builder->CreateStore(res, sym1.inst);
+  return Builder->CreateLoad(sym1.inst->getType(), sym1.inst, identifier_name);
+}
 
 /*
  Returns back a vector with llvm TYPE based on DONSUS_TYPE for parameters
- * */
-/*// Todo: Avoid unnecessary copies
+*/
+/* Todo: Avoid unnecessary copies
 std::vector<llvm::Type *> DonsusCodeGenerator::parameters_for_function(
     std::vector<NAME_DATA_PAIR> parameters) {
   std::vector<llvm::Type *> parameters_vector;
@@ -593,8 +603,9 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
   }
 
   // gets teh current function object that is being built.
-  // It gets this by asking the builder for the current BasicBlock, anda asking
-  // that block for its parent(the function it is currently embedded into).
+  // It gets this by asking the builder for the current BasicBlock, anda
+  // asking that block for its parent(the function it is currently embedded
+  // into).
   llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
   llvm::BasicBlock *if_block =
@@ -630,7 +641,8 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
     }
   }
 
-  // here if the instruction does not exist, it's wrong because llvm::isa fails
+  // here if the instruction does not exist, it's wrong because llvm::isa
+  // fails
   if (last_else != nullptr && llvm::isa<llvm::ReturnInst>(last_else)) {
 
   } else {
@@ -866,7 +878,13 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   for (auto node : ast->children) {
 
     if (is_expression(node)) {
-      Argsv.push_back(compile(node, table));
+      llvm::Value *cur_value = compile(node, table);
+      if (cur_value->getType()->isPointerTy()) {
+        Argsv.push_back(
+            Builder->CreateLoad(map_type(node->real_type), cur_value));
+      } else {
+        Argsv.push_back(compile(node, table));
+      }
       continue;
     }
 
@@ -939,7 +957,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   /*  // negative number expression
     if (ast->children[0]->type.type ==
         donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
-      return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value, true));
+      return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value,
+    true));
     }*/
 }
 
@@ -970,11 +989,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     llvm::ArrayType *arrayType =
         llvm::ArrayType::get(map_type(make_type(type)), ca_ast.size);
 
-    llvm::AllocaInst *allocaInst = Builder->CreateAlloca(arrayType, 0, nullptr);
-
     // create array
     DonsusSymTable::sym::donsus_array don_a;
     don_a.num_of_elems = ca_ast.size;
+    don_a.array_type = arrayType;
     std::vector<llvm::Constant *> v;
     std::vector<llvm::Value *> dynamic;
 
@@ -1051,15 +1069,21 @@ llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
     utility::handle<DonsusSymTable> &table) {
 
   DonsusSymTable::sym symbol = table->get(ca_ast.identifier_name);
-  if (!ast->children.empty()) {
-    // arr[i] = smt;
-    /*    auto *value = Builder->CreateGEP(symbol.array)*/
-    return nullptr;
-  } else {
-    // arr[i]
-    return nullptr;
-  }
-  return nullptr;
+  llvm::Value *value;
+  /*  if (!ast->children.empty()) {*/
+  // arr[i] = smt;
+  std::vector<llvm::Value *> indxList1{};
+  indxList1.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
+  indxList1.push_back(compile(ca_ast.index, table));
+
+  TheModule->print(llvm::errs(), nullptr);
+  value = Builder->CreateGEP(symbol.array.array_type, symbol.inst, indxList1);
+
+  /*} */ /*else {
+     // arr[i]
+     return nullptr;
+   }*/
+  return value;
 }
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {

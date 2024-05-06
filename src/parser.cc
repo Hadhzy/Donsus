@@ -313,6 +313,8 @@ public:
     print_with_newline("identifier_op: " +
                            de_get_name_from_token(assignment.op.kind),
                        indent_level);
+    print_with_newline("identifier_name: " + assignment.identifier_name,
+                       indent_level);
   }
 
   void print_type(donsus_ast::donsus_node_type type, int indent_level) {
@@ -475,7 +477,7 @@ donsus_token DonsusParser::donsus_peek(int loop) {
 }
 
 auto DonsusParser::donsus_parse() -> end_result {
-#if DEBUG
+#ifdef DEBUG
   std::cout << "LEXER: "
             << "\n";
   DonsusParser save = *this;
@@ -529,7 +531,7 @@ auto DonsusParser::donsus_parse() -> end_result {
                           // if (peek_function_definition()) {
                           // }
   }
-#if DEBUG
+#ifdef DEBUG
   std::cout << "AST: "
             << "\n";
   PrintAst print_ast;
@@ -1301,6 +1303,9 @@ auto DonsusParser::donsus_assignments() -> parse_result {
 
   auto &expression = assignment->get<donsus_ast::assignment>();
   // parse lvalue as an expression
+  if (cur_token.kind == DONSUS_NAME) {
+    expression.identifier_name = cur_token.value;
+  }
   parse_result lvalue = donsus_expr(0);
   expression.lvalue = lvalue;
 
