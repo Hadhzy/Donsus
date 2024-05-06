@@ -488,26 +488,35 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
 
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
-    auto assignment_name = node->get<donsus_ast::assignment>().identifier_name;
+    // auto assignment_name =
+    // node->get<donsus_ast::assignment>().identifier_name;
 
-    bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
+    // bool is_defined = sema.donsus_sema_is_exist(assignment_name, table);
 
-    if (!is_defined)
-      throw DonsusUndefinedException(assignment_name + " is not defined");
+    // if (!is_defined)
+    //   throw DonsusUndefinedException(assignment_name + " is not defined");
 
-    assign_type_to_node(node->children[0], table, global_table);
+    assign_type_to_node(node->get<donsus_ast::assignment>().lvalue, table,
+                        global_table);
+    assign_type_to_node(node->get<donsus_ast::assignment>().rvalue, table,
+                        global_table);
 
-    sema.donsus_typecheck_support_between_types(node->children[0]);
-    DONSUS_TYPE rvalue_expression_type =
-        sema.donsus_typecheck_type_expr(node->children[0]);
-    DONSUS_TYPE assigned_value_type = table->get(assignment_name).type;
+    sema.donsus_typecheck_support_between_types(
+        node->get<donsus_ast::assignment>().lvalue);
+
+    sema.donsus_typecheck_support_between_types(
+        node->get<donsus_ast::assignment>().rvalue);
 
     bool are_the_same = sema.donsus_typecheck_is_compatible(
-        assigned_value_type, rvalue_expression_type);
+        node->get<donsus_ast::assignment>().lvalue->real_type,
+        node->get<donsus_ast::assignment>().rvalue->real_type);
     if (!are_the_same) {
       throw InCompatibleTypeException(
-          "Operation between: " + assigned_value_type.to_string() + " and " +
-          rvalue_expression_type.to_string() + " are not supported");
+          "Operation between: " +
+          node->get<donsus_ast::assignment>().lvalue->real_type.to_string() +
+          " and " +
+          node->get<donsus_ast::assignment>().rvalue->real_type.to_string() +
+          " are not supported");
     }
     break;
   }
