@@ -3,6 +3,7 @@
 // It calls all the steps needed from the top to the bottom.
 //===----------------------------------------------------------------------===//
 
+#include "../Include/cli.h"
 #include "../Include/codegen/codegen.h"
 #include "../Include/file.h"
 #include "../Include/sema.h"
@@ -13,7 +14,6 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/TargetParser/Host.h"
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
 
@@ -29,6 +29,8 @@ DonsusParser::end_result Du_Parse(std::string result) {
 }
 
 int Du_Main(int argc, char **argv) {
+  DonsusCLI::Parser cli_parser = DonsusCLI::Parser(argv);
+
   std::string result = handle_file(argv[1]);
   std::string path = argv[1]; // Obtain path
   std::string base_filename =
@@ -100,5 +102,10 @@ int Du_Main(int argc, char **argv) {
   llvm::errs() << *codegen.TheModule;
 #endif
   /*  delete sym_global.get();*/
+  // platform support here
+  if (cli_parser.get_comm_group().get("run")) {
+    std::system("./a.out");
+  }
+
   return 0;
 }
