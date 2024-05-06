@@ -7,54 +7,41 @@
  * */
 TEST(AssignmentName, AssignmentName) {
   std::string a = R"(
-  def a() -> void{
-  a = a + 1;
-    }
+    a:int = 12;
+    a = 11;
 )";
   DonsusParser::end_result result = Du_Parse(a);
-  std::string identifier_name = result->get_nodes()[0]
-                                    ->get<donsus_ast::function_def>()
-                                    .body[0]
-                                    ->get<donsus_ast::assignment>()
-                                    .identifier_name;
-
-  EXPECT_EQ("a", identifier_name);
+  // get the lvalue node of the assignment
+  utility::handle<donsus_ast::node> lvalue =
+      result->get_nodes()[1]->get<donsus_ast::assignment>().lvalue;
+  // get the name of the rvalue node
+  utility::handle<donsus_ast::node> rvalue =
+      result->get_nodes()[1]->get<donsus_ast::assignment>().rvalue;
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, lvalue->type.type);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+            rvalue->type.type);
+  EXPECT_EQ(donsus_token_kind::DONSUS_EQUAL,
+            result->get_nodes()[1]->get<donsus_ast::assignment>().op.kind);
 }
 
-/** \brief Check for assignment's operator
- * */
-TEST(AssignmentOperator, AssignmentsTest) {
+TEST(AssignmentArrayAccess, AssignmentTest) {
   std::string a = R"(
-  def a() -> void{
-  a = a + 1;
-    }
+    a:int[] = [12, 11];
+    a[0] = 10;  
 )";
+
   DonsusParser::end_result result = Du_Parse(a);
-  donsus_token op = result->get_nodes()[0]
-                        ->get<donsus_ast::function_def>()
-                        .body[0]
-                        ->get<donsus_ast::assignment>()
-                        .op;
-
-  EXPECT_EQ(DONSUS_EQUAL, op.kind);
-}
-
-/** \brief Check for assignment value's type
- * */
-TEST(AssignmentValueType, AssignmentsTest) {
-  std::string a = R"(
-  def a() -> void{
-  a = a + 1;
-    }
-)";
-  DonsusParser::end_result result = Du_Parse(a);
-  donsus_ast::donsus_node_type::underlying assignment_value_type =
-      result->get_nodes()[0]
-          ->get<donsus_ast::function_def>()
-          .body[0]
-          ->children[0]
-          ->type.type;
-
-  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION,
-            assignment_value_type);
+  // get the lvalue node of the assignment
+  utility::handle<donsus_ast::node> lvalue =
+      result->get_nodes()[1]->get<donsus_ast::assignment>().lvalue;
+  // get the name of the rvalue node
+  utility::handle<donsus_ast::node> rvalue =
+      result->get_nodes()[1]->get<donsus_ast::assignment>().rvalue;
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS,
+            lvalue->type.type);
+  EXPECT_EQ("a", lvalue->get<donsus_ast::array_access>().identifier_name);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+            lvalue->get<donsus_ast::array_access>().index->type.type);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+            rvalue->type.type);
 }

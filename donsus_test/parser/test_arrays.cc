@@ -63,22 +63,3 @@ TEST(ArrayAccessExpressionAsIndex, TestArrays) {
   EXPECT_EQ(array_access.index->type.type,
             donsus_ast::donsus_node_type::DONSUS_EXPRESSION);
 }
-
-TEST(ArrayAccessInExpr, TestArrays) {
-  std::string a = R"(
-  b:int = 12
-  a:int[] = [1, 2 ,b];
-  a[0] = 12;  # not sure if we can do inbounds check here(if its not a literal)
-
-  print(a[0]);
-)";
-  DonsusParser::end_result result = Du_Parse(a);
-  auto array_access =
-      result->get_nodes()[3]->children[0]->get<donsus_ast::array_access>();
-
-  EXPECT_EQ(result->get_nodes()[3]->children[0]->type.type,
-            donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS);
-  EXPECT_EQ(array_access.identifier_name, "a");
-  EXPECT_EQ(array_access.index->type.type,
-            donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION);
-}

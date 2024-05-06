@@ -224,9 +224,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n->get<donsus_ast::if_statement>(), n, table);
   }
 
-  case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
-    return visit(n, n->get<donsus_ast::assignment>(), table);
-  }
+    // case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT: {
+    //   return visit(n, n->get<donsus_ast::assignment>(), table);
+    // }
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     return visit(n->get<donsus_ast::identifier>(), table);
@@ -365,50 +365,51 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return CurVardef;
 }
 
-llvm::Value *
-DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
-                           donsus_ast::assignment &ac_ast,
-                           utility::handle<DonsusSymTable> &table) {
-  llvm::Value *res;
-  auto identifier_name = ac_ast.identifier_name;
-  auto op = ac_ast.op;
+// llvm::Value *
+// DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
+//                            donsus_ast::assignment &ac_ast,
+//                            utility::handle<DonsusSymTable> &table) {
+//   llvm::Value *res;
+//   auto identifier_name = ac_ast.identifier_name;
+//   auto op = ac_ast.op;
 
-  if (is_global_sym(identifier_name, table)) {
-    Builder->SetInsertPoint(main_block);
-  }
+//   if (is_global_sym(identifier_name, table)) {
+//     Builder->SetInsertPoint(main_block);
+//   }
 
-  DonsusSymTable::sym sym1 = table->get(identifier_name);
-  auto *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
-  llvm::Value *lhs_value =
-      Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
-  switch (op.kind) {
-  case donsus_token_kind::DONSUS_PLUS_EQUAL: {
-    res = Builder->CreateAdd(lhs_value, compile(ast->children[0], table));
-    break;
-  }
-  case donsus_token_kind::DONSUS_MINUS_EQUAL: {
-    res = Builder->CreateSub(lhs_value, compile(ast->children[0], table));
-    break;
-  }
-  case donsus_token_kind::DONSUS_STAR_EQUAL: {
-    res = Builder->CreateMul(lhs_value, compile(ast->children[0], table));
-    break;
-  }
-  case donsus_token_kind::DONSUS_SLASH_EQUAL: {
-    res = Builder->CreateSDiv(lhs_value, compile(ast->children[0], table));
-    break;
-  }
-  case donsus_token_kind::DONSUS_EQUAL: {
-    res = compile(ast->children[0], table);
-    break;
-  }
-  default: {
-  }
-  }
+//   DonsusSymTable::sym sym1 = table->get(identifier_name);
+//   auto *A = llvm::dyn_cast<llvm::AllocaInst>(sym1.inst);
+//   llvm::Value *lhs_value =
+//       Builder->CreateLoad(A->getAllocatedType(), A, sym1.short_name);
+//   switch (op.kind) {
+//   case donsus_token_kind::DONSUS_PLUS_EQUAL: {
+//     res = Builder->CreateAdd(lhs_value, compile(ast->children[0], table));
+//     break;
+//   }
+//   case donsus_token_kind::DONSUS_MINUS_EQUAL: {
+//     res = Builder->CreateSub(lhs_value, compile(ast->children[0], table));
+//     break;
+//   }
+//   case donsus_token_kind::DONSUS_STAR_EQUAL: {
+//     res = Builder->CreateMul(lhs_value, compile(ast->children[0], table));
+//     break;
+//   }
+//   case donsus_token_kind::DONSUS_SLASH_EQUAL: {
+//     res = Builder->CreateSDiv(lhs_value, compile(ast->children[0], table));
+//     break;
+//   }
+//   case donsus_token_kind::DONSUS_EQUAL: {
+//     res = compile(ast->children[0], table);
+//     break;
+//   }
+//   default: {
+//   }
+//   }
 
-  Builder->CreateStore(res, sym1.inst);
-  return Builder->CreateLoad(A->getAllocatedType(), sym1.inst, identifier_name);
-}
+//   Builder->CreateStore(res, sym1.inst);
+//   return Builder->CreateLoad(A->getAllocatedType(), sym1.inst,
+//   identifier_name);
+// }
 
 /*
  Returns back a vector with llvm TYPE based on DONSUS_TYPE for parameters

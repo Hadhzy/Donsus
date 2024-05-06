@@ -167,7 +167,8 @@ struct return_kw {
 assignment: | assignment_start assignment_op assignment_value+
  * */
 struct assignment {
-  std::string identifier_name;
+  utility::handle<donsus_ast::node> lvalue;
+  utility::handle<donsus_ast::node> rvalue;
   donsus_token op; // operator
 };
 
