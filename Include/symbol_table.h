@@ -35,6 +35,7 @@ public:
       // for example - we can load this in printf
       std::vector<llvm::Value *> insts;
       DONSUS_TYPE type; // all elements must have same type
+      llvm::ArrayType *array_type;
     };
 
     // set if symbol holds an array
@@ -44,7 +45,7 @@ public:
     DONSUS_TYPE type;
     std::vector<DONSUS_TYPE> types; // if they are stored as a group
     llvm::Value
-        *inst; // This can represent AllocaDef, or a function as an lvalue
+        *inst; // This can represent AllocaDef, or a function as a lvalue
     std::size_t index;      // the order in which the addition happened
     std::string key;        // qualified_name
     std::string short_name; // the name from which the qualified_name obtained

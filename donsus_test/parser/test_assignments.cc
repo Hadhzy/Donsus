@@ -22,12 +22,15 @@ TEST(AssignmentName, AssignmentName) {
             rvalue->type.type);
   EXPECT_EQ(donsus_token_kind::DONSUS_EQUAL,
             result->get_nodes()[1]->get<donsus_ast::assignment>().op.kind);
+  EXPECT_EQ(
+      "a",
+      result->get_nodes()[1]->get<donsus_ast::assignment>().identifier_name);
 }
 
 TEST(AssignmentArrayAccess, AssignmentTest) {
   std::string a = R"(
     a:int[] = [12, 11];
-    a[0] = 10;  
+    a[0] = 10;
 )";
 
   DonsusParser::end_result result = Du_Parse(a);
@@ -44,4 +47,7 @@ TEST(AssignmentArrayAccess, AssignmentTest) {
             lvalue->get<donsus_ast::array_access>().index->type.type);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
             rvalue->type.type);
+  EXPECT_EQ(
+      "a",
+      result->get_nodes()[1]->get<donsus_ast::assignment>().identifier_name);
 }

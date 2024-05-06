@@ -169,6 +169,7 @@ assignment: | assignment_start assignment_op assignment_value+
 struct assignment {
   utility::handle<donsus_ast::node> lvalue;
   utility::handle<donsus_ast::node> rvalue;
+  std::string identifier_name;
   donsus_token op; // operator
 };
 
@@ -189,7 +190,7 @@ struct print_expr {};
 using node_properties = utility::property<>;
 
 struct node : node_properties {
-  //  // children tbd
+  // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type

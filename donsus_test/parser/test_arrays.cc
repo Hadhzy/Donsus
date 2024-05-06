@@ -13,7 +13,6 @@ TEST(ArrayStructureTest, ArrayDefinitionTest) {
   EXPECT_EQ(array_def.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION);
 
-  // match elements
   auto elements = result->get_nodes()[0]->get<donsus_ast::array_def>().elements;
   EXPECT_EQ(elements.size(), 3);
   EXPECT_EQ(elements[0]->type.type,
@@ -26,13 +25,12 @@ TEST(ArrayDeclaration, ArrayDeclarationTest) {
 )";
 
   DonsusParser::end_result result = Du_Parse(a);
-  // match array_decl
   auto array_decl = result->get_nodes()[0]->type;
   EXPECT_EQ(array_decl.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION);
 }
 
-TEST(ArrayAcess, TestArrays) {
+TEST(ArrayAccess, TestArrays) {
   std::string a = R"(
   a:int[] = [0];
 
@@ -41,14 +39,14 @@ TEST(ArrayAcess, TestArrays) {
 
   DonsusParser::end_result result = Du_Parse(a);
   // match array_decl
-  auto array_acess =
+  auto array_access =
       result->get_nodes()[1]->children[0]->get<donsus_ast::array_access>();
   EXPECT_EQ(result->get_nodes()[1]->children[0]->type.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS);
-  EXPECT_EQ(array_acess.identifier_name, "a");
+  EXPECT_EQ(array_access.identifier_name, "a");
 }
 
-TEST(ArrayAcessExpressionAsIndex, TestArrays) {
+TEST(ArrayAccessExpressionAsIndex, TestArrays) {
   std::string a = R"(
   a:int[] = [0];
 
@@ -57,11 +55,11 @@ TEST(ArrayAcessExpressionAsIndex, TestArrays) {
 
   DonsusParser::end_result result = Du_Parse(a);
   // match array_decl
-  auto array_acess =
+  auto array_access =
       result->get_nodes()[1]->children[0]->get<donsus_ast::array_access>();
   EXPECT_EQ(result->get_nodes()[1]->children[0]->type.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS);
-  EXPECT_EQ(array_acess.identifier_name, "a");
-  EXPECT_EQ(array_acess.index->type.type,
+  EXPECT_EQ(array_access.identifier_name, "a");
+  EXPECT_EQ(array_access.index->type.type,
             donsus_ast::donsus_node_type::DONSUS_EXPRESSION);
 }

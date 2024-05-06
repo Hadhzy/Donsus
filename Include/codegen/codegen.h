@@ -31,19 +31,19 @@
 
 // Select platform
 #ifdef _WIN32
-#include "../src/codegen/platform/windows_platform.h"
+#include "../../src/codegen/platform/windows_platform.h"
 #endif
 
 #ifdef __unix__
 #include "../../src/codegen/platform/linux_platform.h"
 #endif
 
-/*#ifdef _WIN32
+#ifdef _WIN32
 using PlatformClass = Window
-#endif*/
+#endif
 
 #ifdef __unix__
-using PlatformClass = LinuxPlatform;
+    using PlatformClass = LinuxPlatform;
 #endif
 
 namespace DonsusCodegen {
@@ -78,9 +78,6 @@ public:
   void create_entry_point();
 
   // helper functions
-
-  std::vector<llvm::Type *>
-      parameters_for_function(std::vector<NAME_DATA_PAIR>);
 
   llvm::StructType multiple_return_types(std::vector<DONSUS_TYPE>);
 
@@ -146,8 +143,7 @@ public:
                      donsus_ast::unary_expr &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
-  [[nodiscard]] std::string
-  printf_format(DONSUS_TYPE type) const;
+  [[nodiscard]] std::string printf_format(DONSUS_TYPE type) const;
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::array_decl &ca_ast,
@@ -157,8 +153,12 @@ public:
                      donsus_ast::array_def &ca_ast,
                      utility::handle<DonsusSymTable> &table);
 
+  llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
+                     donsus_ast::array_access &ca_ast,
+                     utility::handle<DonsusSymTable> &table);
+
   llvm::Type *map_type(DONSUS_TYPE type);
-  llvm::Type * map_pointer_type(DONSUS_TYPE type);
+  llvm::Type *map_pointer_type(DONSUS_TYPE type);
 
   // meta
   llvm::BasicBlock *main_block;

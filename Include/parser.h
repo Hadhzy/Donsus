@@ -15,7 +15,9 @@
 #include "../src/utility/handle.h"
 #include "token.h"
 
-#define DEBUG 1 // debug
+#ifndef DEBUG
+#define DEBUG 0 // debug
+#endif
 class DonsusParser;
 
 extern std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER;

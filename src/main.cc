@@ -11,6 +11,5 @@ void print_usage() { std::cout << USAGE_TEXT << std::endl; }
 int main(int argc, char **argv) {
   if (argc <= 1)
     print_usage();
-  std::cout << "DONSUS COMPILER: " << VERSION_STRING << std::endl;
   return Du_Main(argc, argv);
 }
