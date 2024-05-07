@@ -26,6 +26,7 @@ add_executable(donsus_test
         parser/test_float.cc
         parser/test_arrays.cc
         parser/test_one_line_mul_var.cc
+        parser/test_while_loops.cc
 
         # typecheck
         typecheck/test_return.cc
@@ -39,6 +40,7 @@ add_executable(donsus_test
         typecheck/test_unary_expressions_rvalue.cc
         typecheck/test_bools.cc
         typecheck/test_arrays_typecheck.cc
+        typecheck/test_while_loops_typecheck.cc
         
        
 
