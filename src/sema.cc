@@ -177,6 +177,16 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_WHILE_LOOP: {
+    for (auto &n : node->get<donsus_ast::while_loop>().body) {
+      if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
+        continue;
+      }
+      assign_type_to_node(n, table, global_table);
+    }
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
     for (auto &param : node->get<donsus_ast::function_decl>().parameters) {
       assign_type_to_node(param, table, global_table);
@@ -457,6 +467,16 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     break;
   }
+
+  case donsus_ast::donsus_node_type::DONSUS_WHILE_LOOP: {
+    sema.donsus_typecheck_type_is_bool_conversion(node->children[0]);
+    node->children[0]->real_type.type_un = DONSUS_TYPE::kind::TYPE_BOOL;
+
+    // see if the operations are supported
+    sema.donsus_typecheck_support_between_types(node->children[0]);
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
     auto func_name = node->get<donsus_ast::function_decl>().func_name;
     bool is_func_declared =
