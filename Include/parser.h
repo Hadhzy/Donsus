@@ -100,6 +100,11 @@ public:
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
 
+  // while loop
+  auto donsus_while_loop() -> parse_result;
+  auto create_while_loop(donsus_ast::donsus_node_type type,
+                         u_int64_t child_count) -> parse_result;
+
   // float
   auto donsus_float_number(donsus_ast::donsus_node_type type,
                            uint64_t child_count) -> parse_result;

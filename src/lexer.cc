@@ -25,7 +25,9 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"return", DONSUS_RETURN_KW},
     {"printf", DONSUS_PRINT_KW},
     {"true", DONSUS_TRUE_KW},
-    {"false", DONSUS_FALSE_KW}};
+    {"false", DONSUS_FALSE_KW},
+    {"while", DONSUS_WHILE_KW},
+};
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
 
@@ -213,6 +215,8 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_FALSE_KW:
     return "DONSUS_FALSE_KW";
+  case DONSUS_WHILE_KW:
+    return "DONSUS_WHILE_KW";
   default:
 
     return "UNKNOWN_TOKEN_KIND";

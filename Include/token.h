@@ -73,7 +73,8 @@ typedef enum {
   DONSUS_RETURN_KW,              // return
   DONSUS_PRINT_KW,               // print
   DONSUS_TRUE_KW,                // true
-  DONSUS_FALSE_KW                // false
+  DONSUS_FALSE_KW,               // false
+  DONSUS_WHILE_KW                // while
 
 } donsus_token_kind;
 

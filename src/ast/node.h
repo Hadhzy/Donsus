@@ -35,7 +35,8 @@ struct donsus_node_type {
     DONSUS_UNARY_EXPRESSION,
     DONSUS_PRINT_EXPRESSION,
     DONSUS_ARRAY_ACCESS,
-    DONSUS_FUNCTION_ARG
+    DONSUS_FUNCTION_ARG,
+    DONSUS_WHILE_LOOP,
 
   };
 
@@ -58,6 +59,12 @@ struct variable_decl {
   donsus_token_kind identifier_type;
   std::string identifier_name;
   void *identifier_value;
+};
+
+struct while_loop {
+  // while condition {body}
+  // condition will be stored in the children
+  std::vector<utility::handle<donsus_ast::node>> body;
 };
 // actual node structure containing extra properties
 struct number_expr {
