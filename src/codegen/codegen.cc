@@ -877,9 +877,12 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   for (auto node : ast->children) {
 
+    // just for access_array
     if (is_expression(node)) {
       llvm::Value *cur_value = compile(node, table);
-      if (cur_value->getType()->isPointerTy()) {
+      if (cur_value->getType()->isPointerTy() &&
+          node->type.type ==
+              donsus_ast::donsus_node_type::underlying::DONSUS_ARRAY_ACCESS) {
         Argsv.push_back(
             Builder->CreateLoad(map_type(node->real_type), cur_value));
       } else {
@@ -1076,7 +1079,6 @@ llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
   indxList1.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
   indxList1.push_back(compile(ca_ast.index, table));
 
-  TheModule->print(llvm::errs(), nullptr);
   value = Builder->CreateGEP(symbol.array.array_type, symbol.inst, indxList1);
 
   /*} */ /*else {
