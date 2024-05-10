@@ -27,6 +27,7 @@ add_executable(donsus_test
         parser/test_arrays.cc
         parser/test_one_line_mul_var.cc
         parser/test_while_loops.cc
+        parser/test_for_loops.cc
 
         # typecheck
         typecheck/test_return.cc

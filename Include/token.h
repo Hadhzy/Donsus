@@ -45,6 +45,7 @@ typedef enum {
   DONSUS_COMMENT,       // #
   DONSUS_SINGLE_QUOTE,  // '
   DONSUS_THREE_DOTS,    // ...
+  DONSUS_TWO_DOTS,      // ..
   DONSUS_NULL_VALUE,
 
   // INT
@@ -74,7 +75,8 @@ typedef enum {
   DONSUS_PRINT_KW,               // print
   DONSUS_TRUE_KW,                // true
   DONSUS_FALSE_KW,               // false
-  DONSUS_WHILE_KW                // while
+  DONSUS_WHILE_KW,               // while
+  DONSUS_FOR_KW,                 // for
 
 } donsus_token_kind;
 
