@@ -36,6 +36,7 @@
   DONSUS_COMMENT,       // #
   DONSUS_SINGLE_QUOTE,  // '
   DONSUS_THREE_DOTS,    // ...
+  DONSUS_TWO_DOTS,      // ..
   DONSUS_NULL_VALUE,
 
   // INT
