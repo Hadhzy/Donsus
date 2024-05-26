@@ -85,3 +85,8 @@ Donsus offers a various range of types for specific purposes depending on the co
 - bool
 - float
 - string
+
+.. _arrays:
+Arrays
+~~~~~~
+

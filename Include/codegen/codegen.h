@@ -72,13 +72,14 @@ public:
 
   int create_object_file();
 
+  void load_built_in();
+
   // run llvm's default optimisation pipeline
   void default_optimisation();
 
   void create_entry_point();
 
   // helper functions
-
   llvm::StructType multiple_return_types(std::vector<DONSUS_TYPE>);
 
   llvm::Value *compile(utility::handle<donsus_ast::node> &node,

@@ -289,14 +289,21 @@ DonsusCodeGenerator::DonsusCodeGenerator(
   create_entry_point();
   llvm::Function *TheFunction = TheModule->getFunction("main");
 
-  // // assert here
-
   llvm::BasicBlock *entry =
       llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
   main_block = entry;
   Builder->SetInsertPoint(entry);
+  load_built_in();
 }
 
+void DonsusCodeGenerator::load_built_in() {
+  // declare built-in functions
+
+  /*llvm::FunctionType *FT =
+  llvm::FunctionType::get(llvm::Type::getVoidTy(*TheContext), nullptr, false);
+  llvm::Function *F = llvm::Function::Create(FT,
+  llvm::Function::ExternalLinkage, "test", *TheModule);*/
+}
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,
                                         utility::handle<DonsusSymTable> &table,
@@ -853,26 +860,10 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   std::string format_string{};
 
   for (auto node : ast->children) {
-    if (!is_expression(node)) {
-      DonsusSymTable::sym sym = sym_from_node(node, table);
-      if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
-          sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
-          sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
 
-        for (size_t i = 0; i < sym.array.insts.size(); ++i) {
-          format_string.append(printf_format(sym.array.type));
-        }
-        continue;
-      }
-      // not nice: I know
-      // not expression but not an array might remove this
-      format_string.append(printf_format(node->real_type));
-
-    } else {
-
-      format_string.append(printf_format(node->real_type));
-    }
+    format_string.append(printf_format(node->real_type));
   }
+
   Argsv.push_back(Builder->CreateGlobalString(format_string));
 
   for (auto node : ast->children) {
@@ -883,6 +874,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       if (cur_value->getType()->isPointerTy() &&
           node->type.type ==
               donsus_ast::donsus_node_type::underlying::DONSUS_ARRAY_ACCESS) {
+
         Argsv.push_back(
             Builder->CreateLoad(map_type(node->real_type), cur_value));
       } else {
@@ -892,18 +884,6 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
-    if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
-        sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
-        sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
-      for (auto i : sym.array.insts) {
-        if (!i->getType()->isPointerTy()) {
-          Argsv.push_back(i);
-          continue;
-        }
-        Argsv.push_back(Builder->CreateLoad(map_type(sym.array.type), i));
-      }
-      continue;
-    }
     if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
       llvm::Value *loadedFloatValue =
@@ -989,8 +969,15 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     /*
      * llvm::ArrayType::get(map_type(make_type(type))
      * */
+    int size{};
+    // Todo: runtime dynamic alloc lib
+    if (ca_ast.array_type == donsus_ast::ArrayType::DYNAMIC) {
+      size = 10;
+    } else {
+      size = ca_ast.size;
+    }
     llvm::ArrayType *arrayType =
-        llvm::ArrayType::get(map_type(make_type(type)), ca_ast.size);
+        llvm::ArrayType::get(map_type(make_type(type)), size);
 
     // create array
     DonsusSymTable::sym::donsus_array don_a;
@@ -1073,18 +1060,11 @@ llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
 
   DonsusSymTable::sym symbol = table->get(ca_ast.identifier_name);
   llvm::Value *value;
-  /*  if (!ast->children.empty()) {*/
-  // arr[i] = smt;
+
   std::vector<llvm::Value *> indxList1{};
   indxList1.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
-  indxList1.push_back(compile(ca_ast.index, table));
-
-  value = Builder->CreateGEP(symbol.array.array_type, symbol.inst, indxList1);
-
-  /*} */ /*else {
-     // arr[i]
-     return nullptr;
-   }*/
+  value =
+      Builder->CreateGEP(map_type(symbol.array.type), symbol.inst, indxList1);
   return value;
 }
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
