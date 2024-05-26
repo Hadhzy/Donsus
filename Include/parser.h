@@ -16,7 +16,7 @@
 #include "token.h"
 
 #ifndef DEBUG
-#define DEBUG 0 // debug
+#define DEBUG 1 // debug
 #endif
 class DonsusParser;
 

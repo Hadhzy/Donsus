@@ -1407,11 +1407,11 @@ auto DonsusParser::bool_expression() -> parse_result {
 }
 
 auto DonsusParser::unary_expression() -> parse_result {
-  donsus_parser_next();
   parse_result result = create_expression(
       donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
   auto &expression = result->get<donsus_ast::unary_expr>();
   expression.op = cur_token;
+  donsus_parser_next();
   parse_result unary = donsus_expr(0);
   result->children.push_back(unary);
   return result;
