@@ -86,10 +86,6 @@ llvm_map_components_to_libnames(llvm_libs core irreader support)
 target_link_libraries(donsus PUBLIC ${llvm})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
-add_subdirectory(src/runtime)
-target_link_libraries(donsus PUBLIC donsus_runtime)
-
-
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_subdirectory(donsus_test)
 endif ()
