@@ -221,12 +221,12 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     std::string qualified_fn_name = global_table->apply_scope(func_name);
 
     if (global_table->sym_table.empty())
-      throw ReDefinitionException(func_name + " has not been defined!");
+      throw DonsusUndefinedException(func_name + " has not been defined!");
 
     bool is_defined = sema.donsus_is_function_exist(func_name, global_table);
 
     if (!is_defined)
-      throw ReDefinitionException(func_name + " has not been defined!");
+      throw DonsusUndefinedException(func_name + " has not been defined!");
 
     utility::handle<DonsusSymTable> current_table =
         global_table->get_sym_table(qualified_fn_name);
