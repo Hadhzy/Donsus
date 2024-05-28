@@ -11,7 +11,10 @@ TEST(ReturnStatementTest, ReturnStatementNodeType) {
           return 1;
       }
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -29,7 +32,10 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeNumber) {
           return 1 + 2;
       }
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -48,7 +54,10 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeIdentifier) {
           return a;
       }
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -67,7 +76,10 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeIdentifierNumber) {
           return a + 1;
       }
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()

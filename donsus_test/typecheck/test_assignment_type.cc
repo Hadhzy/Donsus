@@ -11,7 +11,10 @@ TEST(AssignmentTypeCheckTypeCorrect, AssignmentTypeCheck) {
     return 1;
       }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -29,7 +32,10 @@ TEST(AssignmentTypeCheckType1Correct, AssignmentTypeCheck) {
     return 1;
       }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -47,7 +53,10 @@ TEST(AssignmentTypeCheckType2Correct, AssignmentTypeCheck) {
     return 1;
       }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -67,7 +76,10 @@ TEST(AssignmentTypeCheckType3Correct, AssignmentTypeCheck) {
     return 1;
       }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -85,7 +97,10 @@ TEST(AssignmentTypeCheckType4Correct, AssignmentTypeCheck) {
     return 1;
       }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -103,7 +118,10 @@ TEST(AssignmentTypeCheckTypeInCorrect, AssignmentTypeCheck) {
   return 2;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -122,7 +140,10 @@ TEST(AssignmentTypeCheckType1InCorrect, AssignmentTypeCheck) {
   return 2;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -142,7 +163,10 @@ TEST(AssignmentTypeCheckType2InCorrect, AssignmentTypeCheck) {
   return 2;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -162,7 +186,10 @@ TEST(AssignmentTypeCheckType3InCorrect, AssignmentTypeCheck) {
   return 2;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -182,7 +209,10 @@ TEST(AssignmentTypeCheckType4InCorrect, AssignmentTypeCheck) {
   return 2;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();

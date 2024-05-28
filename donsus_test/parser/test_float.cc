@@ -10,7 +10,10 @@ TEST(FloatTest, FloatExpression){
   std::string a = R"(
         a:f32 = 32.3;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;
 
@@ -22,7 +25,10 @@ TEST(FloatTest, FloatExpressionf64){
   std::string a = R"(
         a:f64 = 32.3;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;
 
@@ -34,7 +40,10 @@ TEST(FloatTest, FloatExpressionf64Add){
   std::string a = R"(
         a:f64 = 32.3 + 34.3;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;
 

@@ -11,7 +11,10 @@ TEST(SymbolTableCheckScalar, SymbolTableVariable) {
   std::string a = R"(
     a: int = 12 + 7 / 2;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   // expected symbol
@@ -42,7 +45,10 @@ TEST(SymbolTableCheckScalarInFunction, SymbolTableVariable) {
     return 1;
     }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   // expected table
@@ -112,7 +118,10 @@ TEST(SymbolType, SymbolTableVariable) {
     f: int16 = 20; # DONSUS_I16
     g: u32 = 12; # DONSUS_U32
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();

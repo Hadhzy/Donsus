@@ -11,7 +11,11 @@ TEST(ReturnStatementTypeCheckScalarCorrect, ReturnStatementTypecheck) {
     return 1;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -26,7 +30,10 @@ TEST(ReturnStatementTypeCheckIdentifierCorrect, ReturnStatementTypecheck) {
     return b;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -41,7 +48,10 @@ TEST(ReturnStatementTypeCheckIdentifierCorrect2, ReturnStatementTypecheck) {
     return b;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -56,7 +66,10 @@ TEST(ReturnStatementTypeCheckScalarIncorrect, ReturnStatementTypecheck) {
 }
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -73,7 +86,10 @@ TEST(ReturnStatementTypeCheckIdentifierIncorrect, ReturnStatementTypecheck) {
 }
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -90,7 +106,9 @@ TEST(ReturnStatementTypeCheckScalarIncorrectWithMultiple,
 }
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
 
   parse_result->init_traverse();
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();

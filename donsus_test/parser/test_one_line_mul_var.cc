@@ -7,7 +7,10 @@ TEST(OneLineMulVar, OneLineMulVarDeclTest) {
         a,b,c,d:int;
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   EXPECT_EQ(4, result->get_nodes().size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION,
             result->get_nodes()[0]->type.type);
@@ -24,7 +27,10 @@ TEST(OneLineMulVar, OneLineMulVarDefTest) {
         a,b,c,d:int = 12;
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   EXPECT_EQ(4, result->get_nodes().size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION,
             result->get_nodes()[0]->type.type);

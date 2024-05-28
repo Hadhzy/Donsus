@@ -7,7 +7,10 @@ TEST(ArrayTestTypecheckCorrect, ArrayTypeCheck) {
     a:int[] = [1, 2, 3];
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -21,7 +24,10 @@ TEST(ArrayTestTypecheckCorrect1, ArrayTypeCheck) {
     a:int[] = [1, 2, b];
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -35,7 +41,10 @@ TEST(ArrayTestTypecheckincorrect, ArrayTypeCheck) {
     a:int[] = [1, 2, b];
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -49,7 +58,10 @@ TEST(ArrayTestTypecheckincorrect1, ArrayTypeCheck) {
     a:int[] = [1, 2, "12"];
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -61,7 +73,10 @@ TEST(ArrayOutOfBounds, ArrayTypeCheck) {
   std::string a = R"(
     a:int[1] = [1, 2];
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -76,7 +91,10 @@ TEST(ArrayAccessIncorrect, ArrayTypeCheck) {
 
     b:int = a[0];
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
@@ -91,7 +109,10 @@ TEST(ArrayAccessCorrect, ArrayTypeCheck) {
 
     b:int = a[0];
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 

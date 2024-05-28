@@ -82,6 +82,7 @@ struct donsus_token {
   std::string value;       // the value of the token(string)
   unsigned int length;     // the length of the token
   unsigned int line;       // the line number of the token(starts from one)
+  unsigned int column;     // the column in which the token is defined
   unsigned int precedence; // precedence of the token(the higher the value the
                            // more precedence the token has)
 };
