@@ -3,9 +3,20 @@
 #include <exception>
 #include <iostream>
 
+#include "terminal_coloured.h"
+// Header only lib
 /**
  *  \brief Represents the base exception class
  */
+enum ErrorValueKind: uint32_t {
+  ErrorValue_Error,
+  ErrorValue_Warning
+};
+
+struct ErrorValue {
+  ErrorValueKind kind;
+
+};
 class DonsusException : public std::exception {
 private:
   std::string error_message;
@@ -18,6 +29,21 @@ public:
   [[nodiscard]] virtual const char *what() const throw() {
     return error_message.c_str();
   }
+};
+
+// Note: defined in exception.cc
+class DonsusParserError {
+public:
+  DonsusParserError() = default;
+  void syntax_error_normal(const unsigned int &column, const unsigned int &line,
+                           const std::string &message);
+
+  void error_out_coloured(const std::string &message, rang::fg colour = rang::fg::red);
+
+  void error(const std::string &message);
+
+private:
+  bool has_ansi_colours();
 };
 
 class ReturnTypeException : public DonsusException {

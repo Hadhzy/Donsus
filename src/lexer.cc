@@ -262,7 +262,7 @@ static bool is_keyword(std::string &s) {
 }
 
 bool eat(DonsusParser &parser) {
-
+  ++parser.lexer.cur_column;
   if ((parser.lexer.cur_char = parser.lexer.string[++parser.lexer.cur_pos]) !=
       '\0') {
 
@@ -347,6 +347,7 @@ static donsus_token make_type(DonsusParser &parser, std::string &value,
   donsus_token token;
 
   token.line = parser.lexer.cur_line;
+  token.column = parser.lexer.cur_column;
 
   token.kind = DONSUS_TYPES_LEXER[value];
 
@@ -364,6 +365,7 @@ static donsus_token make_keyword(DonsusParser &parser, std::string &value,
   donsus_token token;
 
   token.line = parser.lexer.cur_line;
+  token.column = parser.lexer.cur_column;
 
   token.precedence = 0;
 
@@ -432,8 +434,10 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
   switch (parser.lexer.cur_char) {
 
   case '\n': {
+    parser.lexer.cur_column = 1;
 
     cur_token.line = ++parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     cur_token.kind = DONSUS_NEWLINE;
 
@@ -454,6 +458,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "+=";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -469,6 +474,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "++";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -486,6 +492,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "+";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -503,6 +510,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "-=";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -518,6 +526,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "--";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -533,6 +542,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "->";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -549,6 +559,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "-";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -565,6 +576,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "*=";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -581,6 +593,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "*";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -597,6 +610,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "/=";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -613,6 +627,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "/";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -629,6 +644,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "^";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -648,6 +664,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the second '=' character
 
@@ -662,6 +679,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "=";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -678,6 +696,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "(";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -693,6 +712,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = ";";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -707,6 +727,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = ":";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -721,6 +742,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = ")";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -739,6 +761,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -757,6 +780,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -776,6 +800,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -794,6 +819,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -809,6 +835,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = ",";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -823,6 +850,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "{";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -837,6 +865,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "}";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -851,6 +880,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "[";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -865,6 +895,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "]";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -881,6 +912,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "...";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the second dot
 
@@ -897,6 +929,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = ".";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -912,6 +945,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "%";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -929,6 +963,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.precedence = 1; // lowest precedence
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser); // Consume the '=' character
 
@@ -944,6 +979,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = "!";
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       eat(parser);
 
@@ -972,6 +1008,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
                 << cur_token.line << std::endl;
     }
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     return cur_token;
   }
@@ -984,6 +1021,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.value = "'";
 
     cur_token.line = parser.lexer.cur_line;
+    cur_token.column = parser.lexer.cur_column;
 
     eat(parser);
 
@@ -1000,6 +1038,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.value = next_number(parser, cur_token, parser.lexer.cur_pos);
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       // float part
       if (parser.lexer.cur_char == '.') {
@@ -1037,6 +1076,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       }
 
       cur_token.line = parser.lexer.cur_line;
+      cur_token.column = parser.lexer.cur_column;
 
       return cur_token;
     }

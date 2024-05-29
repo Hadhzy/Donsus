@@ -447,8 +447,8 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
   return o;
 }
 
-DonsusParser::DonsusParser(donsus_lexer &lexer)
-    : lexer(lexer), allocator(1024) {
+DonsusParser::DonsusParser(donsus_lexer &lexer, DonsusAstFile &file)
+    : lexer(lexer), allocator(1024), file(file) {
   cur_token = donsus_lexer_next(*this);
   // Todo: causes invalid read for some reaons in valgrind
   donsus_tree = allocator.r_alloc<donsus_ast::tree>();
@@ -504,18 +504,16 @@ auto DonsusParser::donsus_parse() -> end_result {
                  donsus_peek(2).kind == DONSUS_NAME) {
         donsus_variable_multi_decl_def();
       } else {
-        throw DonsusException(
-            "Unexpected token: '" + cur_token.value +
-            "'\n at line : " + std::to_string(lexer.cur_line));
+        donsus_syntax_error(cur_token.column, cur_token.line,
+                            "Unexpected token: '" + cur_token.value);
       }
     }
 
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       if (result->children.empty()) {
-        throw DonsusException(
-            "Condition wasn't provided for if statement \n  at line: " +
-            std::to_string(lexer.cur_line));
+        donsus_syntax_error(cur_token.column, cur_token.line,
+                            "Condition wasn't provided for if statement \n");
       }
       donsus_tree->add_node(result);
     }
@@ -556,10 +554,10 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
       donsus_parser_next();
       if (!(DONSUS_TYPES_LEXER.find(cur_token.value) !=
             DONSUS_TYPES_LEXER.end()))
-        throw DonsusException("Type provided: '" + cur_token.value +
-                              "' is not valid in the declaration of: '" +
-                              identifier_names[0] +
-                              "'\n at line: " + std::to_string(lexer.cur_line));
+        donsus_syntax_error(cur_token.column, cur_token.line,
+                            "Type provided: '" + cur_token.value +
+                                "' is not valid in the declaration of: '" +
+                                identifier_names[0]);
 
       type = cur_token.kind;
     }
@@ -587,7 +585,8 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
     expression.identifier_type = type;
 
     if (type == DONSUS_VOID) {
-      throw DonsusException("Void can't be used as a variable type");
+      donsus_syntax_error(cur_token.column, cur_token.line,
+                          "Void can't be used as a variable type");
     }
 
     if (is_def) {
@@ -605,7 +604,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
   //       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION;
   //   declaration->children.push_back(result);
   // }
-};
+}
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
                                          uint64_t child_count) -> parse_result {
@@ -691,9 +690,9 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   }
 
   default: {
-    throw DonsusException("Invalid expression provided at token: '" +
-                          cur_token.value +
-                          "' \n at line: " + std::to_string(lexer.cur_line));
+    donsus_syntax_error(cur_token.column, cur_token.line,
+                        "Invalid expression provided at token: " +
+                            cur_token.value);
   }
   }
 }
@@ -773,37 +772,33 @@ auto DonsusParser::donsus_variable_definition(
  var_decl: DONSUS_NAME DONSUS_COLON donsus_type
 */
 auto DonsusParser::donsus_variable_decl() -> parse_result {
-  // Starts with DONSUS_NAME
-  // ENDS with  parsing SEMI_COLON
-  // CALL definition if needed
-  // RETURNS its structure without parsing semi_colon if's called from
-  // variable_decl
   parse_result declaration = create_variable_declaration(
       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
 
-  // add stuff to symbol_table
-  donsus_parser_except(DONSUS_COLO); // expect next token to be ':'
+  donsus_parser_except(DONSUS_COLO);
+
+  donsus_token_kind type = cur_token.kind;
 
   if (cur_token.kind == DONSUS_COLO) {
-    donsus_parser_next(); // moves to the type
-    // if its a valid type
+    donsus_parser_next();
+    // check for void explicitly
+
+    donsus_token_kind type_m = cur_token.kind;
+    if (type_m == DONSUS_VOID) {
+      donsus_syntax_error(cur_token.line, cur_token.column,
+                          "Void can't be used as a variable type");
+    }
     if (!(DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()))
-      throw DonsusException("Type provided: '" + cur_token.value +
-                            "' is not valid in the declaration of: '" +
-                            expression.identifier_name +
-                            "'\n at line: " + std::to_string(lexer.cur_line));
+      donsus_syntax_error(cur_token.column, cur_token.line,
+                          "Type provided: '" + cur_token.value +
+                              "' is not valid in the declaration of: '" +
+                              expression.identifier_name);
 
     expression.identifier_type = cur_token.kind;
 
-    if (cur_token.kind == DONSUS_VOID) {
-      throw DonsusException("Void can't be used as a variable type");
-    }
-
-    /*    donsus_parser_next(); // if the next token is not '=' then its a
-                              // declaration.*/
     if (donsus_peek().kind == DONSUS_EQUAL) {
       // def
       donsus_parser_next();
@@ -975,9 +970,10 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   // }
 
   if (cur_token.kind == DONSUS_LBRACE || cur_token.kind == DONSUS_SEMICOLON) {
-    throw DonsusException("Return type wasn't provided for function: '" +
-                          expression.func_name +
-                          "' at line: " + std::to_string(lexer.cur_line));
+
+    donsus_syntax_error(cur_token.column, cur_token.line,
+                        "Return type wasn't provided for function: '" +
+                            expression.func_name);
   }
   while (cur_token.kind != DONSUS_LBRACE &&
          cur_token.kind != DONSUS_SEMICOLON) {
@@ -986,10 +982,10 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
     if (DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()) {
       expression.return_type.push_back(make_type(cur_token.kind));
     } else {
-      throw DonsusException("Return type recieved: '" + cur_token.value +
-                            "' in invalid for function: '" +
-                            expression.func_name +
-                            "' at line: " + std::to_string(lexer.cur_line));
+      donsus_syntax_error(cur_token.column, cur_token.line,
+                          "Return type recieved: '" + cur_token.value +
+                              "' in invalid for function: '" +
+                              expression.func_name);
     }
     donsus_parser_next();
   }
@@ -1135,9 +1131,8 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       if (result->children.empty()) {
-        throw DonsusException(
-            "Condition wasn't provided for if statement \n  at line: " +
-            std::to_string(lexer.cur_line));
+        donsus_syntax_error(cur_token.column, cur_token.line,
+                            "Condition wasn't provided for if statement \n");
       }
       body.push_back(result);
     }
@@ -1455,24 +1450,29 @@ auto DonsusParser::create_function_call(donsus_ast::donsus_node_type type,
   return donsus_tree->create_node<donsus_ast::function_call>(type, child_count);
 }
 
+auto DonsusParser::donsus_syntax_error(unsigned int column, unsigned int line,
+                                       const std::string &message) -> void {
+  error.syntax_error_normal(column, line, message);
+  file.error_count += 1;
+}
 // Throws exception
 void DonsusParser::donsus_parser_except(donsus_token_kind type) {
   donsus_token a = donsus_parser_next();
   if (a.kind != type) {
     // exception here
-    throw DonsusException(
+    donsus_syntax_error(
+        cur_token.column, cur_token.line,
         "Expected token:" + de_get_name_from_token(type) +
-        " got instead: " + de_get_name_from_token(cur_token.kind) + "\n" +
-        "at line: " + std::to_string(lexer.cur_line));
+            " got instead: " + de_get_name_from_token(cur_token.kind) + "\n");
   }
 }
 
 void DonsusParser::donsus_parser_except_current(donsus_token_kind type) {
   if (cur_token.kind != type) {
     // exception here
-    throw DonsusException(
+    donsus_syntax_error(
+        cur_token.column, cur_token.line,
         "Expected token:" + de_get_name_from_token(type) +
-        " got instead: " + de_get_name_from_token(cur_token.kind) + "\n" +
-        "at line: " + std::to_string(lexer.cur_line));
+            " got instead: " + de_get_name_from_token(cur_token.kind) + "\n");
   }
 }

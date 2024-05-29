@@ -13,6 +13,7 @@
 
 // Contains ast(node) types that the parser figures out
 namespace donsus_ast {
+// represents one file
 struct donsus_node_type {
   enum underlying : int {
     DONSUS_VARIABLE_DECLARATION, // just the type of the node
