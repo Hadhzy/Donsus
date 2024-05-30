@@ -114,6 +114,9 @@ public:
                      utility::handle<donsus_ast::node> &ast,
                      utility::handle<DonsusSymTable> &table);
 
+  llvm::Value *visit(donsus_ast::range_for_loop &ac_ast,
+                     utility::handle<DonsusSymTable> &table);
+
   llvm::Value *visit(donsus_ast::else_statement &ast,
                      utility::handle<DonsusSymTable> &table);
 
