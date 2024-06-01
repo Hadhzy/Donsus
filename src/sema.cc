@@ -207,6 +207,16 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
+    for (auto &n : node->get<donsus_ast::array_for_loop>().body) {
+      if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
+        continue;
+      }
+      assign_type_to_node(n, table, global_table);
+    }
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT: {
     for (auto &n : node->get<donsus_ast::if_statement>().body) {
       if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {

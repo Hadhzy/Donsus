@@ -223,6 +223,9 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
     return visit(n->get<donsus_ast::range_for_loop>(), table);
   }
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
+    return visit(n->get<donsus_ast::array_for_loop>(), table);
+  }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     return visit(n->get<donsus_ast::function_def>(), table);
@@ -722,6 +725,31 @@ DonsusCodeGenerator::visit(donsus_ast::range_for_loop &ac_ast,
   Builder->SetInsertPoint(AfterBB);
 
   // Return value after the loop
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+}
+
+llvm::Value *
+DonsusCodeGenerator::visit(donsus_ast::array_for_loop &ac_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
+  // Create blocks for the loop
+  llvm::BasicBlock *PreheaderBB = Builder->GetInsertBlock();
+  llvm::BasicBlock *LoopCondBB =
+      llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
+  llvm::BasicBlock *LoopBodyBB =
+      llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
+  llvm::BasicBlock *LoopIncBB =
+      llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
+  llvm::BasicBlock *AfterBB =
+      llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
+
+  // Allocate and initialize the loop variable
+  llvm::AllocaInst *Alloca = Builder->CreateAlloca(
+      llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
+
+  // Get the array from the symbol table
+  DonsusSymTable::sym sym = table->get(ac_ast.array_name);
+
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
 }
 
