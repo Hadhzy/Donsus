@@ -800,7 +800,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
     donsus_token_kind type_m = cur_token.kind;
     if (type_m == DONSUS_VOID) {
-      donsus_syntax_error(&declaration, cur_token.line, cur_token.column,
+      donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                           "Void can't be used as a variable type");
     }
     if (!(DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()))
