@@ -316,7 +316,7 @@ std::string donsus_float(DonsusParser &parser, donsus_token &token,
   return fractional_part;
 }
 
-static std::string next_identifier(DonsusParser &parser, donsus_token token,
+static std::string next_identifier(DonsusParser &parser, donsus_token& token,
                                    unsigned int start_pos) {
 
   while (iscontinue_identifier(parser.lexer.cur_char)) {
@@ -1093,7 +1093,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.kind = DONSUS_NAME;
 
-      cur_token.length = 0; // will be changed during next_number
+      cur_token.length = 0; // will be changed during next_identifier
       std::string c_value =
           next_identifier(parser, cur_token, parser.lexer.cur_pos);
 

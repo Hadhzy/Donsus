@@ -64,11 +64,13 @@ execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
 target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
 
-# set(CMAKE_BUILD_TYPE Debug)
 if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "release")
+    set(CMAKE_BUILD_TYPE "Release")
 endif ()
 
+if (CMAKE_BUILD_TYPE STREQUAL "RELEASE")
+add_compile_definitions(DEBUG=0)
+endif()
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_compile_definitions(DEBUG=1)
     add_definitions(-DDEBUG_MODE)

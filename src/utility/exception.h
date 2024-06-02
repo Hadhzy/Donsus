@@ -36,10 +36,10 @@ public:
 class DonsusParserError {
 public:
   DonsusParserError() = default;
-  void syntax_error_normal(const unsigned int &column,
-                           const unsigned int &line,
+  void syntax_error_normal(unsigned int column,
+                           unsigned int line,
                            const std::string &message,
-                           const std::string& full_path);
+                           const std::string &full_path);
 
   void error_out_coloured(const std::string &message, rang::fg colour = rang::fg::red);
 

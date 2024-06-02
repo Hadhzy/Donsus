@@ -480,7 +480,7 @@ donsus_token DonsusParser::donsus_peek(int loop) {
 }
 
 auto DonsusParser::donsus_parse() -> end_result {
-#ifdef DEBUG
+#if DEBUG
   std::cout << "LEXER: "
             << "\n";
   DonsusParser save = *this;
@@ -532,7 +532,7 @@ auto DonsusParser::donsus_parse() -> end_result {
                           // if (peek_function_definition()) {
                           // }
   }
-#ifdef DEBUG
+#if DEBUG
   std::cout << "AST: "
             << "\n";
   PrintAst print_ast;
@@ -1526,17 +1526,17 @@ auto DonsusParser::donsus_show_error_on_line(donsus_token_pos &ast_begin,
   error.error_out_coloured(whole_ast_range, rang::fg::reset);
   error.error_out_coloured(token_range, rang::fg::reset);
   // printing out ~~~~~~~
-  error.error("\n");
-  for (int i = 0; i < end.column; i++) {
+  for (int i = 0; i < cur_token.column - cur_token.length; i++) {
     error.error_out_empty();
   }
   error.error_out_coloured("^", rang::fg::green);
 
-  for (int i = 0; i < token_range.size(); i++) {
+  for (int i = 0; i < cur_token.length - 2; i++) {
     error.error_out_coloured("~", rang::fg::green);
   }
 
   error.error_out_coloured("^", rang::fg::green);
+  error.error_out_coloured("\n");
   return 0;
   // printing out ~~~~~~~
 }
@@ -1555,6 +1555,9 @@ auto DonsusParser::donsus_end_pos(donsus_token &token) -> donsus_token_pos {
     }
   }
   c_pos.abs_offset = cur_token.offset + c_pos.offset;
+  c_pos.column = token.column;
+  c_pos.line = token.line;
+  c_pos.file_id = file.id;
   return c_pos;
 }
 // avo copying
