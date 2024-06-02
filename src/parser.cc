@@ -1517,19 +1517,28 @@ auto DonsusParser::donsus_show_error_on_line(donsus_token_pos &ast_begin,
                                              donsus_token_pos &pos,
                                              donsus_token_pos &end) -> int {
   std::string value_c = file.parser->lexer.string;
-  std::string real_value_c = value_c.substr(pos.abs_offset, end.abs_offset);
-  error.error_out_coloured(real_value_c, rang::fg::reset);
+
+  std::string whole_ast_range =
+      value_c.substr(ast_begin.abs_offset, cur_token.offset);
+
+  std::string token_range = value_c.substr(pos.abs_offset, end.abs_offset);
+
+  error.error_out_coloured(whole_ast_range, rang::fg::reset);
+  error.error_out_coloured(token_range, rang::fg::reset);
+  // printing out ~~~~~~~
   error.error("\n");
   for (int i = 0; i < end.column; i++) {
     error.error_out_empty();
   }
   error.error_out_coloured("^", rang::fg::green);
-  std::cout << "cur_token.length" << cur_token.length;
 
-  for (int i = 0; i < cur_token.length - 1; i++) {
+  for (int i = 0; i < token_range.size(); i++) {
     error.error_out_coloured("~", rang::fg::green);
   }
+
   error.error_out_coloured("^", rang::fg::green);
+  return 0;
+  // printing out ~~~~~~~
 }
 // Creates a donsus pos which points to the end of the token
 auto DonsusParser::donsus_end_pos(donsus_token &token) -> donsus_token_pos {
@@ -1548,7 +1557,7 @@ auto DonsusParser::donsus_end_pos(donsus_token &token) -> donsus_token_pos {
   c_pos.abs_offset = cur_token.offset + c_pos.offset;
   return c_pos;
 }
-// avoid copying
+// avo copying
 auto DonsusParser::donsus_make_pos_from_token(donsus_token &token)
     -> donsus_token_pos {
   donsus_token_pos pos{};

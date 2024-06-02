@@ -17,7 +17,6 @@ void DonsusParserError::syntax_error_normal(const unsigned int &column,
   } else {
     error(full_path);
     error(" ERROR: ");
-    error(message);
     error(line_c);
     error("\n");
   }
