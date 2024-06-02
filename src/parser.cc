@@ -9,7 +9,8 @@
 #include <iostream>
 #include <utility>
 
-// DEBUG
+std::vector<DonsusAstFile *> global_files;
+
 class PrintAst {
 public:
   void print_ast(utility::handle<donsus_ast::tree> tree) {
@@ -450,8 +451,10 @@ static std::ostream &operator<<(std::ostream &o, donsus_token &token) {
 DonsusParser::DonsusParser(donsus_lexer &lexer, DonsusAstFile &file)
     : lexer(lexer), allocator(1024), file(file) {
   cur_token = donsus_lexer_next(*this);
-  // Todo: causes invalid read for some reaons in valgrind
+  // Todo: causes invalid read for some reasons in valgrind
   donsus_tree = allocator.r_alloc<donsus_ast::tree>();
+  file.parser = this;
+  global_files.push_back(&file);
 }
 
 donsus_token DonsusParser::donsus_parser_next() {
@@ -504,7 +507,7 @@ auto DonsusParser::donsus_parse() -> end_result {
                  donsus_peek(2).kind == DONSUS_NAME) {
         donsus_variable_multi_decl_def();
       } else {
-        donsus_syntax_error(cur_token.column, cur_token.line,
+        donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
                             "Unexpected token: '" + cur_token.value);
       }
     }
@@ -512,7 +515,7 @@ auto DonsusParser::donsus_parse() -> end_result {
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       if (result->children.empty()) {
-        donsus_syntax_error(cur_token.column, cur_token.line,
+        donsus_syntax_error(&result, cur_token.column, cur_token.line,
                             "Condition wasn't provided for if statement \n");
       }
       donsus_tree->add_node(result);
@@ -540,6 +543,8 @@ auto DonsusParser::donsus_parse() -> end_result {
 }
 
 auto DonsusParser::donsus_variable_multi_decl_def() -> void {
+  donsus_token start_offset;
+
   parse_result result;
   std::vector<std::string> identifier_names;
   donsus_token_kind type;
@@ -554,7 +559,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
       donsus_parser_next();
       if (!(DONSUS_TYPES_LEXER.find(cur_token.value) !=
             DONSUS_TYPES_LEXER.end()))
-        donsus_syntax_error(cur_token.column, cur_token.line,
+        donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
                             "Type provided: '" + cur_token.value +
                                 "' is not valid in the declaration of: '" +
                                 identifier_names[0]);
@@ -565,6 +570,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
       donsus_parser_next();
     }
     if (cur_token.kind == DONSUS_NAME) {
+      start_offset = cur_token;
       identifier_names.push_back(cur_token.value);
     }
     if (cur_token.kind == DONSUS_SEMICOLON) {
@@ -577,6 +583,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
   for (auto &name : identifier_names) {
     parse_result declaration = create_variable_declaration(
         donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
+    declaration->start_offset_ast = start_offset;
 
     auto &expression = declaration->get<donsus_ast::variable_decl>();
     expression.identifier_name = cur_token.value;
@@ -585,7 +592,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
     expression.identifier_type = type;
 
     if (type == DONSUS_VOID) {
-      donsus_syntax_error(cur_token.column, cur_token.line,
+      donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                           "Void can't be used as a variable type");
     }
 
@@ -628,10 +635,13 @@ auto DonsusParser::donsus_float_number(donsus_ast::donsus_node_type type,
 }
 
 auto DonsusParser::donsus_array_access() -> parse_result {
+  donsus_token start_offset;
+
   parse_result node = create_array_access(
       donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS, 10);
   auto &expression = node->get<donsus_ast::array_access>();
   expression.identifier_name = cur_token.value;
+  node->start_offset_ast = cur_token;
 
   donsus_parser_next(); // move to '['
   donsus_parser_next(); // move to the index
@@ -690,7 +700,7 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   }
 
   default: {
-    donsus_syntax_error(cur_token.column, cur_token.line,
+    donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
                         "Invalid expression provided at token: " +
                             cur_token.value);
   }
@@ -761,7 +771,6 @@ var_def:  DONSUS_NAME DONSUS_COLON donsus_type  DONSUS_EQUAL expression
  */
 auto DonsusParser::donsus_variable_definition(
     utility::handle<donsus_ast::node> &declaration) -> parse_result {
-  // move to get the value
   donsus_parser_next();
   parse_result expression = donsus_expr(0);
   declaration->children.push_back(expression);
@@ -772,11 +781,14 @@ auto DonsusParser::donsus_variable_definition(
  var_decl: DONSUS_NAME DONSUS_COLON donsus_type
 */
 auto DonsusParser::donsus_variable_decl() -> parse_result {
+  donsus_token start_offset;
+
   parse_result declaration = create_variable_declaration(
       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION, 10);
 
   auto &expression = declaration->get<donsus_ast::variable_decl>();
   expression.identifier_name = cur_token.value;
+  start_offset = cur_token;
 
   donsus_parser_except(DONSUS_COLO);
 
@@ -788,11 +800,11 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
     donsus_token_kind type_m = cur_token.kind;
     if (type_m == DONSUS_VOID) {
-      donsus_syntax_error(cur_token.line, cur_token.column,
+      donsus_syntax_error(&declaration, cur_token.line, cur_token.column,
                           "Void can't be used as a variable type");
     }
     if (!(DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()))
-      donsus_syntax_error(cur_token.column, cur_token.line,
+      donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                           "Type provided: '" + cur_token.value +
                               "' is not valid in the declaration of: '" +
                               expression.identifier_name);
@@ -871,6 +883,8 @@ auto DonsusParser::donsus_array_declaration(
   parse_result array_declaration = create_array_declaration(
       donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION, 10);
 
+  array_declaration->start_offset_ast = cur_token;
+
   auto &expression = array_declaration->get<donsus_ast::array_decl>();
   expression.identifier_name =
       declaration->get<donsus_ast::variable_decl>().identifier_name;
@@ -887,6 +901,8 @@ auto DonsusParser::donsus_array_definition(
   // move to the next token
   parse_result array_definition = create_array_definition(
       donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION, 10);
+
+  array_definition->start_offset_ast = cur_token;
 
   auto &expression = array_definition->get<donsus_ast::array_def>();
   expression.identifier_name =
@@ -919,6 +935,8 @@ auto DonsusParser::donsus_array_definition(
 auto DonsusParser::donsus_function_decl() -> parse_result {
   parse_result declaration = create_function_decl(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL, 10);
+
+  declaration->start_offset_ast = cur_token;
 
   auto &expression = declaration->get<donsus_ast::function_decl>();
   expression.func_name = cur_token.value;
@@ -971,7 +989,7 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
   if (cur_token.kind == DONSUS_LBRACE || cur_token.kind == DONSUS_SEMICOLON) {
 
-    donsus_syntax_error(cur_token.column, cur_token.line,
+    donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                         "Return type wasn't provided for function: '" +
                             expression.func_name);
   }
@@ -982,8 +1000,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
     if (DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()) {
       expression.return_type.push_back(make_type(cur_token.kind));
     } else {
-      donsus_syntax_error(cur_token.column, cur_token.line,
-                          "Return type recieved: '" + cur_token.value +
+      donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
+                          "Return type received: '" + cur_token.value +
                               "' in invalid for function: '" +
                               expression.func_name);
     }
@@ -996,6 +1014,7 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 auto DonsusParser::donsus_function_call(donsus_token &name) -> parse_result {
   parse_result function_call = create_function_call(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL, 10);
+  function_call->start_offset_ast = cur_token;
 
   auto &expression = function_call->get<donsus_ast::function_call>();
   expression.func_name = name.value;
@@ -1071,6 +1090,7 @@ auto DonsusParser::donsus_function_definition() -> parse_result {
   parse_result definition = create_function_definition(
       donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, 10);
 
+  definition->start_offset_ast = cur_token;
   // construct sym_table
 
   auto &definition_expression = definition->get<donsus_ast::function_def>();
@@ -1131,7 +1151,7 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       if (result->children.empty()) {
-        donsus_syntax_error(cur_token.column, cur_token.line,
+        donsus_syntax_error(&result, cur_token.column, cur_token.line,
                             "Condition wasn't provided for if statement \n");
       }
       body.push_back(result);
@@ -1175,6 +1195,8 @@ auto DonsusParser::donsus_if_statement() -> parse_result {
   parse_result statement = create_if_statement(
       donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, 10);
 
+  statement->start_offset_ast = cur_token;
+
   auto &statement_expression = statement->get<donsus_ast::if_statement>();
 
   donsus_parser_except(DONSUS_LPAR); // after "if" we have "("
@@ -1205,6 +1227,8 @@ auto DonsusParser::donsus_else_statement() -> parse_result {
   parse_result else_statement = create_else_statement(
       donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT, 10);
 
+  else_statement->start_offset_ast = cur_token;
+
   auto &expression = else_statement->get<donsus_ast::else_statement>();
 
   donsus_parser_except(DONSUS_LBRACE); // expect cur_token to be "{"
@@ -1218,6 +1242,7 @@ auto DonsusParser::donsus_else_statement() -> parse_result {
 auto DonsusParser::donsus_identifier() -> parse_result {
   parse_result result =
       create_identifier(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, 10);
+  result->start_offset_ast = cur_token;
   auto &expression = result->get<donsus_ast::identifier>();
   expression.identifier_name = cur_token.value;
   return result;
@@ -1226,6 +1251,8 @@ auto DonsusParser::donsus_identifier() -> parse_result {
 auto DonsusParser::string_expression() -> parse_result {
   parse_result result = create_string_expression(
       donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION, 10);
+  result->start_offset_ast = cur_token;
+
   auto &expression = result->get<donsus_ast::string_expr>();
   expression.value = cur_token;
   return result;
@@ -1234,6 +1261,8 @@ auto DonsusParser::string_expression() -> parse_result {
 auto DonsusParser::bool_expression() -> parse_result {
   parse_result result = create_bool_expression(
       donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION, 10);
+  result->start_offset_ast = cur_token;
+
   auto &expression = result->get<donsus_ast::bool_expr>();
   expression.value = cur_token;
   return result;
@@ -1243,6 +1272,8 @@ auto DonsusParser::unary_expression() -> parse_result {
   donsus_parser_next();
   parse_result result = create_expression(
       donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
+  result->start_offset_ast = cur_token;
+
   auto &expression = result->get<donsus_ast::unary_expr>();
   expression.op = cur_token;
   parse_result unary = donsus_expr(0);
@@ -1253,6 +1284,8 @@ auto DonsusParser::unary_expression() -> parse_result {
 auto DonsusParser::donsus_print() -> parse_result {
   parse_result print = create_donsus_print(
       donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION, 10);
+  print->start_offset_ast = cur_token;
+
   donsus_parser_except(DONSUS_LPAR);
 
   donsus_parser_next(); // move to expression
@@ -1274,6 +1307,8 @@ auto DonsusParser::donsus_print() -> parse_result {
 auto DonsusParser::donsus_return_statement() -> parse_result {
   parse_result return_statement = create_return_statement(
       donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT, 10);
+  return_statement->start_offset_ast = cur_token;
+
   donsus_parser_next();
   parse_result return_expression = donsus_expr(0);
   return_statement->children.push_back(return_expression);
@@ -1295,6 +1330,8 @@ assignment_value:
 auto DonsusParser::donsus_assignments() -> parse_result {
   parse_result assignment =
       create_assignments(donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT, 10);
+
+  assignment->start_offset_ast = cur_token;
 
   auto &expression = assignment->get<donsus_ast::assignment>();
   // parse lvalue as an expression
@@ -1450,10 +1487,77 @@ auto DonsusParser::create_function_call(donsus_ast::donsus_node_type type,
   return donsus_tree->create_node<donsus_ast::function_call>(type, child_count);
 }
 
-auto DonsusParser::donsus_syntax_error(unsigned int column, unsigned int line,
+auto DonsusParser::donsus_syntax_error(DonsusParser::parse_result *node,
+                                       unsigned int column, unsigned int line,
                                        const std::string &message) -> void {
-  error.syntax_error_normal(column, line, message);
+  donsus_token_pos pos{};
+  pos.offset = 0;
+  pos.line = line;
+  pos.column = column;
+  pos.file_id = file.id;
+  pos.abs_offset = cur_token.offset;
+
+  donsus_token_pos end = donsus_end_pos(cur_token);
+
+  error.syntax_error_normal(column, line, message, file.absolute_path);
+  if (!node) {
+    file.error_count += 1;
+    error.error_out_coloured("", rang::fg::reset);
+    return;
+  }
+  donsus_token ast_first_token = node->get()->start_offset_ast;
+  donsus_token_pos ast_first_token_pos =
+      donsus_make_pos_from_token(ast_first_token);
+  donsus_show_error_on_line(ast_first_token_pos, pos, end);
+  // reset
+  error.error_out_coloured("", rang::fg::reset);
   file.error_count += 1;
+}
+auto DonsusParser::donsus_show_error_on_line(donsus_token_pos &ast_begin,
+                                             donsus_token_pos &pos,
+                                             donsus_token_pos &end) -> int {
+  std::string value_c = file.parser->lexer.string;
+  std::string real_value_c = value_c.substr(pos.abs_offset, end.abs_offset);
+  error.error_out_coloured(real_value_c, rang::fg::reset);
+  error.error("\n");
+  for (int i = 0; i < end.column; i++) {
+    error.error_out_empty();
+  }
+  error.error_out_coloured("^", rang::fg::green);
+  std::cout << "cur_token.length" << cur_token.length;
+
+  for (int i = 0; i < cur_token.length - 1; i++) {
+    error.error_out_coloured("~", rang::fg::green);
+  }
+  error.error_out_coloured("^", rang::fg::green);
+}
+// Creates a donsus pos which points to the end of the token
+auto DonsusParser::donsus_end_pos(donsus_token &token) -> donsus_token_pos {
+
+  donsus_token_pos c_pos{};
+  c_pos.offset += token.length;
+  for (unsigned int i = 0; i < token.length; i++) {
+    char c = token.value[i];
+    if (c == '\n') {
+      c_pos.line += 1;
+      c_pos.column = 1;
+    } else {
+      c_pos.column += 1;
+    }
+  }
+  c_pos.abs_offset = cur_token.offset + c_pos.offset;
+  return c_pos;
+}
+// avoid copying
+auto DonsusParser::donsus_make_pos_from_token(donsus_token &token)
+    -> donsus_token_pos {
+  donsus_token_pos pos{};
+  pos.file_id = file.id;
+  pos.line = token.line;
+  pos.column = token.column;
+
+  pos.abs_offset = token.offset;
+  return pos;
 }
 // Throws exception
 void DonsusParser::donsus_parser_except(donsus_token_kind type) {
@@ -1461,7 +1565,7 @@ void DonsusParser::donsus_parser_except(donsus_token_kind type) {
   if (a.kind != type) {
     // exception here
     donsus_syntax_error(
-        cur_token.column, cur_token.line,
+        nullptr, cur_token.column, cur_token.line,
         "Expected token:" + de_get_name_from_token(type) +
             " got instead: " + de_get_name_from_token(cur_token.kind) + "\n");
   }
@@ -1471,7 +1575,7 @@ void DonsusParser::donsus_parser_except_current(donsus_token_kind type) {
   if (cur_token.kind != type) {
     // exception here
     donsus_syntax_error(
-        cur_token.column, cur_token.line,
+        nullptr, cur_token.column, cur_token.line,
         "Expected token:" + de_get_name_from_token(type) +
             " got instead: " + de_get_name_from_token(cur_token.kind) + "\n");
   }

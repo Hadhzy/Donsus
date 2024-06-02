@@ -354,7 +354,7 @@ static donsus_token make_type(DonsusParser &parser, std::string &value,
   token.length = length;
 
   token.value = value;
-
+  token.offset = parser.lexer.cur_pos;
   return token;
 }
 
@@ -374,6 +374,7 @@ static donsus_token make_keyword(DonsusParser &parser, std::string &value,
   token.length = length;
 
   token.value = value;
+  token.offset = parser.lexer.cur_pos;
 
   return token;
 }
@@ -442,7 +443,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_NEWLINE;
 
     cur_token.length = 1;
-
+    cur_token.offset = parser.lexer.cur_pos;
     eat(parser);
 
     return cur_token;
@@ -454,6 +455,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_PLUS_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "+=";
 
@@ -470,6 +472,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_INCREMENT;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "++";
 
@@ -488,6 +491,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_PLUS;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "+";
 
@@ -506,6 +510,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_MINUS_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "-=";
 
@@ -522,6 +527,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_DECREMENT;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "--";
 
@@ -538,6 +544,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_ARROW;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "->";
 
@@ -555,6 +562,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_MINUS;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "-";
 
@@ -572,6 +580,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_STAR_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "*=";
 
@@ -589,6 +598,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_STAR;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "*";
 
@@ -606,6 +616,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_SLASH_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "/=";
 
@@ -623,6 +634,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_SLASH;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "/";
 
@@ -640,6 +652,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_CIRCUMFLEX;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "^";
 
@@ -658,6 +671,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_DOUBLE_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for ==
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "==";
 
@@ -675,6 +689,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_EQUAL;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "=";
 
@@ -692,6 +707,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_LPAR;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "(";
 
@@ -708,6 +724,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_SEMICOLON;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = ";";
 
@@ -723,6 +740,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_COLO;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = ":";
 
@@ -738,6 +756,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_RPAR;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = ")";
 
@@ -755,6 +774,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_GREATER_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = ">=";
 
@@ -774,6 +794,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_GREATER;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = ">";
 
@@ -794,6 +815,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_LESS_EQUAL;
 
       cur_token.length = 2; // Set length to 2 for +=
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "<=";
 
@@ -813,6 +835,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_LESS;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "<";
 
@@ -831,6 +854,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_COMM;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = ",";
 
@@ -846,6 +870,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_LBRACE;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "{";
 
@@ -861,6 +886,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_RBRACE;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "}";
 
@@ -876,6 +902,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_LSQB;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "[";
 
@@ -891,6 +918,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_RSQB;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "]";
 
@@ -908,6 +936,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_THREE_DOTS;
 
       cur_token.length = 3; // Set length to 3 for ...
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "...";
 
@@ -925,6 +954,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_DOT;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = ".";
 
@@ -941,6 +971,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_PERCENT;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "%";
 
@@ -957,6 +988,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_NOT_EQUAL;
 
       cur_token.length = 2;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "!=";
 
@@ -975,6 +1007,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.kind = DONSUS_EXCLAMATION;
 
       cur_token.length = 1;
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.value = "!";
 
@@ -992,6 +1025,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_STRING;
 
     cur_token.length = 0;
+    cur_token.offset = parser.lexer.cur_pos;
 
     while (next_string(parser)) {
       cur_token.length++;
@@ -1017,6 +1051,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
     cur_token.kind = DONSUS_SINGLE_QUOTE;
 
     cur_token.length = 1;
+    cur_token.offset = parser.lexer.cur_pos;
 
     cur_token.value = "'";
 
@@ -1036,6 +1071,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.length = 0; // will be changed during next_number
       cur_token.value = next_number(parser, cur_token, parser.lexer.cur_pos);
+      cur_token.offset = parser.lexer.cur_pos;
 
       cur_token.line = parser.lexer.cur_line;
       cur_token.column = parser.lexer.cur_column;
@@ -1077,6 +1113,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       cur_token.line = parser.lexer.cur_line;
       cur_token.column = parser.lexer.cur_column;
+      cur_token.offset = parser.lexer.cur_pos;
 
       return cur_token;
     }

@@ -77,6 +77,15 @@ typedef enum {
 
 } donsus_token_kind;
 
+struct donsus_token_pos {
+  unsigned int file_id;
+  unsigned int line;
+  unsigned int column;
+  // relative offset
+  unsigned int offset;
+  // absolute offset
+  unsigned int abs_offset;
+};
 struct donsus_token {
   donsus_token_kind kind;  // the kind of the token
   std::string value;       // the value of the token(string)
@@ -85,6 +94,8 @@ struct donsus_token {
   unsigned int column;     // the column in which the token is defined
   unsigned int precedence; // precedence of the token(the higher the value the
                            // more precedence the token has)
+   // absolute offset
+  unsigned int offset;
 };
 
 #endif

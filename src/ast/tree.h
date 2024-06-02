@@ -104,6 +104,7 @@ public:
     node_ptr->children =
         {}; // initialise it as an empty vector rather than the nodes
     node_ptr->set_property(allocator.r_alloc<extra_type>());
+
     return node_ptr;
   };
 

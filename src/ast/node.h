@@ -31,12 +31,12 @@ struct donsus_node_type {
     DONSUS_RETURN_STATEMENT,     // just the type of the node
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
-    DONSUS_STRING_EXPRESSION,
-    DONSUS_BOOL_EXPRESSION,
-    DONSUS_UNARY_EXPRESSION,
-    DONSUS_PRINT_EXPRESSION,
-    DONSUS_ARRAY_ACCESS,
-    DONSUS_FUNCTION_ARG
+    DONSUS_STRING_EXPRESSION,    // just the type of the node
+    DONSUS_BOOL_EXPRESSION,      // just the type of the node
+    DONSUS_UNARY_EXPRESSION,     // just the type of the node
+    DONSUS_PRINT_EXPRESSION,     // just the type of the node
+    DONSUS_ARRAY_ACCESS,         // just the type of the node
+    DONSUS_FUNCTION_ARG          // just the type of the node
 
   };
 
@@ -188,14 +188,14 @@ struct expression {
 
 struct print_expr {};
 
-using node_properties = utility::property<>;
-
-struct node : node_properties {
+struct node : utility::property<> {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type
   DONSUS_TYPE real_type; // This type is assigned during type checking
+  donsus_token start_offset_ast;
 };
+
 } // namespace donsus_ast
 #endif

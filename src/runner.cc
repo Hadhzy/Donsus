@@ -50,6 +50,9 @@ int Du_Main(int argc, char **argv) {
   file.extension = file_extension;
   file.filename = file_without_extension;
   file.fullpath = path;
+  file.absolute_path = std::filesystem::absolute(path);
+
+  file.id = 0;
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 

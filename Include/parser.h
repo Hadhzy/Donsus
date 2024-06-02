@@ -13,13 +13,29 @@
 #include "../src/ast/tree.h"
 #include "../src/utility/exception.h"
 #include "../src/utility/handle.h"
-#include "file.h"
+
 #include "token.h"
 #ifndef DEBUG
 #define DEBUG 0 // debug
 #endif
 class DonsusParser;
 
+// Second-highest group in Donsus
+struct DonsusAstFile {
+  int id;
+  int flags;
+
+  std::string fullpath;
+  std::string filename;
+  std::string directory;
+
+  std::string absolute_path;
+
+  std::string extension;
+
+  std::size_t error_count;
+  DonsusParser *parser;
+};
 extern std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER;
 
 /**
@@ -189,8 +205,21 @@ public:
                                u_int64_t child_count) -> parse_result;
 
   // handle error
-  auto donsus_syntax_error(unsigned int column, unsigned int line,
+  auto donsus_syntax_error(DonsusParser::parse_result *node,
+                           unsigned int column, unsigned int line,
                            const std::string &message) -> void;
+  auto donsus_show_error_on_line(donsus_token_pos &ast_begin, donsus_token_pos &pos, donsus_token_pos &end)
+      -> int;
+
+
+  // creates a donsus_pos object from the current token so that it points to the
+  // end
+  auto donsus_end_pos(donsus_token &token) -> donsus_token_pos;
+
+  auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
+
+  // match for node to provide it
+  auto extract(DonsusParser::parse_result node);
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

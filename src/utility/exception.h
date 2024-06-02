@@ -3,6 +3,7 @@
 #include <exception>
 #include <iostream>
 
+#include "token.h"
 #include "terminal_coloured.h"
 // Header only lib
 /**
@@ -35,10 +36,14 @@ public:
 class DonsusParserError {
 public:
   DonsusParserError() = default;
-  void syntax_error_normal(const unsigned int &column, const unsigned int &line,
-                           const std::string &message);
+  void syntax_error_normal(const unsigned int &column,
+                           const unsigned int &line,
+                           const std::string &message,
+                           const std::string& full_path);
 
   void error_out_coloured(const std::string &message, rang::fg colour = rang::fg::red);
+
+  void error_out_empty();
 
   void error(const std::string &message);
 
