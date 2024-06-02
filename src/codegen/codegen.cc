@@ -704,6 +704,10 @@ DonsusCodeGenerator::visit(donsus_ast::range_for_loop &ac_ast,
 
   // Generate the loop body
   Builder->SetInsertPoint(LoopBodyBB);
+
+  // Reload the current value of the loop variable
+  table->setInst(ac_ast.loop_variable, Alloca);
+
   for (auto &bodyNode : ac_ast.body) {
     compile(bodyNode, table);
   }

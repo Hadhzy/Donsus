@@ -105,6 +105,9 @@ void tree::traverse_nodes(
 
   case donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
     auto stuff = n->get<donsus_ast::range_for_loop>();
+    // add loop variable to the symbol table
+    sym->add(stuff.loop_variable,
+             make_type(donsus_token_kind::DONSUS_BASIC_INT));
     for (auto &children : stuff.body) {
       traverse_nodes(visit, assign_type_to_node, sym, codegen, children);
     }
