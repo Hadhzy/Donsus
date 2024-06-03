@@ -944,7 +944,6 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
                                           donsus_ast::ArrayType::FIXED, size);
         }
       }
-      // // array
       // donsus_parser_next(); // move to '['
 
     } else {
@@ -1059,17 +1058,6 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   // ARROW--
   // parse type here
   donsus_parser_next();
-
-  // if (donsus_peek().kind == DONSUS_LBRACE) {
-  //   expression.return_type.push_back(make_type(cur_token.kind));
-  // } else {
-  //   // construct type
-  //   while (donsus_peek().kind != DONSUS_LBRACE) {
-  //     expression.return_type.push_back(make_type(cur_token.kind));
-  //     donsus_parser_except(DONSUS_COMM);
-  //     donsus_parser_next();
-  //   }
-  // }
 
   if (cur_token.kind == DONSUS_LBRACE || cur_token.kind == DONSUS_SEMICOLON) {
 
