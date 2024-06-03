@@ -10,7 +10,10 @@ TEST(AssignmentName, AssignmentName) {
     a:int = 12;
     a = 11;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   // get the lvalue node of the assignment
   utility::handle<donsus_ast::node> lvalue =
       result->get_nodes()[1]->get<donsus_ast::assignment>().lvalue;
@@ -33,7 +36,10 @@ TEST(AssignmentArrayAccess, AssignmentTest) {
     a[0] = 10;
 )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   // get the lvalue node of the assignment
   utility::handle<donsus_ast::node> lvalue =
       result->get_nodes()[1]->get<donsus_ast::assignment>().lvalue;

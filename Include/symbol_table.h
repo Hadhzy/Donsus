@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
-#define DEBUG_SYMBOL_TABLE 1
+#ifndef DEBUG_SYMBOL_TABLE
+#define DEBUG_SYMBOL_TABLE 0
+#endif
 
 class DonsusSymTable {
 public:
@@ -71,7 +73,7 @@ public:
       << "\n"; // the name of the current symbol table
     o << "SymbolTable-child-count: " << table->sym_table.size()
       << "\n"; // the child symbol tables associated with the symbol table
-#ifdef DEBUG_SYMBOL_TABLE
+#if DEBUG_SYMBOL_TABLE
     for (auto &n : table->underlying) {
       o << n;
     }

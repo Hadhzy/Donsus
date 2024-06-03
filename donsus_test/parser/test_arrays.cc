@@ -7,7 +7,10 @@ TEST(ArrayStructureTest, ArrayDefinitionTest) {
   std::string a = R"(
   a:int[] = [1, 2, 3];
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   // match array_def
   auto array_def = result->get_nodes()[0]->type;
   EXPECT_EQ(array_def.type,
@@ -23,8 +26,10 @@ TEST(ArrayDeclaration, ArrayDeclarationTest) {
   std::string a = R"(
   a:int[];
 )";
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
 
-  DonsusParser::end_result result = Du_Parse(a);
   auto array_decl = result->get_nodes()[0]->type;
   EXPECT_EQ(array_decl.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION);
@@ -37,7 +42,10 @@ TEST(ArrayAccess, TestArrays) {
   b:int = a[0];
 )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   // match array_decl
   auto array_access =
       result->get_nodes()[1]->children[0]->get<donsus_ast::array_access>();
@@ -52,8 +60,10 @@ TEST(ArrayAccessExpressionAsIndex, TestArrays) {
 
   b:int = a[0 + 0];
 )";
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
 
-  DonsusParser::end_result result = Du_Parse(a);
   // match array_decl
   auto array_access =
       result->get_nodes()[1]->children[0]->get<donsus_ast::array_access>();

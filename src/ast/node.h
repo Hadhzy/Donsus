@@ -13,6 +13,7 @@
 
 // Contains ast(node) types that the parser figures out
 namespace donsus_ast {
+// represents one file
 struct donsus_node_type {
   enum underlying : int {
     DONSUS_VARIABLE_DECLARATION, // just the type of the node
@@ -30,6 +31,7 @@ struct donsus_node_type {
     DONSUS_RETURN_STATEMENT,     // just the type of the node
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
+
     DONSUS_STRING_EXPRESSION,
     DONSUS_BOOL_EXPRESSION,
     DONSUS_UNARY_EXPRESSION,
@@ -39,6 +41,7 @@ struct donsus_node_type {
     DONSUS_WHILE_LOOP,
     DONSUS_RANGE_FOR_LOOP,
     DONSUS_ARRAY_FOR_LOOP,
+
 
   };
 
@@ -227,14 +230,14 @@ struct expression {
 
 struct print_expr {};
 
-using node_properties = utility::property<>;
-
-struct node : node_properties {
+struct node : utility::property<> {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type
   DONSUS_TYPE real_type; // This type is assigned during type checking
+  donsus_token start_offset_ast;
 };
+
 } // namespace donsus_ast
 #endif

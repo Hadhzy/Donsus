@@ -10,7 +10,10 @@ TEST(IfStatementTypecheckCorrect, IfStatementTypecheck) {
    return 1;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -27,7 +30,10 @@ TEST(IfStatementTypecheckInCorrect, IfStatementTypecheck) {
    return 1;
 }
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();

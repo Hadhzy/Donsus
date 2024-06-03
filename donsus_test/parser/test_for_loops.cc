@@ -9,7 +9,11 @@ TEST(ForLoopTest, ForRangeLoopWithoutName) {
         printf("in  loop: "); # it = current number
     }
   )";
-  DonsusParser::end_result result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string loop_variable =
       result->get_nodes()[0]->get<donsus_ast::range_for_loop>().loop_variable;
   std::string start = result->get_nodes()[0]
@@ -38,7 +42,11 @@ TEST(ForLoopTest, ForRangeLoopWithName) {
         printf("in  loop: "); # it = current number
     }
   )";
-  DonsusParser::end_result result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string loop_variable =
       result->get_nodes()[0]->get<donsus_ast::range_for_loop>().loop_variable;
   std::string start = result->get_nodes()[0]
@@ -69,7 +77,11 @@ TEST(ForLoopTest, ForArrayLoopWithoutName) {
         printf("We got a : ", number);
     }
   )";
-  DonsusParser::end_result result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string loop_variable =
       result->get_nodes()[1]->get<donsus_ast::array_for_loop>().loop_variable;
 
@@ -93,7 +105,11 @@ TEST(ForLoopTest, ForArrayLoopWithtName) {
         printf("We got a : ", number);
     }
   )";
-  DonsusParser::end_result result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string loop_variable =
       result->get_nodes()[1]->get<donsus_ast::array_for_loop>().loop_variable;
 

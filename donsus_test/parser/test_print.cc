@@ -9,7 +9,10 @@ TEST(TestPrintLiteral, TestPrintSystem) {
   std::string a = R"(
         printf("a");
     )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION,
             result->get_nodes()[0]->children[0]->type.type);
 }

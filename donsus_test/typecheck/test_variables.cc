@@ -6,7 +6,10 @@ TEST(VariableTypeCheckScalarCorrect, VariableTypecheck) {
   std::string a = R"(
     a:int = 12 + 7 / 2;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -18,7 +21,11 @@ TEST(VariableTypeCheckScalarInCorrect, VariableTypecheck) {
   std::string a = R"(
     a:string = 12 + 7 / 2;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -32,7 +39,11 @@ TEST(RedefinitionVariableInCorrect, RedefinitionVariableTypecheck) {
     a:int = 12 + 7 / 2;
     a:int = 7;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -46,7 +57,11 @@ TEST(RedeclarationVariableIncorrect, RedeclarationVariableTypecheck) {
     a:int;
     a:int;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -61,7 +76,10 @@ TEST(RedeclarationVariableIncorrectNotSameType,
     a:int;
     a:string;
 )";
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
   parse_result->init_traverse();
@@ -75,16 +93,21 @@ TEST(StringTypecheck, TestSingleTypes) {
     a:string = "s"; # right now this is correct, although this s not a string
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
-  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
 
+  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
 
+  // Todo: not sure what's going on here
   std::string a2 = R"(
     a:int = "s"; # right now this is correct, although this s not a string
 )";
 
-  DonsusParser::end_result parse_result2 = Du_Parse(a2);
+  DonsusParser parser2 = Du_Parse(a2, file);
+  DonsusParser::end_result parse_result2 = parser2.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
 
   parse_result2->init_traverse();

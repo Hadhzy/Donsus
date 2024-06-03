@@ -13,7 +13,10 @@ TEST(FunctionCallTest, FunctionName) {
     
     a();
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
 
   std::string _func_name =
       result->get_nodes()[1]->get<donsus_ast::function_call>().func_name;
@@ -29,7 +32,10 @@ TEST(FunctionCallTest, FunctionArguments) {
   std::string a = R"(
         func_name(1, "2", test());
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
 
   std::vector<utility::handle<donsus_ast::node>> arguments =
       result->get_nodes()[0]->get<donsus_ast::function_call>().arguments;

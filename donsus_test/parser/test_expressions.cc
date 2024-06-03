@@ -7,7 +7,10 @@ TEST(Expressions, ExpressionsNodeType) {
         a:int = (3/4) + (4/5);
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, type);
@@ -18,7 +21,10 @@ TEST(Expressions, ExpressionsValueNumbers) {
         a:int = (3/4) + (4/5);
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_token expression =
       result->get_nodes()[0]->children[0]->get<donsus_ast::expression>().value;
   EXPECT_EQ("+", expression.value);
@@ -30,8 +36,10 @@ TEST(Expressions, ExpressionsBooleans) {
         a:bool = true;
         b:bool = false;
     )";
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
 
-  DonsusParser::end_result result = Du_Parse(a);
   donsus_token expression =
       result->get_nodes()[0]->children[0]->get<donsus_ast::bool_expr>().value;
   donsus_token expression1 =
@@ -49,7 +57,10 @@ TEST(Expressions, ExpressionsValueWithIdentifiers) {
         a:int = (3/a) + (a/5);
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_token expression =
       result->get_nodes()[0]->children[0]->get<donsus_ast::expression>().value;
   EXPECT_EQ("+", expression.value);
