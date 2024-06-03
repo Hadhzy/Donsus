@@ -5,7 +5,7 @@ void DonsusParserError::syntax_error_normal(unsigned int column,
                                             const std::string &message,
                                             const std::string &full_path) {
   std::string message_c =
-      "(" + std::to_string(line) + ":" + std::to_string(column) + ")";
+      "(" + std::to_string(line) + ":" + std::to_string(column) + ") ";
 
   const std::string& line_c = message;
   if (has_ansi_colours()) {

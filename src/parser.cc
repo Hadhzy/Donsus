@@ -847,7 +847,6 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
         }
       } else if (donsus_peek().kind == DONSUS_NUMBER) {
         // fixed size array
-
         donsus_parser_next(); // move to the number
         int size = std::stoi(cur_token.value);
         donsus_parser_next(); // move to ']'
