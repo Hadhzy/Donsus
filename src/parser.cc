@@ -23,6 +23,9 @@ public:
 
   void print_ast_node(utility::handle<donsus_ast::node> ast_node,
                       int indent_level) {
+    if (!ast_node)
+      return;
+
     using type = donsus_ast::donsus_node_type;
     switch (ast_node->type.type) {
     case type::DONSUS_VARIABLE_DECLARATION: {
@@ -475,6 +478,7 @@ donsus_token DonsusParser::donsus_peek(int loop) {
   for (int i = 0; i < loop; i++) {
     result_main = donsus_lexer_next(*this);
   }
+
   lexer = save;
   return result_main;
 }
@@ -533,11 +537,13 @@ auto DonsusParser::donsus_parse() -> end_result {
                           // }
   }
 #if DEBUG
-  std::cout << "AST: "
-            << "\n";
-  PrintAst print_ast;
+  if (!file.error_count) {
+    std::cout << "AST: "
+              << "\n";
+    PrintAst print_ast;
 
-  print_ast.print_ast(donsus_tree);
+    print_ast.print_ast(donsus_tree);
+  }
 #endif
   return donsus_tree;
 }
@@ -604,13 +610,6 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
 
     donsus_tree->add_node(declaration);
   }
-  // expression.identifier_type = type;
-
-  // if (is_def) {
-  //   declaration->type =
-  //       donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION;
-  //   declaration->children.push_back(result);
-  // }
 }
 
 auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
@@ -703,6 +702,8 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
     donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
                         "Invalid expression provided at token: " +
                             cur_token.value);
+    parse_result tmp;
+    return tmp;
   }
   }
 }
@@ -726,21 +727,21 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   // number expressions, string expressions etc.
   parse_result left;
   parse_result right;
-
   if (cur_token.kind == DONSUS_LPAR) {
     donsus_parser_next();
     left = donsus_expr(ptp);
   } else {
-    try {
-      left = match_expressions(ptp);
-    } catch (const DonsusException &e) {
-      std::cerr << "Error: " << e.what() << std::endl;
-      exit(1);
+    left = match_expressions(ptp);
+    if (!left) {
+      parse_result tmp;
+      return tmp;
     }
   }
 
-  if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS) {
-    return left;
+  if (left) {
+    if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS) {
+      return left;
+    }
   }
   donsus_parser_next();
   donsus_token previous_token = cur_token; // Save cur_token
@@ -763,7 +764,12 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
     }
   }
 
-  return left;
+  if (left) {
+    return left;
+  } else {
+    parse_result tmp;
+    return tmp;
+  }
 }
 
 /*
@@ -812,11 +818,16 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
     expression.identifier_type = cur_token.kind;
 
     if (donsus_peek().kind == DONSUS_EQUAL) {
-      // def
       donsus_parser_next();
-      declaration->type = donsus_ast::donsus_node_type::
-          DONSUS_VARIABLE_DEFINITION; // overwrite//
-      // type
+      declaration->type =
+          donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION;
+
+      if (donsus_peek().kind == DONSUS_SEMICOLON ||
+          donsus_peek().kind == DONSUS_NEWLINE) {
+
+        donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
+                            "Expected value after equal sign");
+      }
       return donsus_variable_definition(declaration);
     } else if (donsus_peek().kind == DONSUS_LSQB) {
 
@@ -1064,17 +1075,6 @@ auto DonsusParser::donsus_function_args()
     if (cur_token.kind == DONSUS_COMM) {
       donsus_parser_next();
     }
-    // NAME_OR_DATA_PAIR pair;
-    // donsus_parser_next(); // move to the next arg/param
-    // pair.identifier = cur_token.value;
-    // a.push_back(pair);
-
-    // if (donsus_peek().kind == DONSUS_COMM) {
-    //   donsus_parser_next();
-    //   continue;
-    // } else {
-    //   break;
-    // }
   }
   return a;
 }
@@ -1237,8 +1237,6 @@ auto DonsusParser::donsus_else_statement() -> parse_result {
   return else_statement;
 }
 
-// auto DonsusParser::donsus_return_statement() -> {}
-
 auto DonsusParser::donsus_identifier() -> parse_result {
   parse_result result =
       create_identifier(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, 10);
@@ -1370,14 +1368,6 @@ auto DonsusParser::donsus_assignments() -> parse_result {
 
   return assignment;
 }
-
-/*auto DonsusParser::peek_is_function_definition() -> bool {
-  if (peek_for_token().kind != DONSUS_NAME) {
-    return false;
-  }
-
-  const bool res = peek_for_token().kind == DONSUS_LPAR;
-}*/
 
 auto DonsusParser::create_number_expression(donsus_ast::donsus_node_type type,
                                             uint64_t child_count)
@@ -1525,13 +1515,13 @@ auto DonsusParser::donsus_show_error_on_line(donsus_token_pos &ast_begin,
 
   error.error_out_coloured(whole_ast_range, rang::fg::reset);
   error.error_out_coloured(token_range, rang::fg::reset);
-  // printing out ~~~~~~~
+
   for (int i = 0; i < cur_token.column - cur_token.length; i++) {
     error.error_out_empty();
   }
   error.error_out_coloured("^", rang::fg::green);
 
-  for (int i = 0; i < cur_token.length - 2; i++) {
+  for (int i = 0; i < cur_token.length; i++) {
     error.error_out_coloured("~", rang::fg::green);
   }
 

@@ -33,7 +33,7 @@ struct DonsusAstFile {
 
   std::string extension;
 
-  std::size_t error_count;
+  unsigned int error_count{};
   DonsusParser *parser;
 };
 extern std::map<std::string, donsus_token_kind> DONSUS_TYPES_LEXER;
@@ -208,9 +208,9 @@ public:
   auto donsus_syntax_error(DonsusParser::parse_result *node,
                            unsigned int column, unsigned int line,
                            const std::string &message) -> void;
-  auto donsus_show_error_on_line(donsus_token_pos &ast_begin, donsus_token_pos &pos, donsus_token_pos &end)
+  auto donsus_show_error_on_line(donsus_token_pos &ast_begin,
+                                 donsus_token_pos &pos, donsus_token_pos &end)
       -> int;
-
 
   // creates a donsus_pos object from the current token so that it points to the
   // end

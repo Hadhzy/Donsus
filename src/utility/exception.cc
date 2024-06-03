@@ -11,12 +11,12 @@ void DonsusParserError::syntax_error_normal(unsigned int column,
   if (has_ansi_colours()) {
     error_out_coloured(full_path, rang::fg::reset);
     error_out_coloured(message_c, rang::fg::green);
-    error_out_coloured(" ERROR: ");
+    error_out_coloured(" SYNTAX ERROR: ");
     error_out_coloured(line_c, rang::fg::reset);
     error_out_coloured("\n");
   } else {
     error(full_path);
-    error(" ERROR: ");
+    error(" SYNTAX ERROR: ");
     error(message_c);
     error(line_c);
     error("\n");

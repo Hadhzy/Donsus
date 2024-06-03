@@ -94,8 +94,11 @@ struct donsus_token {
   unsigned int column;     // the column in which the token is defined
   unsigned int precedence; // precedence of the token(the higher the value the
                            // more precedence the token has)
-   // absolute offset
-  unsigned int offset;
+
+  unsigned int offset;      // absolute offset
+  bool operator!() const {
+    return !kind && !value.empty() && !length && !column && !precedence;
+  }
 };
 
 #endif

@@ -59,8 +59,10 @@ int Du_Main(int argc, char **argv) {
   DonsusParser parser = Du_Parse(result, file);
   DonsusParser::end_result parser_result = parser.donsus_parse();
 
-  if (file.error_count)
+  if (file.error_count) {
+    std::cout << rang::fg::reset;
     return 1;
+  }
 #if DEBUG
   std::cout << "\n";
 
