@@ -25,7 +25,10 @@ std::map<std::string, donsus_token_kind> DONSUS_KEYWORDS{
     {"return", DONSUS_RETURN_KW},
     {"printf", DONSUS_PRINT_KW},
     {"true", DONSUS_TRUE_KW},
-    {"false", DONSUS_FALSE_KW}};
+    {"false", DONSUS_FALSE_KW},
+    {"while", DONSUS_WHILE_KW},
+    {"for", DONSUS_FOR_KW},
+};
 
 std::string de_get_name_from_token(donsus_token_kind kind) {
 
@@ -133,6 +136,9 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
   case DONSUS_THREE_DOTS:
     return "DONSUS_THREE_DOTS";
 
+  case DONSUS_TWO_DOTS:
+    return "DONSUS_TWO_DOTS";
+
   case DONSUS_DECREMENT:
     return "DONSUS_DECREMENT";
 
@@ -213,6 +219,13 @@ std::string de_get_name_from_token(donsus_token_kind kind) {
 
   case DONSUS_FALSE_KW:
     return "DONSUS_FALSE_KW";
+
+  case DONSUS_WHILE_KW:
+    return "DONSUS_WHILE_KW";
+
+  case DONSUS_FOR_KW:
+    return "DONSUS_FOR_KW";
+
   default:
 
     return "UNKNOWN_TOKEN_KIND";
@@ -309,7 +322,7 @@ std::string donsus_float(DonsusParser &parser, donsus_token &token,
                          unsigned int start_pos) {
   std::string integer_part = next_number(parser, token, start_pos);
   std::string fractional_part{};
-  if (parser.lexer.cur_char == '.') {
+  if (parser.lexer.cur_char == '.' && peek_back_for_char(parser) != '.') {
     eat(parser);
     fractional_part = next_number(parser, token, start_pos);
   }
@@ -931,8 +944,22 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
   }
 
   case '.': {
-    if (peek_for_char(parser) == '.' && peek_for_char(parser) == '.') {
+    if (peek_for_char(parser) == '.') {
+      cur_token.kind = DONSUS_TWO_DOTS;
 
+      cur_token.length = 2;
+
+      cur_token.value = "..";
+
+      cur_token.line = parser.lexer.cur_line;
+
+      eat(parser); // Consume the second dot
+
+      eat(parser); // Move to the next character
+
+      return cur_token;
+
+    } else if (peek_for_char(parser) == '.' && peek_for_char(parser) == '.') {
       cur_token.kind = DONSUS_THREE_DOTS;
 
       cur_token.length = 3; // Set length to 3 for ...
@@ -945,7 +972,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
 
       eat(parser); // Consume the second dot
 
-      eat(parser); // Consume the third dot
+      eat(parser); // Consume the second dot
 
       eat(parser); // Move to the next character
 
@@ -1077,7 +1104,7 @@ donsus_token donsus_lexer_next(DonsusParser &parser) {
       cur_token.column = parser.lexer.cur_column;
 
       // float part
-      if (parser.lexer.cur_char == '.') {
+      if (parser.lexer.cur_char == '.' && peek_for_char(parser) != '.') {
         cur_token.kind = DONSUS_FLOAT;
         cur_token.length = 0;
         cur_token.value +=

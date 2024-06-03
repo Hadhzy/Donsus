@@ -48,6 +48,42 @@ public:
       break;
     }
 
+    case type::DONSUS_RANGE_FOR_LOOP: {
+      print_type(ast_node->type, indent_level);
+      print_with_newline(
+          "loop_variable: " +
+              ast_node->get<donsus_ast::range_for_loop>().loop_variable,
+          indent_level);
+      print_with_newline("start: ", indent_level);
+      print_ast_node(ast_node->get<donsus_ast::range_for_loop>().start,
+                     indent_level + 1);
+      print_with_newline("end: ", indent_level);
+      print_ast_node(ast_node->get<donsus_ast::range_for_loop>().end,
+                     indent_level + 1);
+      print_with_newline("body: ", indent_level);
+      for (auto node : ast_node->get<donsus_ast::range_for_loop>().body) {
+        print_ast_node(node, indent_level + 1);
+      }
+      break;
+    }
+
+    case type::DONSUS_ARRAY_FOR_LOOP: {
+      print_type(ast_node->type, indent_level);
+      print_with_newline(
+          "loop_variable: " +
+              ast_node->get<donsus_ast::array_for_loop>().loop_variable,
+          indent_level);
+      print_with_newline(
+          "array_name: " +
+              ast_node->get<donsus_ast::array_for_loop>().array_name,
+          indent_level);
+      print_with_newline("body: ", indent_level);
+      for (auto node : ast_node->get<donsus_ast::array_for_loop>().body) {
+        print_ast_node(node, indent_level + 1);
+      }
+      break;
+    }
+
     case type::DONSUS_STRING_EXPRESSION: {
       print_type(ast_node->type, indent_level);
       print_string_expression(ast_node->get<donsus_ast::string_expr>(),
@@ -180,6 +216,18 @@ public:
                           indent_level);
       break;
     }
+
+    case type::DONSUS_WHILE_LOOP: {
+      print_type(ast_node->type, indent_level);
+      print_with_newline("condition: ", indent_level);
+      print_ast_node(ast_node->children[0], indent_level + 1);
+      print_with_newline("body: ", indent_level);
+      for (auto node : ast_node->get<donsus_ast::while_loop>().body) {
+        print_ast_node(node, indent_level + 1);
+      }
+      break;
+    }
+
     case type::DONSUS_ELSE_STATEMENT: {
       print_type(ast_node->type, indent_level);
       print_else_statement(ast_node->get<donsus_ast::else_statement>(),
@@ -525,6 +573,32 @@ auto DonsusParser::donsus_parse() -> end_result {
       donsus_tree->add_node(result);
     }
 
+    if (cur_token.kind == DONSUS_WHILE_KW) {
+      parse_result result = donsus_while_loop();
+      if (result->children.empty()) {
+        throw DonsusException(
+            "Condition wasn't provided for while loop \n  at line: " +
+            std::to_string(lexer.cur_line));
+      }
+      donsus_tree->add_node(result);
+    }
+
+    if (cur_token.kind == DONSUS_FOR_KW) {
+      if (donsus_peek().kind == DONSUS_NAME) {
+        if (donsus_peek(2).kind == DONSUS_COLO) {
+          if (donsus_peek(4).kind == DONSUS_TWO_DOTS) {
+            donsus_tree->add_node(donsus_range_for_loop(true));
+          } else if (donsus_peek(4).kind == DONSUS_LBRACE) {
+            donsus_tree->add_node(donsus_array_for_loop(true));
+          }
+        } else if (donsus_peek(2).kind == DONSUS_LBRACE) {
+          donsus_tree->add_node(donsus_array_for_loop(false));
+        }
+      } else {
+        donsus_tree->add_node(donsus_range_for_loop(false));
+      }
+    }
+
     if (cur_token.kind == DONSUS_PRINT_KW) {
       parse_result result = donsus_print();
       donsus_tree->add_node(result);
@@ -536,6 +610,7 @@ auto DonsusParser::donsus_parse() -> end_result {
                           // if (peek_function_definition()) {
                           // }
   }
+
 #if DEBUG
   if (!file.error_count) {
     std::cout << "AST: "
@@ -547,7 +622,6 @@ auto DonsusParser::donsus_parse() -> end_result {
 #endif
   return donsus_tree;
 }
-
 auto DonsusParser::donsus_variable_multi_decl_def() -> void {
   donsus_token start_offset;
 
@@ -747,7 +821,7 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   donsus_token previous_token = cur_token; // Save cur_token
 
   if (cur_token.kind == DONSUS_SEMICOLON || cur_token.kind == DONSUS_RPAR ||
-      cur_token.kind == DONSUS_COMM)
+      cur_token.kind == DONSUS_COMM || cur_token.kind == DONSUS_TWO_DOTS)
     return left; // If there is only one expression
 
   while (previous_token.precedence > ptp) {
@@ -969,10 +1043,10 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
   if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN) {
     // without parameters
     /*
-      donsus_peek(3) returns the place where the type is supposed to be if we
-      can't match any type and the type is unknown(note: the type is not
-      unknown, the type just simply doesn't exist, because that place is left
-      empty) then we found a function_call().
+      donsus_peek(3) returns the place where the type is supposed to be if
+      we can't match any type and the type is unknown(note: the type is not
+      unknown, the type just simply doesn't exist, because that place is
+      left empty) then we found a function_call().
     */
     return donsus_function_call(name);
   }
@@ -1147,6 +1221,16 @@ auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
       }
     }
 
+    if (cur_token.kind == DONSUS_WHILE_KW) {
+      parse_result result = donsus_while_loop();
+      if (result->children.empty()) {
+        throw DonsusException(
+            "Condition wasn't provided for while loop \n  at line: " +
+            std::to_string(lexer.cur_line));
+      }
+      body.push_back(result);
+    }
+
     if (cur_token.kind == DONSUS_IF_KW) {
       parse_result result = donsus_if_statement();
       if (result->children.empty()) {
@@ -1236,6 +1320,86 @@ auto DonsusParser::donsus_else_statement() -> parse_result {
   return else_statement;
 }
 
+auto DonsusParser::donsus_while_loop() -> parse_result {
+  parse_result while_loop =
+      create_while_loop(donsus_ast::donsus_node_type::DONSUS_WHILE_LOOP, 10);
+
+  auto &expression = while_loop->get<donsus_ast::while_loop>();
+
+  donsus_parser_next(); // move to the next token (condition for the while
+                        // loop)
+
+  parse_result condition_expression = donsus_expr(0);
+  while_loop->children.push_back(condition_expression);
+
+  donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
+  expression.body = donsus_statements();
+
+  return while_loop;
+}
+
+auto DonsusParser::donsus_range_for_loop(bool is_range_with_name)
+    -> parse_result {
+  parse_result range_for_loop = create_range_for_loop(
+      donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP, 10);
+  auto &expression = range_for_loop->get<donsus_ast::range_for_loop>();
+
+  if (is_range_with_name) {
+    donsus_parser_except(DONSUS_NAME);
+    expression.loop_variable = cur_token.value;
+    donsus_parser_except(DONSUS_COLO);
+    donsus_parser_next(); // move to the next token
+    while (cur_token.kind != DONSUS_LBRACE) {
+      parse_result range_expression = donsus_expr(0);
+      expression.start = range_expression;
+      donsus_parser_except_current(DONSUS_TWO_DOTS);
+      donsus_parser_next(); // move to the next token
+      parse_result end_expression = donsus_expr(0);
+      expression.end = end_expression;
+    }
+  } else {
+    expression.loop_variable = "it";
+    donsus_parser_next(); // move to the next token
+    while (cur_token.kind != DONSUS_LBRACE) {
+      parse_result range_expression = donsus_expr(0);
+      expression.start = range_expression;
+      donsus_parser_except_current(DONSUS_TWO_DOTS);
+      donsus_parser_next(); // move to the next token
+      parse_result end_expression = donsus_expr(0);
+      expression.end = end_expression;
+    }
+  }
+
+  donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
+  expression.body = donsus_statements();
+
+  return range_for_loop;
+};
+
+auto DonsusParser::donsus_array_for_loop(bool is_with_name) -> parse_result {
+  parse_result array_for_loop = create_array_for_loop(
+      donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP, 10);
+  auto &expression = array_for_loop->get<donsus_ast::array_for_loop>();
+
+  if (is_with_name) {
+    donsus_parser_except(DONSUS_NAME);
+    expression.loop_variable = cur_token.value;
+    donsus_parser_except(DONSUS_COLO);
+    donsus_parser_except(DONSUS_NAME);
+    expression.array_name = cur_token.value;
+    donsus_parser_except(DONSUS_LBRACE);
+    expression.body = donsus_statements();
+  } else {
+    expression.loop_variable = "it";
+    donsus_parser_except(DONSUS_NAME);
+    expression.array_name = cur_token.value;
+    donsus_parser_except(DONSUS_LBRACE);
+    expression.body = donsus_statements();
+  }
+
+  return array_for_loop;
+}
+
 auto DonsusParser::donsus_identifier() -> parse_result {
   parse_result result =
       create_identifier(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, 10);
@@ -1266,13 +1430,13 @@ auto DonsusParser::bool_expression() -> parse_result {
 }
 
 auto DonsusParser::unary_expression() -> parse_result {
-  donsus_parser_next();
   parse_result result = create_expression(
       donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
   result->start_offset_ast = cur_token;
 
   auto &expression = result->get<donsus_ast::unary_expr>();
   expression.op = cur_token;
+  donsus_parser_next();
   parse_result unary = donsus_expr(0);
   result->children.push_back(unary);
   return result;
@@ -1454,6 +1618,25 @@ auto DonsusParser::create_return_statement(donsus_ast::donsus_node_type type,
     -> parse_result {
 
   return donsus_tree->create_node<donsus_ast::return_kw>(type, child_count);
+}
+
+auto DonsusParser::create_while_loop(donsus_ast::donsus_node_type type,
+                                     u_int64_t child_count) -> parse_result {
+  return donsus_tree->create_node<donsus_ast::while_loop>(type, child_count);
+}
+
+auto DonsusParser::create_range_for_loop(donsus_ast::donsus_node_type type,
+                                         u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::range_for_loop>(type,
+                                                              child_count);
+}
+
+auto DonsusParser::create_array_for_loop(donsus_ast::donsus_node_type type,
+                                         u_int64_t child_count)
+    -> parse_result {
+  return donsus_tree->create_node<donsus_ast::array_for_loop>(type,
+                                                              child_count);
 }
 
 auto DonsusParser::create_array_access(donsus_ast::donsus_node_type type,

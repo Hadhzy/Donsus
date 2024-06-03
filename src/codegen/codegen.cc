@@ -937,12 +937,17 @@ llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::unary_expr &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
-  /*  // negative number expression
-    if (ast->children[0]->type.type ==
-        donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
-      return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, -value,
-    true));
-    }*/
+  // negative number expression
+  if (ast->children[0]->type.type ==
+      donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
+    return llvm::ConstantInt::get(
+        *TheContext,
+        llvm::APInt(
+            32,
+            -std::stoi(
+                ast->children[0]->get<donsus_ast::number_expr>().value.value),
+            true));
+  }
 }
 
 /*Maps DONSUS_TYPE to llvm TYPE.

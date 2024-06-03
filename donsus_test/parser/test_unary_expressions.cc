@@ -15,4 +15,11 @@ TEST(UnaryExpressionsRvalue, UnaryExpressionsCheck) {
       result->get_nodes()[0]->children[0]->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, type);
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
+            result->get_nodes()[0]->children[0]->children[0]->type.type);
+  EXPECT_EQ("5", result->get_nodes()[0]
+                     ->children[0]
+                     ->children[0]
+                     ->get<donsus_ast::number_expr>()
+                     .value.value);
 }

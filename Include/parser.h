@@ -16,7 +16,7 @@
 
 #include "token.h"
 #ifndef DEBUG
-#define DEBUG 0 // debug
+#define DEBUG 1 // debug
 #endif
 class DonsusParser;
 
@@ -128,6 +128,21 @@ public:
 
   auto create_number_expression(donsus_ast::donsus_node_type type,
                                 u_int64_t child_count) -> parse_result;
+
+  // while loop
+  auto donsus_while_loop() -> parse_result;
+  auto create_while_loop(donsus_ast::donsus_node_type type,
+                         u_int64_t child_count) -> parse_result;
+
+  // range for loop
+  auto donsus_range_for_loop(bool is_range_with_name) -> parse_result;
+  auto create_range_for_loop(donsus_ast::donsus_node_type type,
+                             u_int64_t child_count) -> parse_result;
+
+  // array for loop
+  auto donsus_array_for_loop(bool is_with_name) -> parse_result;
+  auto create_array_for_loop(donsus_ast::donsus_node_type type,
+                             u_int64_t child_count) -> parse_result;
 
   // float
   auto donsus_float_number(donsus_ast::donsus_node_type type,

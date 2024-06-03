@@ -31,12 +31,17 @@ struct donsus_node_type {
     DONSUS_RETURN_STATEMENT,     // just the type of the node
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
-    DONSUS_STRING_EXPRESSION,    // just the type of the node
-    DONSUS_BOOL_EXPRESSION,      // just the type of the node
-    DONSUS_UNARY_EXPRESSION,     // just the type of the node
-    DONSUS_PRINT_EXPRESSION,     // just the type of the node
-    DONSUS_ARRAY_ACCESS,         // just the type of the node
-    DONSUS_FUNCTION_ARG          // just the type of the node
+
+    DONSUS_STRING_EXPRESSION,
+    DONSUS_BOOL_EXPRESSION,
+    DONSUS_UNARY_EXPRESSION,
+    DONSUS_PRINT_EXPRESSION,
+    DONSUS_ARRAY_ACCESS,
+    DONSUS_FUNCTION_ARG,
+    DONSUS_WHILE_LOOP,
+    DONSUS_RANGE_FOR_LOOP,
+    DONSUS_ARRAY_FOR_LOOP,
+
 
   };
 
@@ -60,6 +65,43 @@ struct variable_decl {
   std::string identifier_name;
   void *identifier_value;
 };
+
+struct range_for_loop {
+  /*
+  for number: 1..10 {
+    printf("in loop: ", number);
+  }
+  If number is not provided then the loop variable will be "it"
+  */
+
+  std::string loop_variable;                           // "number"
+  utility::handle<donsus_ast::node> start;             // 1
+  utility::handle<donsus_ast::node> end;               // 10
+  std::vector<utility::handle<donsus_ast::node>> body; // {printf("in loop: ",
+                                                       // number);}
+};
+
+struct array_for_loop {
+  /*
+    my_array: int[2] = [1, 2];
+
+  for my_array {
+  print("We got a : ", it);
+  }
+  */
+
+  std::string loop_variable;                           // "it"
+  std::string array_name;                              // "my_array"
+  std::vector<utility::handle<donsus_ast::node>> body; // {printf("in loop: ",
+                                                       // number);}
+};
+
+struct while_loop {
+  // while condition {body}
+  // condition will be stored in the children
+  std::vector<utility::handle<donsus_ast::node>> body;
+};
+
 // actual node structure containing extra properties
 struct number_expr {
   donsus_token value;
