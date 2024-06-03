@@ -738,7 +738,6 @@ DonsusCodeGenerator::visit(donsus_ast::array_for_loop &ac_ast,
   llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
   // Create blocks for the loop
-  llvm::BasicBlock *PreheaderBB = Builder->GetInsertBlock();
   llvm::BasicBlock *LoopCondBB =
       llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
   llvm::BasicBlock *LoopBodyBB =
