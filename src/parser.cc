@@ -988,11 +988,12 @@ auto DonsusParser::donsus_array_definition(
   array_definition->get<donsus_ast::array_def>().number_of_elements = 0;
   array_definition->get<donsus_ast::array_def>().type = DONSUS_NAME;
 
-  array_definition->start_offset_ast = cur_token;
-
   array_definition->get<donsus_ast::array_def>().size = 0;
   array_definition->get<donsus_ast::array_def>().number_of_elements = 0;
   array_definition->get<donsus_ast::array_def>().type = DONSUS_NAME;
+
+  array_definition->start_offset_ast = cur_token;
+
   auto &expression = array_definition->get<donsus_ast::array_def>();
   expression.identifier_name =
       declaration->get<donsus_ast::variable_decl>().identifier_name;
