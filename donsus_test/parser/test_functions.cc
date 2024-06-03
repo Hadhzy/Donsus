@@ -10,7 +10,10 @@ TEST(Functions, FunctionDeclarationNodeType) {
         a() -> int;
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL, type);
@@ -21,7 +24,10 @@ TEST(Functions, FunctionDeclarationName) {
         a() -> int;
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string name =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().func_name;
   EXPECT_EQ("a", name);
@@ -31,7 +37,10 @@ TEST(Functions, FunctionDeclarationReturnType) {
   std::string a = R"(
         a() -> int;
     )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   DONSUS_TYPE::kind fn_return_type = result->get_nodes()[0]
                                          ->get<donsus_ast::function_decl>()
                                          .return_type[0]
@@ -43,7 +52,10 @@ TEST(Functions, FunctionDeclarationParameters) {
   std::string a = R"(
         a(b:int) -> int;
     )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   utility::handle<donsus_ast::node> fn_param =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().parameters[0];
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
@@ -71,7 +83,10 @@ TEST(Functions, FunctionDefinitionParameters) {
           return 1;
         };
     )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
@@ -93,7 +108,10 @@ TEST(Functions, FunctionDefinitionNodeType) {
         def a() -> int {};
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, type);
@@ -106,7 +124,10 @@ TEST(Functions, FunctionDefinitionNestedFunctions) {
         };
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()

@@ -19,7 +19,9 @@ TEST(SymbolTableCheckNestedFunctions, SymbolTableCheckFunction) {
     }
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
@@ -45,7 +47,9 @@ TEST(SymbolTableCheckDifferentTableStructures, SymbolTableCheckFunction) {
   a() ->int;
 )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();

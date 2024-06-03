@@ -19,16 +19,16 @@
 
 #include <iostream>
 
-DonsusParser::end_result Du_Parse(std::string result) {
+DonsusParser Du_Parse(std::string result, DonsusAstFile &file) {
   // Lexer
   donsus_lexer lexer(std::move(result)); // initialise lexer
-  DonsusParser parser(lexer);
+  DonsusParser parser(lexer, file);
   // Parser
-  DonsusParser::end_result parser_result = parser.donsus_parse();
-  return parser_result;
+  return parser;
 }
 
 int Du_Main(int argc, char **argv) {
+  DonsusAstFile file;
   DonsusCLI::Parser cli_parser = DonsusCLI::Parser(argv);
 
   std::string result = handle_file(argv[1]);
@@ -47,9 +47,22 @@ int Du_Main(int argc, char **argv) {
     throw std::runtime_error("File extension must be: .du");
   }
 
+  file.extension = file_extension;
+  file.filename = file_without_extension;
+  file.fullpath = path;
+  file.absolute_path = std::filesystem::absolute(path);
+
+  file.id = 0;
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  DonsusParser::end_result parser_result = Du_Parse(result);
+  DonsusParser parser = Du_Parse(result, file);
+  DonsusParser::end_result parser_result = parser.donsus_parse();
+
+  if (file.error_count) {
+    std::cout << rang::fg::reset;
+    return 1;
+  }
 #if DEBUG
   std::cout << "\n";
 
@@ -103,6 +116,7 @@ int Du_Main(int argc, char **argv) {
 #endif
   /*  delete sym_global.get();*/
   // platform support here
+
   if (cli_parser.get_comm_group().get("run")) {
     std::system("./a.out");
   }

@@ -9,7 +9,10 @@ TEST(VariableTest, VariableDefinitionNodeType) {
   std::string a = R"(
         a:int = 32;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
 
@@ -22,7 +25,10 @@ TEST(VariableTest, VariableDefinitionType) {
   std::string a = R"(
         a:int = 32;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_token_kind type =
       result->get_nodes()[0]->get<donsus_ast::variable_decl>().identifier_type;
 
@@ -35,7 +41,10 @@ TEST(VariableTest, VariableDefinitionIdentifier) {
   std::string a = R"(
         a:int = 32;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string name =
       result->get_nodes()[0]->get<donsus_ast::variable_decl>().identifier_name;
 
@@ -48,7 +57,10 @@ TEST(VariableTest, VariableDefinitionValue) {
   std::string a = R"(
         a:int = 32;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string value = result->get_nodes()[0]
                           ->children[0]
                           ->get<donsus_ast::number_expr>()
@@ -66,7 +78,10 @@ TEST(VariableTest, VariableDeclarationNodeType) {
   std::string a = R"(
         a:int;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
 
@@ -85,11 +100,16 @@ TEST(VariableTest, VariableDeclarationType) {
       }
   )";
 
-  DonsusParser::end_result result = Du_Parse(a);
-  DonsusParser::end_result function_result = Du_Parse(function_a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result a_result = parser.donsus_parse();
 
-  donsus_token_kind type =
-      result->get_nodes()[0]->get<donsus_ast::variable_decl>().identifier_type;
+  DonsusParser parser2 = Du_Parse(function_a, file);
+  DonsusParser::end_result function_result = parser2.donsus_parse();
+
+  donsus_token_kind type = a_result->get_nodes()[0]
+                               ->get<donsus_ast::variable_decl>()
+                               .identifier_type;
 
   donsus_token_kind function_type = function_result->get_nodes()[0]
                                         ->get<donsus_ast::function_def>()
@@ -107,7 +127,10 @@ TEST(VariableTest, VariableDeclarationIdentifier) {
   std::string a = R"(
         a:int;
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   std::string name =
       result->get_nodes()[0]->get<donsus_ast::variable_decl>().identifier_name;
 

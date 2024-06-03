@@ -6,7 +6,10 @@ TEST(UnaryExpressionsRvalue, UnaryExpressionsCheck) {
         a:int = -5;
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
 
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;

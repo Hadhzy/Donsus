@@ -10,7 +10,10 @@ TEST(WhileLoopTest, WhileLoopStructureTest) {
           a = a + 1;
         }
 )";
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[1]->type.type;
 

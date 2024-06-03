@@ -9,7 +9,10 @@ TEST(IfStatements, IfStatementsNodeType) {
         };
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -17,16 +20,18 @@ TEST(IfStatements, IfStatementsNodeType) {
           ->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
 }
-TEST(IfStatements, IfStatementsGlobal){
-std::string a = R"(
+TEST(IfStatements, IfStatementsGlobal) {
+  std::string a = R"(
     if(1) {}
     )";
-DonsusParser::end_result result = Du_Parse(a);
-donsus_ast::donsus_node_type::underlying type =
-        result->get_nodes()[0]
-                ->type.type;
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
 
-EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
+  donsus_ast::donsus_node_type::underlying type =
+      result->get_nodes()[0]->type.type;
+
+  EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
 }
 
 TEST(IfStatements, IfStatementsCondition) {
@@ -36,7 +41,10 @@ TEST(IfStatements, IfStatementsCondition) {
         }
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -70,7 +78,10 @@ TEST(IfStatements, IfStatementsAlternateCase) {
         }
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()
@@ -93,7 +104,10 @@ TEST(IfStatements, IfStatementsElifCase) {
         }
     )";
 
-  DonsusParser::end_result result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result result = parser.donsus_parse();
+
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]
           ->get<donsus_ast::function_def>()

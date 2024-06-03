@@ -15,7 +15,10 @@ TEST(FunctionCallCheckCorrect, FunctionCallCheck) {
     b(1, "2");
     )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
   EXPECT_NO_THROW(
@@ -35,7 +38,10 @@ TEST(FunctionCallCheckIncorrect, FunctionCallCheck) {
     b(1, 2);
     )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parse_result = parser.donsus_parse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   parse_result->init_traverse();
   EXPECT_THROW(
