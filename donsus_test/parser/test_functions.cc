@@ -81,12 +81,11 @@ TEST(Functions, FunctionDefinitionParameters) {
   std::string a = R"(
         def a(b:int) -> int {
           return 1;
-        };
+        }
     )";
   DonsusAstFile file;
   DonsusParser parser = Du_Parse(a, file);
   DonsusParser::end_result result = parser.donsus_parse();
-
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
