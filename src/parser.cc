@@ -1370,8 +1370,7 @@ auto DonsusParser::donsus_while_loop() -> parse_result {
 
   auto &expression = while_loop->get<donsus_ast::while_loop>();
 
-  donsus_parser_next(); // move to the next token (condition for the while
-                        // loop)
+  donsus_parser_except(DONSUS_LPAR);
 
   parse_result condition_expression = donsus_expr(0);
   while_loop->children.push_back(condition_expression);
@@ -1379,6 +1378,7 @@ auto DonsusParser::donsus_while_loop() -> parse_result {
   donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
   expression.body = donsus_statements();
 
+  donsus_parser_except_current(DONSUS_RBRACE); // expect cur_token to be "{"
   return while_loop;
 }
 
@@ -1416,6 +1416,7 @@ auto DonsusParser::donsus_range_for_loop(bool is_range_with_name)
 
   donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
   expression.body = donsus_statements();
+  donsus_parser_except_current(DONSUS_RBRACE); // expect cur_token to be "{"
 
   return range_for_loop;
 };
