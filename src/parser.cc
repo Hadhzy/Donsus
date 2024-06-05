@@ -652,7 +652,7 @@ auto DonsusParser::donsus_variable_multi_decl_def() -> void {
         donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
                             "Type provided: '" + cur_token.value +
                                 "' is not valid in the declaration of: '" +
-                                identifier_names[0]);
+                                identifier_names[0] + "'");
       }
 
       type = cur_token.kind;
@@ -865,6 +865,7 @@ auto DonsusParser::donsus_variable_definition(
   donsus_parser_next();
   parse_result expression = donsus_expr(0);
   declaration->children.push_back(expression);
+  donsus_parser_except(DONSUS_SEMICOLON);
   return declaration;
 }
 
@@ -901,7 +902,7 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
       donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                           "Type provided: '" + cur_token.value +
                               "' is not valid in the declaration of: '" +
-                              expression.identifier_name);
+                              expression.identifier_name + "'");
       parse_result tmp;
       return tmp;
     }
@@ -1062,14 +1063,27 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
       return donsus_function_call();
     }*/
   DONSUS_TYPE tmp{};
-  if (donsus_peek().kind == DONSUS_NAME && donsus_peek(2).kind == DONSUS_COLO &&
-      tmp.from_parse(donsus_peek(3).kind) != DONSUS_TYPE::TYPE_UNKNOWN) {
-    // if we have parameters then the next token is DONSUS_NAME
-    expression.parameters = donsus_function_signature(); // parse parameters
+  if (donsus_peek().kind == DONSUS_NAME && donsus_peek(2).kind == DONSUS_COLO) {
+    if (tmp.from_parse(donsus_peek(3).kind) != DONSUS_TYPE::TYPE_UNKNOWN) {
+      expression.parameters = donsus_function_signature(); // parse parameters
+      // if we have parameters then the next token is DONSUS_NAME
+    } else {
+      donsus_parser_next();
+      donsus_parser_next();
+      donsus_parser_next();
+
+      donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
+                          "Type: '" + cur_token.value + "'" +
+                              " provided for the declaration of '" +
+                              expression.func_name + "'" + " is not valid");
+      parse_result tmp;
+      return tmp;
+    }
   }
 
   // check if it is
-  if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN) {
+  if (tmp.from_parse(donsus_peek(3).kind) == DONSUS_TYPE::TYPE_UNKNOWN &&
+      (donsus_peek(2).kind != DONSUS_COLO) && expression.parameters.empty()) {
     // without parameters
     /*
       donsus_peek(3) returns the place where the type is supposed to be if
@@ -1093,12 +1107,12 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
 
     donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                         "Return type wasn't provided for function: '" +
-                            expression.func_name);
+                            expression.func_name + "'");
     parse_result tmp;
     return tmp;
   }
   while (cur_token.kind != DONSUS_LBRACE &&
-         cur_token.kind != DONSUS_SEMICOLON) {
+         cur_token.kind != DONSUS_SEMICOLON && cur_token.kind != DONSUS_END) {
     if (cur_token.kind == DONSUS_COMM)
       donsus_parser_next();
     if (DONSUS_TYPES_LEXER.find(cur_token.value) != DONSUS_TYPES_LEXER.end()) {
@@ -1107,7 +1121,7 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
       donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                           "Return type received: '" + cur_token.value +
                               "' in invalid for function: '" +
-                              expression.func_name);
+                              expression.func_name + "'");
       parse_result tmp;
       return tmp;
     }
