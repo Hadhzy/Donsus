@@ -1232,7 +1232,7 @@ statements: |general_statement+
 */
 auto DonsusParser::donsus_statements() -> std::vector<parse_result> {
   std::vector<parse_result> body;
-  while (cur_token.kind != DONSUS_RBRACE) {
+  while (cur_token.kind != DONSUS_RBRACE && cur_token.kind != DONSUS_END) {
     /* general_statement:
         | func_def */
     if (cur_token.kind == DONSUS_FUNCTION_DEFINITION_KW) {
