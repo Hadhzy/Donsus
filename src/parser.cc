@@ -784,11 +784,11 @@ auto DonsusParser::match_expressions(unsigned int ptp) -> parse_result {
   }
 
   default: {
-    // donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
-    //                     "Invalid expression provided at token: " +
-    //                         cur_token.value);
-    // parse_result tmp;
-    // return tmp;
+    donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
+                        "Invalid expression provided at token: " +
+                            cur_token.value);
+    parse_result tmp;
+    return tmp;
   }
   }
 }
@@ -818,6 +818,10 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   } else {
     left = match_expressions(ptp);
     if (!left) {
+      // throw error
+      donsus_syntax_error(nullptr, cur_token.column, cur_token.line,
+                          "Invalid expression provided at token: " +
+                              cur_token.value);
       parse_result tmp;
       return tmp;
     }
@@ -1513,6 +1517,7 @@ auto DonsusParser::donsus_return_statement() -> parse_result {
   donsus_parser_next();
   parse_result return_expression = donsus_expr(0);
   return_statement->children.push_back(return_expression);
+  donsus_parser_except(DONSUS_SEMICOLON);
   return return_statement;
 }
 
