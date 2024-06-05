@@ -36,7 +36,7 @@
 using PlatformClass = Window;
 #endif
 
-#if defiend(DU_SYSTEMS_UNIX)
+#if defined(DU_SYSTEMS_UNIX)
 #include "../../src/codegen/platform/linux_platform.h"
 using PlatformClass = LinuxPlatform;
 #endif
