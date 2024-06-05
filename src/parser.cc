@@ -1217,8 +1217,12 @@ auto DonsusParser::donsus_function_definition() -> parse_result {
   definition_expression.parameters = declaration_expression.parameters;
   definition_expression.return_type = declaration_expression.return_type;
 
-  donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
-  definition_expression.body = donsus_statements();
+  if (cur_token.kind == DONSUS_LBRACE) {
+    definition_expression.body = donsus_statements();
+  } else {
+    donsus_parser_except_current(DONSUS_LBRACE); // expect cur_token to be "{"
+  }
+
   return definition;
 }
 
