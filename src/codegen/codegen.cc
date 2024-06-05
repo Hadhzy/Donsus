@@ -189,8 +189,7 @@ void DonsusCodeGenerator::default_optimisation() {
 }
 
 void DonsusCodeGenerator::Link() const {
-  std::vector<std::filesystem::path> obj_paths = {"output.o"};
-
+  std::vector<std::filesystem::path> obj_paths = {"output"};
   std::filesystem::path exe_path = "test";
 
   std::string linker_cmd;

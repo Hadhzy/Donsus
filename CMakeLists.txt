@@ -5,10 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find LLVM
+
 execute_process(COMMAND llvm-config --cmakedir OUTPUT_VARIABLE LLVM_CMAKE_DIR)
-string(STRIP ${LLVM_CMAKE_DIR} LLVM_CMAKE_DIR)
+string(STRIP "${LLVM_CMAKE_DIR}" LLVM_CMAKE_DIR)
 list(APPEND CMAKE_PREFIX_PATH ${LLVM_CMAKE_DIR})
 find_package(LLVM REQUIRED CONFIG)
+
 
 # Set compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_COMPILE_FLAGS}")
@@ -60,8 +62,9 @@ add_link_options(-fsanitize=address) # ASAN
 add_compile_options(-fsanitize=undefined) # ASAN
 add_link_options(-fsanitize=undefined) # ASAN
 
+
 execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
-string(STRIP ${LLVM_LIBS} LLVM_LIBS)
+string(STRIP "${LLVM_LIBS}" LLVM_LIBS)
 target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
 
 if (NOT CMAKE_BUILD_TYPE)

@@ -28,22 +28,21 @@
 #include "llvm/Passes/PassBuilder.h"
 
 #include <memory>
+#include "../../Include/Internal/build_context.h"
 
 // Select platform
-#ifdef _WIN32
+#if defined(DU_SYSTEMS_WINDOWS)
 #include "../../src/codegen/platform/windows_platform.h"
+using PlatformClass = Window;
 #endif
 
-#ifdef __unix__
+#if defiend(DU_SYSTEMS_UNIX)
 #include "../../src/codegen/platform/linux_platform.h"
+using PlatformClass = LinuxPlatform;
 #endif
 
-#ifdef _WIN32
-using PlatformClass = Window
-#endif
-
-#ifdef __unix__
-    using PlatformClass = LinuxPlatform;
+#if defined(DU_SYSTEMS_OSX)
+#include "../../src/codegen/platform/osx_platform.h"
 #endif
 
 namespace DonsusCodegen {

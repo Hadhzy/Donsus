@@ -25,7 +25,7 @@ public:
     std::string obj_input_linker_arg;
 
     for (const auto &obj_path : obj_paths) {
-      obj_input_linker_arg += obj_path.string();
+      obj_input_linker_arg += obj_path.string() + GetObjectFileExtension(); 
       obj_input_linker_arg += "";
     }
 

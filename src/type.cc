@@ -139,6 +139,7 @@ auto DONSUS_TYPE::to_string() const -> std::string {
   case TYPE_STATIC_ARRAY:
     return "TYPE_STATIC_ARRAY";
   default: {
+      return "";
   }
   }
 }
