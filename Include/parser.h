@@ -7,6 +7,7 @@
 #include <memory>
 #include <variant>
 #include <vector>
+#include "stdint.h"
 
 #include "../Include/parser_util.h"
 #include "../Include/symbol_table.h"
@@ -95,7 +96,7 @@ public:
   auto donsus_expr(unsigned int ptp) -> parse_result;
   auto match_expressions(unsigned int ptp) -> parse_result;
   auto create_expression(donsus_ast::donsus_node_type type,
-                         u_int64_t child_count) -> parse_result;
+                         uint64_t child_count) -> parse_result;
   auto make_new_expr_node(donsus_token prev_token, parse_result &left,
                           parse_result &right) -> parse_result;
   // parsing number expressions
@@ -107,83 +108,83 @@ public:
   // parsing variable declaration
   auto donsus_variable_decl() -> parse_result;
   auto create_variable_declaration(donsus_ast::donsus_node_type type,
-                                   u_int64_t child_count) -> parse_result;
+                                   uint64_t child_count) -> parse_result;
 
   // parsing array definition
   auto donsus_array_definition(utility::handle<donsus_ast::node> &declaration,
                                donsus_ast::ArrayType array_type, int size)
       -> parse_result;
   auto create_array_definition(donsus_ast::donsus_node_type type,
-                               u_int64_t child_count) -> parse_result;
+                               uint64_t child_count) -> parse_result;
 
   // parsing array declaration
   auto donsus_array_declaration(utility::handle<donsus_ast::node> &declaration,
                                 donsus_ast::ArrayType array_type, int size)
       -> parse_result;
   auto create_array_declaration(donsus_ast::donsus_node_type type,
-                                u_int64_t child_count) -> parse_result;
+                                uint64_t child_count) -> parse_result;
 
   // parsing variable definition
   auto donsus_variable_definition(parse_result &declaration) -> parse_result;
 
   auto create_number_expression(donsus_ast::donsus_node_type type,
-                                u_int64_t child_count) -> parse_result;
+                                uint64_t child_count) -> parse_result;
 
   // while loop
   auto donsus_while_loop() -> parse_result;
   auto create_while_loop(donsus_ast::donsus_node_type type,
-                         u_int64_t child_count) -> parse_result;
+                         uint64_t child_count) -> parse_result;
 
   // range for loop
   auto donsus_range_for_loop(bool is_range_with_name) -> parse_result;
   auto create_range_for_loop(donsus_ast::donsus_node_type type,
-                             u_int64_t child_count) -> parse_result;
+                             uint64_t child_count) -> parse_result;
 
   // array for loop
   auto donsus_array_for_loop(bool is_with_name) -> parse_result;
   auto create_array_for_loop(donsus_ast::donsus_node_type type,
-                             u_int64_t child_count) -> parse_result;
+                             uint64_t child_count) -> parse_result;
 
   // float
   auto donsus_float_number(donsus_ast::donsus_node_type type,
                            uint64_t child_count) -> parse_result;
 
   auto create_float_expression(donsus_ast::donsus_node_type type,
-                               u_int64_t child_count) -> parse_result;
+                               uint64_t child_count) -> parse_result;
   // print expression
   auto donsus_print() -> parse_result;
   auto create_donsus_print(donsus_ast::donsus_node_type type,
-                           u_int64_t child_count) -> parse_result;
+                           uint64_t child_count) -> parse_result;
 
   // Function declaration
   auto donsus_function_decl() -> parse_result;
   auto create_function_decl(donsus_ast::donsus_node_type type,
-                            u_int64_t child_count) -> parse_result;
+                            uint64_t child_count) -> parse_result;
 
   // Array access
   auto donsus_array_access() -> parse_result;
   auto create_array_access(donsus_ast::donsus_node_type type,
-                           u_int64_t child_count) -> parse_result;
+                           uint64_t child_count) -> parse_result;
 
   // parsing string expressions
   auto string_expression() -> parse_result;
   auto create_string_expression(donsus_ast::donsus_node_type type,
-                                u_int64_t child_count) -> parse_result;
+                                uint64_t child_count) -> parse_result;
 
   // parsing boolean expressions
   auto bool_expression() -> parse_result;
   auto create_bool_expression(donsus_ast::donsus_node_type type,
-                              u_int64_t child_count) -> parse_result;
+                              uint64_t child_count) -> parse_result;
 
   // parsing unary expressions
   auto unary_expression() -> parse_result;
   auto create_unary_expression(donsus_ast::donsus_node_type type,
-                               u_int64_t child_count) -> parse_result;
+                               uint64_t child_count) -> parse_result;
 
   // Function definition
   auto donsus_function_definition() -> parse_result;
   auto create_function_definition(donsus_ast::donsus_node_type type,
-                                  u_int64_t child_count) -> parse_result;
+                                  uint64_t child_count) -> parse_result;
 
   auto donsus_statements() -> std::vector<parse_result>;
 
@@ -194,30 +195,30 @@ public:
   // If statements
   auto donsus_if_statement() -> parse_result;
   auto create_if_statement(donsus_ast::donsus_node_type type,
-                           u_int64_t child_count) -> parse_result;
+                           uint64_t child_count) -> parse_result;
 
   auto donsus_else_statement() -> parse_result;
   auto create_else_statement(donsus_ast::donsus_node_type type,
-                             u_int64_t child_count) -> parse_result;
+                             uint64_t child_count) -> parse_result;
 
   // assignments
   auto donsus_assignments() -> parse_result;
   auto create_assignments(donsus_ast::donsus_node_type type,
-                          u_int64_t child_count) -> parse_result;
+                          uint64_t child_count) -> parse_result;
 
   // identifier
   auto donsus_identifier() -> parse_result;
   auto create_identifier(donsus_ast::donsus_node_type type,
-                         u_int64_t child_count) -> parse_result;
+                         uint64_t child_count) -> parse_result;
 
   auto donsus_function_call(donsus_token &name) -> parse_result;
   auto create_function_call(donsus_ast::donsus_node_type type,
-                            u_int64_t child_count) -> parse_result;
+                            uint64_t child_count) -> parse_result;
 
   // return statement
   auto donsus_return_statement() -> parse_result;
   auto create_return_statement(donsus_ast::donsus_node_type type,
-                               u_int64_t child_count) -> parse_result;
+                               uint64_t child_count) -> parse_result;
 
   // handle error
   auto donsus_syntax_error(DonsusParser::parse_result *node,

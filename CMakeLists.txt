@@ -1,11 +1,21 @@
 cmake_minimum_required(VERSION 3.22)
 project(donsus)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Find LLVM
+message(STATUS "Include directories for target 'example': ${INCLUDE_DIRS}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  message("using clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  message("using gcc")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+  message("using msvc")
+endif()
 
+# find llvm
 execute_process(COMMAND llvm-config --cmakedir OUTPUT_VARIABLE LLVM_CMAKE_DIR)
 string(STRIP "${LLVM_CMAKE_DIR}" LLVM_CMAKE_DIR)
 list(APPEND CMAKE_PREFIX_PATH ${LLVM_CMAKE_DIR})

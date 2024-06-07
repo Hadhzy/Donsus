@@ -28,12 +28,14 @@
 #include "llvm/Passes/PassBuilder.h"
 
 #include <memory>
+#include <iostream>
+#include <filesystem>
 #include "../../Include/Internal/build_context.h"
 
 // Select platform
 #if defined(DU_SYSTEMS_WINDOWS)
 #include "../../src/codegen/platform/windows_platform.h"
-using PlatformClass = Window;
+using PlatformClass = WindowsPlatform;
 #endif
 
 #if defined(DU_SYSTEMS_UNIX)
@@ -45,7 +47,8 @@ using PlatformClass = LinuxPlatform;
 #include "../../src/codegen/platform/osx_platform.h"
 #endif
 
-namespace DonsusCodegen {
+namespace DonsusCodegen 
+{
 Bitness GetBitness();
 class Platform {
 public:
