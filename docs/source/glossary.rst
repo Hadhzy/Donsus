@@ -222,12 +222,18 @@ a region of storage, so you can take its address::
 Objects
 ~~~~~~~~~~~~
 
----
-
 .. _types:
 
 Types
-~~~~~~~~~~~~
+~~~~~~~~~
+
+Donsus offers a various range of types for specific purposes depending on the context. Here are the accepted types::
+    
+- integer
+- void
+- bool
+- float
+- string
 
 implicit
 ~~~~~~~~~~~~
