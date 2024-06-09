@@ -98,12 +98,7 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 add_executable(donsus src/main.cc)
 
-if (DONSUS_USED_COMPILER STREQUAL "msvc")
-llvm_map_components_to_libnames(llvm_libs core irreader support passes X86)
-elseif (DONSUS_USED_COMPILER STREQUAL "gcc" OR DOSUS_USED_COMPILER STREQUAL "clang")
-llvm_map_components_to_libnames(llvm_libs core irreader support)
-endif()
-
+llvm_map_components_to_libnames(LLVM_AVAILABLE_LIBS)
 target_link_libraries(donsus_lib PUBLIC ${llvm_libs})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
