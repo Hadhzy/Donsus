@@ -8,12 +8,16 @@ message(STATUS "Include directories for target 'example': ${INCLUDE_DIRS}")
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
   message("using clang")
+  set(DONSUS_USED_COMPILER "clang")
+
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   message("using gcc")
+  set(DONSUS_USED_COMPILER "gcc")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
   message("using msvc")
+  set(DONSUS_USED_COMPILER "msvc")
 endif()
 
 # find llvm
@@ -94,7 +98,12 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 add_executable(donsus src/main.cc)
 
-llvm_map_components_to_libnames(llvm_libs LLVM_LIBRARIES)
+if (DONSUS_USED_COMPILER STREQUAL "msvc")
+llvm_map_components_to_libnames(llvm_libs core irreader support passes X86)
+elseif (DONSUS_USED_COMPILER STREQUAL "gcc" OR DOSUS_USED_COMPILER STREQUAL "clang")
+llvm_map_components_to_libnames(llvm_libs core irreader support)
+endif()
+
 target_link_libraries(donsus_lib PUBLIC ${llvm_libs})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
