@@ -223,6 +223,13 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n->get<donsus_ast::function_decl>(), table);
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
+    return visit(n->get<donsus_ast::range_for_loop>(), table);
+  }
+  case donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
+    return visit(n->get<donsus_ast::array_for_loop>(), table);
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     return visit(n->get<donsus_ast::function_def>(), table);
   }
@@ -290,21 +297,14 @@ DonsusCodeGenerator::DonsusCodeGenerator(
   create_entry_point();
   llvm::Function *TheFunction = TheModule->getFunction("main");
 
+  // // assert here
+
   llvm::BasicBlock *entry =
       llvm::BasicBlock::Create(*TheContext, "entry_point", TheFunction);
   main_block = entry;
   Builder->SetInsertPoint(entry);
-  load_built_in();
 }
 
-void DonsusCodeGenerator::load_built_in() {
-  // declare built-in functions
-
-  /*llvm::FunctionType *FT =
-  llvm::FunctionType::get(llvm::Type::getVoidTy(*TheContext), nullptr, false);
-  llvm::Function *F = llvm::Function::Create(FT,
-  llvm::Function::ExternalLinkage, "test", *TheModule);*/
-}
 llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                                         donsus_ast::variable_decl &ca_ast,
                                         utility::handle<DonsusSymTable> &table,
@@ -668,6 +668,164 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
 }
 
 llvm::Value *
+DonsusCodeGenerator::visit(donsus_ast::range_for_loop &ac_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+  // Create blocks for the loop
+  llvm::BasicBlock *PreheaderBB = Builder->GetInsertBlock();
+  llvm::BasicBlock *LoopCondBB =
+      llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
+  llvm::BasicBlock *LoopBodyBB =
+      llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
+  llvm::BasicBlock *LoopIncBB =
+      llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
+  llvm::BasicBlock *AfterBB =
+      llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
+
+  // Allocate and initialize the loop variable
+  llvm::AllocaInst *Alloca = Builder->CreateAlloca(
+      llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
+  llvm::Value *StartVal = compile(ac_ast.start, table);
+  Builder->CreateStore(StartVal, Alloca);
+
+  // Jump to the loop condition block
+  Builder->CreateBr(LoopCondBB);
+  Builder->SetInsertPoint(LoopCondBB);
+
+  // Load the current value of the loop variable
+  llvm::Value *CurVal = Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
+
+  // Compare the loop variable with the end value
+  llvm::Value *EndVal = compile(ac_ast.end, table);
+  llvm::Value *Cond = Builder->CreateICmpSLT(CurVal, EndVal);
+
+  // Branch based on the comparison
+  Builder->CreateCondBr(Cond, LoopBodyBB, AfterBB);
+
+  // Generate the loop body
+  Builder->SetInsertPoint(LoopBodyBB);
+
+  // Reload the current value of the loop variable
+  table->setInst(ac_ast.loop_variable, Alloca);
+
+  for (auto &bodyNode : ac_ast.body) {
+    compile(bodyNode, table);
+  }
+
+  // After the body, jump to the increment block
+  Builder->CreateBr(LoopIncBB);
+  Builder->SetInsertPoint(LoopIncBB);
+
+  // Increment the loop variable
+  llvm::Value *StepVal =
+      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1));
+  llvm::Value *NextVal = Builder->CreateAdd(CurVal, StepVal);
+  Builder->CreateStore(NextVal, Alloca);
+
+  // Jump back to the loop condition block
+  Builder->CreateBr(LoopCondBB);
+
+  // Set the insertion point to the after block
+  Builder->SetInsertPoint(AfterBB);
+
+  // Return value after the loop
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+}
+
+llvm::Value *
+DonsusCodeGenerator::visit(donsus_ast::array_for_loop &ac_ast,
+                           utility::handle<DonsusSymTable> &table) {
+  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
+
+  // Create blocks for the loop
+  llvm::BasicBlock *LoopCondBB =
+      llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
+  llvm::BasicBlock *LoopBodyBB =
+      llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
+  llvm::BasicBlock *LoopIncBB =
+      llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
+  llvm::BasicBlock *AfterBB =
+      llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
+
+  // Allocate and initialize the loop variable
+  llvm::AllocaInst *Alloca = Builder->CreateAlloca(
+      llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
+
+  // Get the array from the symbol table
+  DonsusSymTable::sym sym = table->get(ac_ast.array_name);
+
+  // Ensure the array is properly typed and accessed
+  llvm::ArrayType *ArrayTy = llvm::ArrayType::get(
+      llvm::Type::getInt32Ty(*TheContext),
+      sym.array.num_of_elems); // Adjust based on actual member
+  llvm::AllocaInst *ArrayAlloca =
+      Builder->CreateAlloca(ArrayTy, nullptr, ac_ast.array_name);
+
+  // Store the array elements in the allocated space
+  for (size_t i = 0; i < sym.array.num_of_elems;
+       ++i) { // Adjust based on actual member
+    llvm::Value *Idx = llvm::ConstantInt::get(*TheContext, llvm::APInt(32, i));
+  }
+
+  // Initialize loop variable to 0
+  Builder->CreateStore(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)),
+                       Alloca);
+  Builder->CreateBr(LoopCondBB);
+
+  // Loop condition block
+  Builder->SetInsertPoint(LoopCondBB);
+  llvm::Value *CurVar = Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
+  llvm::Value *Cond = Builder->CreateICmpSLT(
+      CurVar,
+      llvm::ConstantInt::get(
+          *TheContext,
+          llvm::APInt(
+              32, sym.array.num_of_elems))); // Adjust based on actual member
+  Builder->CreateCondBr(Cond, LoopBodyBB, AfterBB);
+
+  // Loop body block
+  Builder->SetInsertPoint(LoopBodyBB);
+  llvm::Value *ArrayIdx =
+      Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
+  llvm::Value *Idx = llvm::ConstantInt::get(
+      *TheContext,
+      llvm::APInt(
+          32, 0)); // Assuming you're accessing the first element of ArrayAlloca
+  llvm::Value *ElemPtr =
+      Builder->CreateGEP(ArrayTy, ArrayAlloca, {Idx, ArrayIdx}); // Adjust based
+                                                                 // on actual
+                                                                 // member and
+  llvm::Value *Elem = Builder->CreateLoad(ElemPtr->getType(), ElemPtr);
+
+  table->setInst(ac_ast.loop_variable, Alloca);
+
+  // Handle loop body as needed
+  for (auto &bodyNode : ac_ast.body) {
+    compile(bodyNode, table);
+  }
+
+  // After the body, jump to the increment block
+  Builder->CreateBr(LoopIncBB);
+  Builder->SetInsertPoint(LoopIncBB);
+
+  // Increment the loop variable
+  llvm::Value *StepVal =
+      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1));
+  llvm::Value *NextVal = Builder->CreateAdd(CurVar, StepVal);
+  Builder->CreateStore(NextVal, Alloca);
+
+  // Jump back to the loop condition block
+  Builder->CreateBr(LoopCondBB);
+
+  // Set the insertion point to the after block
+  Builder->SetInsertPoint(AfterBB);
+
+  // Return value after the loop
+  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+}
+
+llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::return_kw &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
@@ -857,10 +1015,26 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   std::string format_string{};
 
   for (auto node : ast->children) {
+    if (!is_expression(node)) {
+      DonsusSymTable::sym sym = sym_from_node(node, table);
+      if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
+          sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
+          sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
 
-    format_string.append(printf_format(node->real_type));
+        for (size_t i = 0; i < sym.array.insts.size(); ++i) {
+          format_string.append(printf_format(sym.array.type));
+        }
+        continue;
+      }
+      // not nice: I know
+      // not expression but not an array might remove this
+      format_string.append(printf_format(node->real_type));
+
+    } else {
+
+      format_string.append(printf_format(node->real_type));
+    }
   }
-
   Argsv.push_back(Builder->CreateGlobalString(format_string));
 
   for (auto node : ast->children) {
@@ -871,7 +1045,6 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       if (cur_value->getType()->isPointerTy() &&
           node->type.type ==
               donsus_ast::donsus_node_type::underlying::DONSUS_ARRAY_ACCESS) {
-
         Argsv.push_back(
             Builder->CreateLoad(map_type(node->real_type), cur_value));
       } else {
@@ -881,6 +1054,18 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     }
 
     DonsusSymTable::sym sym = sym_from_node(node, table);
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_STATIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_DYNAMIC_ARRAY ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_FIXED_ARRAY) {
+      for (auto i : sym.array.insts) {
+        if (!i->getType()->isPointerTy()) {
+          Argsv.push_back(i);
+          continue;
+        }
+        Argsv.push_back(Builder->CreateLoad(map_type(sym.array.type), i));
+      }
+      continue;
+    }
     if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
       llvm::Value *loadedFloatValue =
@@ -971,15 +1156,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     /*
      * llvm::ArrayType::get(map_type(make_type(type))
      * */
-    int size{};
-    // Todo: runtime dynamic alloc lib
-    if (ca_ast.array_type == donsus_ast::ArrayType::DYNAMIC) {
-      size = 10;
-    } else {
-      size = ca_ast.size;
-    }
     llvm::ArrayType *arrayType =
-        llvm::ArrayType::get(map_type(make_type(type)), size);
+        llvm::ArrayType::get(map_type(make_type(type)), ca_ast.size);
 
     // create array
     DonsusSymTable::sym::donsus_array don_a;
@@ -1062,11 +1240,18 @@ llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
 
   DonsusSymTable::sym symbol = table->get(ca_ast.identifier_name);
   llvm::Value *value;
-
+  /*  if (!ast->children.empty()) {*/
+  // arr[i] = smt;
   std::vector<llvm::Value *> indxList1{};
   indxList1.push_back(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)));
-  value =
-      Builder->CreateGEP(map_type(symbol.array.type), symbol.inst, indxList1);
+  indxList1.push_back(compile(ca_ast.index, table));
+
+  value = Builder->CreateGEP(symbol.array.array_type, symbol.inst, indxList1);
+
+  /*} */ /*else {
+     // arr[i]
+     return nullptr;
+   }*/
   return value;
 }
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {

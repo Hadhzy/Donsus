@@ -247,7 +247,7 @@ char peek_back_for_char(DonsusParser &parser) {
 static bool isstart_identifier(char c) {
 
   // entry point of an identifier
-  return isalpha(c) || c == '_';
+  return (isalpha(c) != 0) || c == '_';
 }
 
 static bool iscontinue_identifier(char c) {
@@ -329,13 +329,18 @@ std::string donsus_float(DonsusParser &parser, donsus_token &token,
   return fractional_part;
 }
 
-static std::string next_identifier(DonsusParser &parser, donsus_token& token,
+static std::string next_identifier(DonsusParser &parser, donsus_token &token,
                                    unsigned int start_pos) {
+  // Check if the current character is a continue identifier
+  if (!iscontinue_identifier(parser.lexer.cur_char)) {
+    parser.donsus_syntax_error(
+        nullptr, parser.lexer.cur_column, parser.lexer.cur_line,
+        "Invalid identifier: '" + std::string(1, parser.lexer.cur_char) + "'");
+  }
 
+  // Proceed with the while loop if the initial check passes
   while (iscontinue_identifier(parser.lexer.cur_char)) {
-
     token.length++;
-
     eat(parser);
   }
 
