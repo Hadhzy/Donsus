@@ -79,6 +79,7 @@ add_link_options(-fsanitize=undefined) # ASAN
 
 execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
+string(REPLACE " " ";" LLVM_LIBS "${LLVM_LIBS}")
 target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
 
 if (NOT CMAKE_BUILD_TYPE)
