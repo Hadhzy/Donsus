@@ -98,7 +98,7 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 add_executable(donsus src/main.cc)
 
-llvm_map_components_to_libnames(LLVM_AVAILABLE_LIBS)
+llvm_map_components_to_libnames(llvm_libs LLVM_AVAILABLE_LIBS)
 target_link_libraries(donsus_lib PUBLIC ${llvm_libs})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
