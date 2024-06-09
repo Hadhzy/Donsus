@@ -1,4 +1,6 @@
 #include "exception.h"
+#include <string>
+#include "../../Include/Internal/build_context.h"
 
 void DonsusParserError::syntax_error_normal(unsigned int column,
                                             unsigned int line,
@@ -39,10 +41,5 @@ void DonsusParserError::error(const std::string &message) {
 // Support other systems might need to be done in a completely another file
 bool DonsusParserError::has_ansi_colours() {
 
-  // https://force-color.org/
-  char const *force_colour = getenv("FORCE_COLOR");
-  if (force_colour != nullptr) {
-    return true;
-  }
-  return false;
+    return DonsusBuildContext::has_ansi_colours();
 }

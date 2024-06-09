@@ -311,13 +311,6 @@ auto DonsusSema::donsus_typecheck_is_valid_operator(donsus_token_kind kind)
   return false;
 }
 
-auto DonsusSema::donsus_sema_array_bound_check(
-    unsigned int element_num,
-    std::vector<utility::handle<donsus_ast::node>> elements) -> bool {
-  unsigned int against{};
-  for (auto node : elements) {
-  }
-}
 // utility
 
 //  Typechecking

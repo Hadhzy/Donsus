@@ -1603,7 +1603,7 @@ auto DonsusParser::create_unary_expression(donsus_ast::donsus_node_type type,
 }
 
 auto DonsusParser::create_float_expression(donsus_ast::donsus_node_type type,
-                                           u_int64_t child_count)
+                                           uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::float_expr>(type, child_count);
 }
@@ -1619,89 +1619,89 @@ auto DonsusParser::create_variable_declaration(
 }
 
 auto DonsusParser::create_array_declaration(donsus_ast::donsus_node_type type,
-                                            u_int64_t child_count)
+                                            uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::array_decl>(type, child_count);
 }
 
 auto DonsusParser::create_array_definition(donsus_ast::donsus_node_type type,
-                                           u_int64_t child_count)
+                                           uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::array_def>(type, child_count);
 }
 
 auto DonsusParser::create_function_decl(donsus_ast::donsus_node_type type,
-                                        u_int64_t child_count) -> parse_result {
+                                        uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::function_decl>(type, child_count);
 }
 
 auto DonsusParser::create_if_statement(donsus_ast::donsus_node_type type,
-                                       u_int64_t child_count) -> parse_result {
+                                       uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::if_statement>(type, child_count);
 }
 
 auto DonsusParser::create_else_statement(donsus_ast::donsus_node_type type,
-                                         u_int64_t child_count)
+                                         uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::else_statement>(type,
                                                               child_count);
 }
 
 auto DonsusParser::create_function_definition(donsus_ast::donsus_node_type type,
-                                              u_int64_t child_count)
+                                              uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::function_def>(type, child_count);
 }
 
 auto DonsusParser::create_assignments(donsus_ast::donsus_node_type type,
-                                      u_int64_t child_count) -> parse_result {
+                                      uint64_t child_count) -> parse_result {
 
   return donsus_tree->create_node<donsus_ast::assignment>(type, child_count);
 }
 
 auto DonsusParser::create_return_statement(donsus_ast::donsus_node_type type,
-                                           u_int64_t child_count)
+                                           uint64_t child_count)
     -> parse_result {
 
   return donsus_tree->create_node<donsus_ast::return_kw>(type, child_count);
 }
 
 auto DonsusParser::create_while_loop(donsus_ast::donsus_node_type type,
-                                     u_int64_t child_count) -> parse_result {
+                                     uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::while_loop>(type, child_count);
 }
 
 auto DonsusParser::create_range_for_loop(donsus_ast::donsus_node_type type,
-                                         u_int64_t child_count)
+                                         uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::range_for_loop>(type,
                                                               child_count);
 }
 
 auto DonsusParser::create_array_for_loop(donsus_ast::donsus_node_type type,
-                                         u_int64_t child_count)
+                                         uint64_t child_count)
     -> parse_result {
   return donsus_tree->create_node<donsus_ast::array_for_loop>(type,
                                                               child_count);
 }
 
 auto DonsusParser::create_array_access(donsus_ast::donsus_node_type type,
-                                       u_int64_t child_count) -> parse_result {
+                                       uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::array_access>(type, child_count);
 }
 
 auto DonsusParser::create_identifier(donsus_ast::donsus_node_type type,
-                                     u_int64_t child_count) -> parse_result {
+                                     uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::identifier>(type, child_count);
 }
 
 auto DonsusParser::create_expression(donsus_ast::donsus_node_type type,
-                                     u_int64_t child_count) -> parse_result {
+                                     uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::expression>(type, child_count);
 }
 
 auto DonsusParser::create_function_call(donsus_ast::donsus_node_type type,
-                                        u_int64_t child_count) -> parse_result {
+                                        uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::function_call>(type, child_count);
 }
 

@@ -16,13 +16,12 @@ std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type) {
    * */
   auto qualified_name = create_qualified_name(short_name_c);
   // mymodule.short_name
-  sym t_symbol = {
-      .type = type,
-      .index = underlying.size(),
-      .key = qualified_name,
-      .short_name = short_name_c,
-      .kind = sym::SYMBOL_PLACEHOLDER,
-  };
+  sym t_symbol;
+  t_symbol.type = type;
+  t_symbol.index = underlying.size();
+  t_symbol.key = qualified_name;
+  t_symbol.short_name = short_name_c;
+  t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
 
   underlying.push_back(t_symbol);
   return qualified_name;
@@ -37,18 +36,17 @@ std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
    * */
   auto qualified_name = create_qualified_name(short_name_c);
   // mymodule.short_name
-  sym t_symbol = {
-      .array =
-          {
-              .num_of_elems = num_of_elems,
-              .type = array_type,
-          },
-      .type = type,
-      .index = underlying.size(),
-      .key = qualified_name,
-      .short_name = short_name_c,
-      .kind = sym::SYMBOL_PLACEHOLDER,
-  };
+  sym t_symbol;
+  sym::donsus_array array;
+  array.num_of_elems = num_of_elems;
+  array.type = array_type;
+
+  t_symbol.array = array;
+  t_symbol.type = type;
+  t_symbol.index = underlying.size();
+  t_symbol.key = qualified_name;
+  t_symbol.short_name = short_name_c;
+  t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
 
   underlying.push_back(t_symbol);
   return qualified_name;
@@ -57,13 +55,13 @@ std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
 std::string DonsusSymTable::add(std::string short_name_c,
                                 std::vector<DONSUS_TYPE> &types) {
   auto qualified_name = create_qualified_name(short_name);
-  sym t_symbol = {
-      .types = types,
-      .index = underlying.size(),
-      .key = qualified_name,
-      .short_name = short_name_c,
-      .kind = sym::SYMBOL_PLACEHOLDER,
-  };
+  sym t_symbol;
+  t_symbol.types = types;
+  t_symbol.index = underlying.size();
+  t_symbol.key = qualified_name;
+  t_symbol.short_name = short_name_c;
+  t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
+
   underlying.push_back(t_symbol);
   return qualified_name;
 }
@@ -71,14 +69,14 @@ std::string DonsusSymTable::add(std::string short_name_c,
 std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
                                 bool is_function_argument) {
   auto qualified_name = create_qualified_name(short_name);
-  sym t_symbol = {
-      .is_function_arg = is_function_argument,
-      .type = type,
-      .index = underlying.size(),
-      .key = qualified_name,
-      .short_name = short_name_c,
-      .kind = sym::SYMBOL_PLACEHOLDER,
-  };
+  sym t_symbol;
+  t_symbol.is_function_arg = is_function_argument;
+  t_symbol.type = type;
+  t_symbol.index = underlying.size();
+  t_symbol.key = qualified_name;
+  t_symbol.short_name = short_name_c;
+  t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
+
   underlying.push_back(t_symbol);
   return qualified_name;
 }
@@ -231,8 +229,8 @@ auto DonsusSymTable::get_from_qualified_name(std::string &qualified_name)
   } else if (found == 1) {
     return a;
   }
-
-  sym n{.mod = -1};
+  sym n;
+  n.mod = -1;
   return n;
 }
 

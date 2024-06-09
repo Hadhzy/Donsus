@@ -18,6 +18,7 @@
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
 
 #include <iostream>
+#include <filesystem>
 
 DonsusParser Du_Parse(std::string result, DonsusAstFile &file) {
   // Lexer
@@ -50,7 +51,7 @@ int Du_Main(int argc, char **argv) {
   file.extension = file_extension;
   file.filename = file_without_extension;
   file.fullpath = path;
-  file.absolute_path = std::filesystem::absolute(path);
+  file.absolute_path = std::filesystem::absolute(path).string();
 
   file.id = 0;
 

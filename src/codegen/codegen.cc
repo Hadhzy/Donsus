@@ -129,8 +129,12 @@ int DonsusCodeGenerator::create_object_file() {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
   }
-
+   
+#if defined(DU_SYSTEMS_WINDOWS)
+  auto Filename = "output.obj";
+#else if defined(DU_SYSTEMS_UNIX)
   auto Filename = "output.o";
+#endif
   std::error_code EC;
   llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
 
@@ -189,8 +193,7 @@ void DonsusCodeGenerator::default_optimisation() {
 }
 
 void DonsusCodeGenerator::Link() const {
-  std::vector<std::filesystem::path> obj_paths = {"output.o"};
-
+  std::vector<std::filesystem::path> obj_paths = {"output"};
   std::filesystem::path exe_path = "test";
 
   std::string linker_cmd;
@@ -254,9 +257,7 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
     return visit(n->get<donsus_ast::function_call>(), table);
   }
-  case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
-    return visit(n->get<donsus_ast::else_statement>(), table);
-  }
+
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
     return visit(n, n->get<donsus_ast::return_kw>(), table);
   }
@@ -825,10 +826,6 @@ DonsusCodeGenerator::visit(donsus_ast::array_for_loop &ac_ast,
 }
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::else_statement &ast,
-                           utility::handle<DonsusSymTable> &table) {}
-
-llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::return_kw &ca_ast,
                            utility::handle<DonsusSymTable> &table) {
@@ -1307,6 +1304,4 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
   return nullptr;
 }
-llvm::Type *
-DonsusCodegen::DonsusCodeGenerator::map_pointer_type(DONSUS_TYPE type) {}
 } // namespace DonsusCodegen

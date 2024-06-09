@@ -59,6 +59,9 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_RANGE_FOR_LOOP";
   case DONSUS_ARRAY_FOR_LOOP:
     return "DONSUS_ARRAY_FOR_LOOP";
+  default: {
+      return "";
+  }
   }
 }
 
@@ -152,6 +155,7 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
   }
 
   default: {
+      return "";
   }
   }
   }

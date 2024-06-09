@@ -7,8 +7,8 @@
 
 class LinuxPlatform {
 public:
-  std::string GetObjectFileExtension() { return ".o"; }
-  std::string GetExeFileExtension() { return ""; }
+  std::string GetObjectFileExtension() const { return ".o"; }
+  std::string GetExeFileExtension() const { return ""; }
 
   std::string
   GetLinkerCommand(const std::vector<std::filesystem::path> &obj_paths,
@@ -25,7 +25,7 @@ public:
     std::string obj_input_linker_arg;
 
     for (const auto &obj_path : obj_paths) {
-      obj_input_linker_arg += obj_path.string();
+      obj_input_linker_arg += obj_path.string() + GetObjectFileExtension(); 
       obj_input_linker_arg += "";
     }
 

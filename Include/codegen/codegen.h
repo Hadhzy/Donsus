@@ -28,25 +28,27 @@
 #include "llvm/Passes/PassBuilder.h"
 
 #include <memory>
+#include <iostream>
+#include <filesystem>
+#include "../../Include/Internal/build_context.h"
 
 // Select platform
-#ifdef _WIN32
+#if defined(DU_SYSTEMS_WINDOWS)
 #include "../../src/codegen/platform/windows_platform.h"
+using PlatformClass = WindowsPlatform;
 #endif
 
-#ifdef __unix__
+#if defined(DU_SYSTEMS_UNIX)
 #include "../../src/codegen/platform/linux_platform.h"
+using PlatformClass = LinuxPlatform;
 #endif
 
-#ifdef _WIN32
-using PlatformClass = Window
+#if defined(DU_SYSTEMS_OSX)
+#include "../../src/codegen/platform/osx_platform.h"
 #endif
 
-#ifdef __unix__
-    using PlatformClass = LinuxPlatform;
-#endif
-
-namespace DonsusCodegen {
+namespace DonsusCodegen 
+{
 Bitness GetBitness();
 class Platform {
 public:
@@ -120,9 +122,6 @@ public:
   llvm::Value *visit(donsus_ast::array_for_loop &ac_ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::else_statement &ast,
-                     utility::handle<DonsusSymTable> &table);
-
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::return_kw &ca_ast,
                      utility::handle<DonsusSymTable> &table);
@@ -165,7 +164,6 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Type *map_type(DONSUS_TYPE type);
-  llvm::Type *map_pointer_type(DONSUS_TYPE type);
 
   // meta
   llvm::BasicBlock *main_block;

@@ -1,14 +1,31 @@
+
 cmake_minimum_required(VERSION 3.22)
 project(donsus)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Find LLVM
+message(STATUS "Include directories for target 'example': ${INCLUDE_DIRS}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # using Clang
+  message("using clang")
+  set(DONSUS_USED_COMPILER "clang")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # using GCC
+  message("using gcc")
+  set(DONSUS_USED_COMPILER "gcc")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # using Visual Studio C++
+  message("using msvc")
+  set(DONSUS_USED_COMPILER "msvc")
+endif()
+
+# find llvm
 execute_process(COMMAND llvm-config --cmakedir OUTPUT_VARIABLE LLVM_CMAKE_DIR)
-string(STRIP ${LLVM_CMAKE_DIR} LLVM_CMAKE_DIR)
+string(STRIP "${LLVM_CMAKE_DIR}" LLVM_CMAKE_DIR)
 list(APPEND CMAKE_PREFIX_PATH ${LLVM_CMAKE_DIR})
 find_package(LLVM REQUIRED CONFIG)
+
 
 # Set compiler options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LLVM_COMPILE_FLAGS}")
@@ -62,6 +79,7 @@ add_link_options(-fsanitize=undefined) # ASAN
 
 execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
 string(STRIP ${LLVM_LIBS} LLVM_LIBS)
+string(REPLACE " " ";" LLVM_LIBS "${LLVM_LIBS}")
 target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -84,13 +102,9 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 
 add_executable(donsus src/main.cc)
-
-llvm_map_components_to_libnames(llvm_libs core irreader support)
-target_link_libraries(donsus PUBLIC ${llvm})
+target_link_libraries(donsus_lib PUBLIC ${llvm})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_subdirectory(donsus_test)
 endif ()
-
-

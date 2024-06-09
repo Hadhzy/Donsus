@@ -16,14 +16,14 @@
 #include <unistd.h>
 
 #elif defined(OS_WIN)
-
 #if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x0600)
 #error                                                                         \
-  "Please include rang.hpp before any windows system headers or set _WIN32_WINNT at least to _WIN32_WINNT_VISTA"
+  "Please include terminal_coloured.hpp before any windows system headers or set _WIN32_WINNT at least to _WIN32_WINNT_VISTA"
 #elif !defined(_WIN32_WINNT)
 #define _WIN32_WINNT _WIN32_WINNT_VISTA
 #endif
 
+#define NOMINMAX
 #include <windows.h>
 #include <io.h>
 #include <memory>

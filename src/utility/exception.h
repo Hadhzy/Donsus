@@ -1,10 +1,11 @@
 #ifndef UTILITY_EXCEPTION_H
 #define UTILITY_EXCEPTION_H
+#include "terminal_coloured.h"
 #include <exception>
 #include <iostream>
 
 #include "token.h"
-#include "terminal_coloured.h"
+
 // Header only lib
 /**
  *  \brief Represents the base exception class
