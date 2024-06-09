@@ -23,6 +23,7 @@
 #define _WIN32_WINNT _WIN32_WINNT_VISTA
 #endif
 
+#define NOMINMAX
 #include <windows.h>
 #include <io.h>
 #include <memory>

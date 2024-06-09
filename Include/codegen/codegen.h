@@ -116,9 +116,6 @@ public:
                      utility::handle<donsus_ast::node> &ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::else_statement &ast,
-                     utility::handle<DonsusSymTable> &table);
-
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,
                      donsus_ast::return_kw &ca_ast,
                      utility::handle<DonsusSymTable> &table);
@@ -161,7 +158,6 @@ public:
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Type *map_type(DONSUS_TYPE type);
-  llvm::Type *map_pointer_type(DONSUS_TYPE type);
 
   // meta
   llvm::BasicBlock *main_block;

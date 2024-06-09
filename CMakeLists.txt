@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.22)
 project(donsus)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -72,11 +73,6 @@ add_link_options(-fsanitize=address) # ASAN
 add_compile_options(-fsanitize=undefined) # ASAN
 add_link_options(-fsanitize=undefined) # ASAN
 
-
-execute_process(COMMAND llvm-config --libs core irreader support OUTPUT_VARIABLE LLVM_LIBS)
-string(STRIP "${LLVM_LIBS}" LLVM_LIBS)
-target_link_libraries(donsus_lib PUBLIC ${LLVM_LIBS})
-
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif ()
@@ -98,12 +94,10 @@ target_include_directories(donsus_lib PUBLIC "${PROJECT_SOURCE_DIR}/Include/Inte
 
 add_executable(donsus src/main.cc)
 
-llvm_map_components_to_libnames(llvm_libs core irreader support)
-target_link_libraries(donsus PUBLIC ${llvm})
+llvm_map_components_to_libnames(llvm_libs core irreader support passes X86)
+target_link_libraries(donsus_lib PUBLIC ${llvm_libs})
 target_link_libraries(donsus PUBLIC donsus_lib)
 
 if (CMAKE_BUILD_TYPE STREQUAL "DEBUG")
     add_subdirectory(donsus_test)
 endif ()
-
-

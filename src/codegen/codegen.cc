@@ -129,8 +129,12 @@ int DonsusCodeGenerator::create_object_file() {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
   }
-
+   
+#if defined(DU_SYSTEMS_WINDOWS)
+  auto Filename = "output.obj";
+#else if defined(DU_SYSTEMS_UNIX)
   auto Filename = "output.o";
+#endif
   std::error_code EC;
   llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::OF_None);
 
@@ -246,9 +250,7 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL: {
     return visit(n->get<donsus_ast::function_call>(), table);
   }
-  case donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT: {
-    return visit(n->get<donsus_ast::else_statement>(), table);
-  }
+
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
     return visit(n, n->get<donsus_ast::return_kw>(), table);
   }
@@ -664,10 +666,6 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
   /*  Builder->CreateUnreachable();*/
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
 }
-
-llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::else_statement &ast,
-                           utility::handle<DonsusSymTable> &table) {}
 
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
@@ -1121,6 +1119,4 @@ llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   }
   return nullptr;
 }
-llvm::Type *
-DonsusCodegen::DonsusCodeGenerator::map_pointer_type(DONSUS_TYPE type) {}
 } // namespace DonsusCodegen

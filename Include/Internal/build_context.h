@@ -58,20 +58,43 @@
 	#error Unknown compiler
 #endif
 
+// Todo: move this to a source file
 namespace DonsusBuildContext {
 
 			
-     bool has_ansi_colours() {
+
+
+
+     inline bool has_ansi_colours() {
+#if defined(DU_SYSTEMS_UNIX)
 		 // https://force-color.org/
 		 char const* force_colour = getenv("FORCE_COLOR");
 		 if (force_colour != nullptr) {
 			 return true;
 		 }
 		 return false;
-#if defined(DU_SYSTEMS_WINDOWS)
 #endif
-#elif defined(DU_SYSTEMS_OSX) || defined(GDU_SYSTEMS_UNIX)
+#if defined(DU_SYSTEMS_WINDOWS)
+#define NOMINMAX
+#include <windows.h>
+		 HANDLE hnd = GetStdHandle(STD_ERROR_HANDLE);
+		 DWORD mode;
+
+		 if (GetConsoleMode(hnd, &mode)) {
+			 enum {FLAG_ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004};
+			 if (SetConsoleMode(hnd, mode | FLAG_ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
+				 return true;
+			 }
+		 }
+		 return false;
+
+
+#endif
+#if defined(DU_SYSTEMS_OSX)
+#error "ANSI colours are supported on Unix systems"
+
 
 #endif
 	}
 }
+#endif
