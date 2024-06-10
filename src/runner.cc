@@ -17,8 +17,8 @@
 #include "llvm/TargetParser/Host.h"
 // https://stackoverflow.com/questions/56894943/using-passmanager-in-llvm-6
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 DonsusParser Du_Parse(std::string result, DonsusAstFile &file) {
   // Lexer
@@ -59,7 +59,6 @@ int Du_Main(int argc, char **argv) {
 
   DonsusParser parser = Du_Parse(result, file);
   DonsusParser::end_result parser_result = parser.donsus_parse();
-
   if (file.error_count) {
     std::cout << rang::fg::reset;
     return 1;
@@ -83,11 +82,16 @@ int Du_Main(int argc, char **argv) {
       std::move(TheContext), std::move(TheModule), std::move(TheBuilder));
 
   // sema
-  parser_result->init_traverse();
-  parser_result->traverse(donsus_sym, assign_type_to_node, sym_global, codegen);
+  DonsusSema sema(file, parser_result);
+  // wrapper around tree API
+  sema.start_traverse(sym_global, codegen);
+
+  if (file.error_count) {
+    std::cout << rang::fg::reset;
+    return 1;
+  }
 
   // Initialise the target registry etc.
-
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();

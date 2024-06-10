@@ -18,9 +18,11 @@ TEST(ReturnStatementTypeCheckScalarCorrect, ReturnStatementTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ReturnStatementTypeCheckIdentifierCorrect, ReturnStatementTypecheck) {
@@ -36,9 +38,12 @@ TEST(ReturnStatementTypeCheckIdentifierCorrect, ReturnStatementTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ReturnStatementTypeCheckIdentifierCorrect2, ReturnStatementTypecheck) {
@@ -54,9 +59,10 @@ TEST(ReturnStatementTypeCheckIdentifierCorrect2, ReturnStatementTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ReturnStatementTypeCheckScalarIncorrect, ReturnStatementTypecheck) {
@@ -72,10 +78,11 @@ TEST(ReturnStatementTypeCheckScalarIncorrect, ReturnStatementTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReturnTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(ReturnStatementTypeCheckIdentifierIncorrect, ReturnStatementTypecheck) {
@@ -92,10 +99,11 @@ TEST(ReturnStatementTypeCheckIdentifierIncorrect, ReturnStatementTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReturnTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(ReturnStatementTypeCheckScalarIncorrectWithMultiple,
@@ -110,10 +118,12 @@ TEST(ReturnStatementTypeCheckScalarIncorrectWithMultiple,
   DonsusParser parser = Du_Parse(a, file);
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
-  parse_result->init_traverse();
+
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReturnTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }

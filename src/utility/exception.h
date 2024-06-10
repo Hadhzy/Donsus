@@ -42,6 +42,11 @@ public:
                            const std::string &message,
                            const std::string &full_path);
 
+  void type_error_normal(unsigned int column,
+                         unsigned int line,
+                         const std::string &message,
+                         const std::string &full_path);
+
   void error_out_coloured(const std::string &message, rang::fg colour = rang::fg::red);
 
   void error_out_empty();

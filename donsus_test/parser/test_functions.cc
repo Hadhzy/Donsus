@@ -53,15 +53,19 @@ TEST(Functions, FunctionDeclarationParameters) {
         a(b:int) -> int;
     )";
   DonsusAstFile file;
+
   DonsusParser parser = Du_Parse(a, file);
+
   DonsusParser::end_result result = parser.donsus_parse();
+
+  DonsusSema sema(file,  result);
 
   utility::handle<donsus_ast::node> fn_param =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().parameters[0];
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  result->init_traverse();
-  result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  sema.start_traverse(sym_global);
+
   /*
     Here the reason why we check for DONSUS_BASIC_INT instead of
     DONSUS_TYPE::TYPE_BASIC_INT is because when it comes to function
@@ -89,8 +93,8 @@ TEST(Functions, FunctionDefinitionParameters) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  result->init_traverse();
-  result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, result);
+  sema.start_traverse(sym_global);
 
   utility::handle<donsus_ast::node> fn_param =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().parameters[0];

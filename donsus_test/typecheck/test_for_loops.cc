@@ -9,13 +9,15 @@ TEST(ForLoopIncorrect, ForLoopCheck) {
         printf("We got a : ", number);
     }
     )";
-
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parser_result = parser.donsus_parse();
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      DonsusUndefinedException);
+
+  DonsusSema sema(file, parser_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(ForLoopIncorrect1, ForLoopCheck) {
@@ -27,10 +29,14 @@ TEST(ForLoopIncorrect1, ForLoopCheck) {
     }
     )";
 
-  DonsusParser::end_result parse_result = Du_Parse(a);
+  DonsusAstFile file;
+
+  DonsusParser parser = Du_Parse(a, file);
+  DonsusParser::end_result parser_result = parser.donsus_parse();
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      DonsusUndefinedException);
+
+  DonsusSema sema(file, parser_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }

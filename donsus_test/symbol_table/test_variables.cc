@@ -26,8 +26,8 @@ TEST(SymbolTableCheckScalar, SymbolTableVariable) {
   ex_sym.short_name = "a";
   ex_sym.key = "global.a";
 
-  parse_result->init_traverse();
-  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
 
   DonsusSymTable::sym a_sym = sym_global->get("a");
   EXPECT_EQ(a_sym, ex_sym);
@@ -64,8 +64,9 @@ TEST(SymbolTableCheckScalarInFunction, SymbolTableVariable) {
   ex_sym.short_name = "a";
   ex_sym.key = "global.b.a";
 
-  parse_result->init_traverse();
-  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, parse_result);
+
+  sema.start_traverse(sym_global);
 
   std::string function_global_table = "global.b";
 
@@ -124,8 +125,8 @@ TEST(SymbolType, SymbolTableVariable) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
 
   DonsusSymTable::sym sym_a = sym_global->get("a");
   DonsusSymTable::sym sym_b = sym_global->get("b");
