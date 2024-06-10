@@ -51,9 +51,12 @@ Ninja is the preferred generator for Donsus as it provides `compile_comamnads.js
 ## Linux
 
 ### gcc
+To compile Donsus with gcc on Linux llvm must be installed as a requirement.
 
 ### clang
-
+To compile Donsus with clang on Linux llvm must be installed as a requirement.
+Make sure when installing clang from the source clang is enabled:
+e.g `cmake -GNinja -DLLVM_ENABLE_PROJECTS=clang`
 
 ## MacOs
 Not supported yet
@@ -61,6 +64,6 @@ Not supported yet
 #  Building the docs:
 
 Requirements: 
-- furo
-- Sphinx
+- furo   (theme)
+- Sphinx (building tool)
 
