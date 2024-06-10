@@ -2,12 +2,12 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "stdint.h"
 #include <iostream>
 #include <map>
 #include <memory>
 #include <variant>
 #include <vector>
-#include "stdint.h"
 
 #include "../Include/parser_util.h"
 #include "../Include/symbol_table.h"
@@ -80,12 +80,6 @@ public:
     }
     return *this;
   }
-  /**
-   *  \brief Parse down:
-   *  function definitions:
-   *      - statements
-   *
-   */
   auto donsus_parse() -> end_result;
 
   void print_token();
@@ -234,8 +228,6 @@ public:
 
   auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
 
-  // match for node to provide it
-  auto extract(DonsusParser::parse_result node);
   donsus_token cur_token;
   donsus_lexer lexer;
   utility::handle<donsus_ast::tree> donsus_tree; // holds top level ast nodes

@@ -6,16 +6,9 @@
 // whether a concept contextually makes sense - although this is highly unlikely
 // as the parser catches most of the mistakes and processes everything.
 //===----------------------------------------------------------------------===//
+#include "sema.h"
 
-#include "../Include/sema.h"
-
-DonsusSema sema;
-
-auto assign_type_to_node(utility::handle<donsus_ast::node> node,
-                         utility::handle<DonsusSymTable> table,
-                         utility::handle<DonsusSymTable> global_table) -> void;
-
-auto process_donsus_expression(utility::handle<donsus_ast::node> node,
+auto DonsusSema::process_donsus_expression(utility::handle<donsus_ast::node> node,
                                utility::handle<DonsusSymTable> table,
                                utility::handle<DonsusSymTable> global_table)
     -> void {
@@ -32,7 +25,7 @@ auto process_donsus_expression(utility::handle<donsus_ast::node> node,
 /*
  Returns the type of the DONSUS_EXPRESSION based on its children
  * */
-auto decide_type_for_expression(utility::handle<donsus_ast::node> node,
+auto DonsusSema::decide_type_for_expression(utility::handle<donsus_ast::node> node,
                                 utility::handle<DonsusSymTable> table)
     -> DONSUS_TYPE {
   for (auto n : node->children) {
@@ -42,9 +35,11 @@ auto decide_type_for_expression(utility::handle<donsus_ast::node> node,
   }
 }
 
-auto assign_type_to_node(utility::handle<donsus_ast::node> node,
-                         utility::handle<DonsusSymTable> table,
-                         utility::handle<DonsusSymTable> global_table) -> void {
+auto DonsusSema::assign_type_to_node(
+    utility::handle<donsus_ast::node> node,
+    utility::handle<DonsusSymTable> table,
+    utility::handle<DonsusSymTable> global_table) -> void {
+
   switch (node->type.type) {
 
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
@@ -61,8 +56,8 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
     std::string array_name =
         node->get<donsus_ast::array_access>().identifier_name;
-    bool is_exist = sema.donsus_sema_is_exist(array_name, table);
-    bool is_exist_global = sema.donsus_sema_is_exist(array_name, global_table);
+    bool is_exist = donsus_sema_is_exist(array_name, table);
+    bool is_exist_global = donsus_sema_is_exist(array_name, global_table);
     if (!is_exist && !is_exist_global)
       throw DonsusUndefinedException(array_name + " is not defined");
 
@@ -128,7 +123,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION: {
     process_donsus_expression(node, table, global_table);
-    sema.donsus_typecheck_support_between_types(node);
+    donsus_typecheck_support_between_types(node);
     // after all the children of donsus expression got a type
     // we can just pick the closest one and set it up as the expression
     // type
@@ -138,17 +133,17 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT: {
     // just a single child support
-    sema.donsus_typecheck_support_between_types(node->children[0]);
+    donsus_typecheck_support_between_types(node->children[0]);
 
     assign_type_to_node(node->children[0], table, global_table);
-    auto type_a = sema.donsus_typecheck_type_expr(node->children[0]);
+    auto type_a = donsus_typecheck_type_expr(node->children[0]);
 
     node->get<donsus_ast::return_kw>().types.push_back(type_a);
     break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION: {
-    sema.donsus_typecheck_support_between_types(node->children[0]);
+    donsus_typecheck_support_between_types(node->children[0]);
     assign_type_to_node(node->children[0], table, global_table);
     break;
   }
@@ -253,7 +248,7 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
     if (global_table->sym_table.empty())
       throw DonsusUndefinedException(func_name + " has not been defined!");
 
-    bool is_defined = sema.donsus_is_function_exist(func_name, global_table);
+    bool is_defined = donsus_is_function_exist(func_name, global_table);
 
     if (!is_defined)
       throw DonsusUndefinedException(func_name + " has not been defined!");
@@ -276,8 +271,8 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
 
   case donsus_ast::donsus_node_type::DONSUS_IDENTIFIER: {
     std::string iden_name = node->get<donsus_ast::identifier>().identifier_name;
-    bool is_exist = sema.donsus_sema_is_exist(iden_name, table);
-    bool is_exist_global = sema.donsus_sema_is_exist(iden_name, global_table);
+    bool is_exist = donsus_sema_is_exist(iden_name, table);
+    bool is_exist_global = donsus_sema_is_exist(iden_name, global_table);
     if (!is_exist && !is_exist_global)
       throw DonsusUndefinedException(iden_name + " is not defined");
 
@@ -297,6 +292,36 @@ auto assign_type_to_node(utility::handle<donsus_ast::node> node,
   }
 }
 
+DonsusSema::DonsusSema(DonsusAstFile &file,
+                       utility::handle<donsus_ast::tree> tree)
+    : file(&file), tree(tree) {
+  tree->init_traverse();
+}
+void DonsusSema::start_traverse(utility::handle<DonsusSymTable> sym_global,
+                                DonsusCodegen::DonsusCodeGenerator &codegen) {
+
+  auto donsus_sym_call =
+      std::bind(&DonsusSema::donsus_sym, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3);
+  auto donsus_attn =
+      std::bind(&DonsusSema::assign_type_to_node, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3);
+
+  tree->traverse(donsus_sym_call, donsus_attn, sym_global, codegen);
+}
+
+void DonsusSema::start_traverse(utility::handle<DonsusSymTable> sym_global){
+
+  auto donsus_sym_call =
+      std::bind(&DonsusSema::donsus_sym, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3);
+  auto donsus_attn =
+      std::bind(&DonsusSema::assign_type_to_node, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3);
+  tree->traverse(donsus_sym_call, donsus_attn, sym_global);
+
+}
+
 auto DonsusSema::donsus_typecheck_is_valid_operator(donsus_token_kind kind)
     -> bool {
   switch (kind) {
@@ -311,12 +336,57 @@ auto DonsusSema::donsus_typecheck_is_valid_operator(donsus_token_kind kind)
   return false;
 }
 
+auto DonsusSema::donsus_make_pos_from_token(donsus_token &token)
+    -> donsus_token_pos {
+  donsus_token_pos pos{};
+  pos.line = token.line;
+  pos.column = token.column;
+
+  pos.abs_offset = token.offset;
+  return pos;
+}
+auto DonsusSema::donsus_show_type_error_on_line(
+    DonsusParser::parse_result *node) {
+  std::string value_c = file->parser->lexer.string;
+  donsus_token ast_first_token = node->get()->start_offset_ast;
+  donsus_token_pos ast_first_token_pos =
+      donsus_make_pos_from_token(ast_first_token);
+
+  donsus_token_pos end =
+      donsus_make_pos_from_token(node->get()->get<donsus_token>());
+  std::string whole_ast_range =
+      value_c.substr(ast_first_token_pos.abs_offset, end.abs_offset);
+  error.error_out_coloured(whole_ast_range, rang::fg::reset);
+  error.error_out_coloured("\n");
+  error.error_out_coloured("^", rang::fg::green);
+
+  for (int i = 0; i < whole_ast_range.length(); i++) {
+    error.error_out_coloured("~");
+  }
+  error.error_out_coloured("^", rang::fg::green);
+  error.error_out_coloured("\n");
+}
+
+auto DonsusSema::donsus_type_error(DonsusParser::parse_result *node,
+                                   unsigned int column, unsigned int line,
+                                   const std::string &message) -> void {
+  if (!node) {
+    file->error_count += 1;
+    error.error_out_coloured("", rang::fg::reset);
+    return;
+  }
+  donsus_show_type_error_on_line(node);
+  error.error_out_coloured("", rang::fg::reset);
+  file->error_count += 1;
+}
+
 // utility
 
 //  Typechecking
-void donsus_sym(utility::handle<donsus_ast::node> node,
-                utility::handle<DonsusSymTable> table,
-                utility::handle<DonsusSymTable> global_table) {
+auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
+                            utility::handle<DonsusSymTable> table,
+                            utility::handle<DonsusSymTable> global_table)
+    -> void {
   /*
    Call type checking function with the correct type
    **/
@@ -324,7 +394,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION: {
     auto decl_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_duplicated(
+    bool is_declared = donsus_sema_is_duplicated(
         node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
@@ -335,7 +405,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG: {
     auto arg_name = node->get<donsus_ast::variable_decl>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_duplicated(
+    bool is_declared = donsus_sema_is_duplicated(
         node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
@@ -346,7 +416,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DECLARATION: {
     auto decl_name = node->get<donsus_ast::array_decl>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_duplicated(
+    bool is_declared = donsus_sema_is_duplicated(
         node->get<donsus_ast::array_decl>().identifier_name, table, false);
 
     if (is_declared)
@@ -358,7 +428,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   case donsus_ast::donsus_node_type::DONSUS_ARRAY_DEFINITION: {
     auto def_name = node->get<donsus_ast::array_def>().identifier_name;
 
-    bool is_declared = sema.donsus_sema_is_duplicated(
+    bool is_declared = donsus_sema_is_duplicated(
         node->get<donsus_ast::array_def>().identifier_name, table, false);
 
     if (is_declared)
@@ -366,13 +436,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     // Match type of elements in array against the type of the array
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
-      sema.donsus_typecheck_support_between_types(n);
-      DONSUS_TYPE type_of_array_element = sema.donsus_typecheck_type_expr(n);
+      donsus_typecheck_support_between_types(n);
+      DONSUS_TYPE type_of_array_element = donsus_typecheck_type_expr(n);
       DONSUS_TYPE type_of_array =
           make_type(node->get<donsus_ast::array_def>().type); // type of array
 
-      bool are_the_same = sema.donsus_typecheck_is_compatible(
-          type_of_array, type_of_array_element);
+      bool are_the_same =
+          donsus_typecheck_is_compatible(type_of_array, type_of_array_element);
       if (!are_the_same) {
         throw InCompatibleTypeException(
             "Operation between: " + type_of_array.to_string() + " and " +
@@ -417,9 +487,9 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     // ODR
     auto def_name = node->get<donsus_ast::variable_decl>().identifier_name;
-    bool is_exist = sema.donsus_sema_is_duplicated(def_name, table, false);
+    bool is_exist = donsus_sema_is_duplicated(def_name, table, false);
     bool is_exist_global =
-        sema.donsus_sema_is_duplicated(def_name, global_table, false);
+        donsus_sema_is_duplicated(def_name, global_table, false);
 
     if (is_exist && is_exist_global)
       throw ReDefinitionException(def_name + " has been already defined!");
@@ -440,17 +510,16 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
 
     assign_type_to_node(node->children[0], table, global_table);
 
-    sema.donsus_typecheck_support_between_types(node);
+    donsus_typecheck_support_between_types(node);
 
-    DONSUS_TYPE type_of_var_def =
-        sema.donsus_typecheck_type_expr(node->children[0]);
+    DONSUS_TYPE type_of_var_def = donsus_typecheck_type_expr(node->children[0]);
 
     // type of the definition based on the signature
     auto local_type =
         make_type(node->get<donsus_ast::variable_decl>().identifier_type);
 
     bool is_compatible =
-        sema.donsus_typecheck_is_compatible(local_type, type_of_var_def);
+        donsus_typecheck_is_compatible(local_type, type_of_var_def);
 
     if (!is_compatible)
       throw InCompatibleTypeException(
@@ -466,11 +535,11 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     // assign types
     /*    sema.donsus_typecheck_assign_type_to_node(node);*/
 
-    sema.donsus_typecheck_type_is_bool_conversion(node->children[0]);
+    donsus_typecheck_type_is_bool_conversion(node->children[0]);
     node->children[0]->real_type.type_un = DONSUS_TYPE::kind::TYPE_BOOL;
 
     // see if the operations are supported
-    sema.donsus_typecheck_support_between_types(node->children[0]);
+    donsus_typecheck_support_between_types(node->children[0]);
 
     if (!node->get<donsus_ast::if_statement>().body.empty()) {
       for (auto &children : node->get<donsus_ast::if_statement>().body) {
@@ -482,18 +551,17 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
 
   case donsus_ast::donsus_node_type::DONSUS_WHILE_LOOP: {
-    sema.donsus_typecheck_type_is_bool_conversion(node->children[0]);
+    donsus_typecheck_type_is_bool_conversion(node->children[0]);
     node->children[0]->real_type.type_un = DONSUS_TYPE::kind::TYPE_BOOL;
 
     // see if the operations are supported
-    sema.donsus_typecheck_support_between_types(node->children[0]);
+    donsus_typecheck_support_between_types(node->children[0]);
     break;
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL: {
     auto func_name = node->get<donsus_ast::function_decl>().func_name;
-    bool is_func_declared =
-        sema.donsus_sema_is_duplicated(func_name, table, true);
+    bool is_func_declared = donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_func_declared)
       throw ReDefinitionException(func_name + " has been already declared");
@@ -502,13 +570,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
     auto func_name = node->get<donsus_ast::function_def>().func_name;
-    bool is_defined = sema.donsus_sema_is_duplicated(func_name, table, true);
+    bool is_defined = donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_defined)
       throw ReDefinitionException(func_name + " has been already declared");
 
     // loop through the function, assign types and then come back
-    sema.donsus_typecheck_is_return_type_valid(node);
+    donsus_typecheck_is_return_type_valid(node);
     // need to call this later
     // check for function def specific stuff then just recursion
     if (!node->get<donsus_ast::function_def>().body.empty()) {
@@ -534,13 +602,13 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
     assign_type_to_node(node->get<donsus_ast::assignment>().rvalue, table,
                         global_table);
 
-    sema.donsus_typecheck_support_between_types(
+    donsus_typecheck_support_between_types(
         node->get<donsus_ast::assignment>().lvalue);
 
-    sema.donsus_typecheck_support_between_types(
+    donsus_typecheck_support_between_types(
         node->get<donsus_ast::assignment>().rvalue);
 
-    bool are_the_same = sema.donsus_typecheck_is_compatible(
+    bool are_the_same = donsus_typecheck_is_compatible(
         node->get<donsus_ast::assignment>().lvalue->real_type,
         node->get<donsus_ast::assignment>().rvalue->real_type);
     if (!are_the_same) {
@@ -590,7 +658,7 @@ void donsus_sym(utility::handle<donsus_ast::node> node,
       DONSUS_TYPE function_call_arg =
           node->get<donsus_ast::function_call>().arguments[i]->real_type;
       bool compatible =
-          sema.donsus_typecheck_is_compatible(function_arg, function_call_arg);
+          donsus_typecheck_is_compatible(function_arg, function_call_arg);
       if (!compatible)
         throw InCompatibleTypeException(
             "type: " + current_table->get_function_argument(i).to_string() +

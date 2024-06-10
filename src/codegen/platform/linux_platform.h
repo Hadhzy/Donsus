@@ -29,6 +29,7 @@ public:
       obj_input_linker_arg += "";
     }
 
+    // Todo: allow clang as well
     std::string linker_cmd = "gcc ";
     linker_cmd += obj_input_linker_arg;
 

@@ -237,6 +237,10 @@ struct node : utility::property<> {
   donsus_node_type type; // This is the node's type
   DONSUS_TYPE real_type; // This type is assigned during type checking
   donsus_token start_offset_ast;
+
+  utility::handle<donsus_ast::node> get_last(){
+    return children.back();
+  }
 };
 
 } // namespace donsus_ast

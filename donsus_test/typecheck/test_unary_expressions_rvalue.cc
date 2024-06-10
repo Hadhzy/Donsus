@@ -13,10 +13,10 @@ TEST(UnaryExpressionsIncorrect, UnaryExpressionsTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      InCompatibleTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(UnaryExpressionsIncorrect, UnaryExpressionsTypecheckUnsigned) {
@@ -30,8 +30,8 @@ TEST(UnaryExpressionsIncorrect, UnaryExpressionsTypecheckUnsigned) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      UnsignedTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }

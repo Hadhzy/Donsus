@@ -1747,6 +1747,7 @@ auto DonsusParser::donsus_show_error_on_line(donsus_token_pos &ast_begin,
   for (int i = 0; i < cur_token.column - cur_token.length; i++) {
     error.error_out_empty();
   }
+  error.error_out_coloured("\n");
   error.error_out_coloured("^", rang::fg::green);
 
   for (int i = 0; i < cur_token.length; i++) {

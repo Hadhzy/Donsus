@@ -29,8 +29,9 @@ TEST(SymbolTableCheckNestedFunctions, SymbolTableCheckFunction) {
   utility::handle<DonsusSymTable> nested_1 = sym_global2->add_sym_table("func");
   utility::handle<DonsusSymTable> c = nested_1->add_sym_table("a");
 
-  parse_result->init_traverse();
-  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
   EXPECT_EQ(sym_global, sym_global2);
 }
 
@@ -62,8 +63,8 @@ TEST(SymbolTableCheckDifferentTableStructures, SymbolTableCheckFunction) {
   std::string value =
       sym_global2->add("a", types); // I need to specify the type here
 
-  parse_result->init_traverse();
-  parse_result->traverse(donsus_sym, assign_type_to_node, sym_global);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
 
   EXPECT_EQ(sym_global, sym_global2);
 }

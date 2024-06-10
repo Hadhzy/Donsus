@@ -5,31 +5,38 @@
 #include "../src/utility/handle.h"
 #include "../src/utility/memory_alloc.h"
 #include "parser.h"
+#include "symbol_table.h"
 #include <set>
 
 auto assign_type_to_node(utility::handle<donsus_ast::node> node,
                          utility::handle<DonsusSymTable> table,
                          utility::handle<DonsusSymTable> global_table) -> void;
 void donsus_sym(utility::handle<donsus_ast::node> node,
+
                 utility::handle<DonsusSymTable> table,
                 utility::handle<DonsusSymTable> global_table);
 
-/*
-DonsusParser::end_result donsus_sema(DonsusParser::end_result ast,
-                                     std::string &file_name);
-*/
-
-/*
-utility::handle<donsus_symtable> donsus_sym(std::string &file_name);
-*/
-
 class DonsusSema {
-
 public:
   DonsusSema() = default;
+  explicit DonsusSema(DonsusAstFile &file,
+                      utility::handle<donsus_ast::tree> tree);
   using end_result = DonsusParser::end_result;
   using donsus_type = DONSUS_TYPE::kind;
-  // BASIC SEMA
+
+  void start_traverse(utility::handle<DonsusSymTable>,
+                      DonsusCodegen::DonsusCodeGenerator &codegen);
+
+  void start_traverse(utility::handle<DonsusSymTable>);
+
+  auto process_donsus_expression(utility::handle<donsus_ast::node> node,
+                                 utility::handle<DonsusSymTable> table,
+                                 utility::handle<DonsusSymTable> global_table)
+      -> void;
+  auto decide_type_for_expression(utility::handle<donsus_ast::node> node,
+                                   utility::handle<DonsusSymTable> table)
+                                      -> DONSUS_TYPE;
+      // BASIC SEMA
   // true if its duplicated
   auto donsus_sema_is_duplicated(std::string &name,
                                  utility::handle<DonsusSymTable> table,
@@ -59,7 +66,24 @@ public:
       utility::handle<donsus_ast::node> node, std::vector<DONSUS_TYPE> expect,
       int &found) -> void;
 
-private:
-  bool error;
+  // ERRORS
+  auto donsus_type_error(DonsusParser::parse_result *node, unsigned int column,
+                         unsigned int line, const std::string &message) -> void;
+
+  auto donsus_show_type_error_on_line(DonsusParser::parse_result *node);
+  auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
+
+  // TRAVERSE
+  auto assign_type_to_node(utility::handle<donsus_ast::node> node,
+                          utility::handle<DonsusSymTable> table,
+                          utility::handle<DonsusSymTable> global_table) -> void;
+
+  auto donsus_sym(utility::handle<donsus_ast::node> node,
+                       utility::handle<DonsusSymTable> table,
+                       utility::handle<DonsusSymTable> global_table) ->void;
+      private:
+  DonsusParserError error;
+  DonsusAstFile *file;
+  utility::handle<donsus_ast::tree> tree;
 };
 #endif // DONSUS_SEMA_H

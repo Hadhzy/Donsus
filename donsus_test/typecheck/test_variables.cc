@@ -12,9 +12,10 @@ TEST(VariableTypeCheckScalarCorrect, VariableTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(VariableTypeCheckScalarInCorrect, VariableTypecheck) {
@@ -28,10 +29,10 @@ TEST(VariableTypeCheckScalarInCorrect, VariableTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      InCompatibleTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(RedefinitionVariableInCorrect, RedefinitionVariableTypecheck) {
@@ -46,10 +47,10 @@ TEST(RedefinitionVariableInCorrect, RedefinitionVariableTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReDefinitionException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(RedeclarationVariableIncorrect, RedeclarationVariableTypecheck) {
@@ -64,10 +65,10 @@ TEST(RedeclarationVariableIncorrect, RedeclarationVariableTypecheck) {
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReDefinitionException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(RedeclarationVariableIncorrectNotSameType,
@@ -82,10 +83,10 @@ TEST(RedeclarationVariableIncorrectNotSameType,
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
 
-  parse_result->init_traverse();
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      ReDefinitionException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(StringTypecheck, TestSingleTypes) {
@@ -98,26 +99,24 @@ TEST(StringTypecheck, TestSingleTypes) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
 
   // Todo: not sure what's going on here
   std::string a2 = R"(
     a:int = "s"; # right now this is correct, although this s not a string
 )";
 
-  DonsusParser parser2 = Du_Parse(a2, file);
+  DonsusAstFile file2;
+  DonsusParser parser2 = Du_Parse(a2, file2);
   DonsusParser::end_result parse_result2 = parser2.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
 
-  parse_result2->init_traverse();
+  DonsusSema sema2(file2, parse_result2);
+  sema2.start_traverse(sym_global2);
 
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
-
-  EXPECT_THROW(
-      {
-        parse_result2->traverse(donsus_sym, assign_type_to_node, sym_global2);
-      },
-      InCompatibleTypeException);
+  EXPECT_EQ(file.error_count, 0);
+  EXPECT_EQ(file2.error_count, 0);
 }

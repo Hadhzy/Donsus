@@ -25,6 +25,25 @@ void DonsusParserError::syntax_error_normal(unsigned int column,
   }
 }
 
+void DonsusParserError::type_error_normal(unsigned int column, unsigned int line, const std::string &message, const std::string &full_path) {
+  std::string message_c =
+      "(" + std::to_string(line) + ":" + std::to_string(column) + ") ";
+
+    const std::string& line_c = message;
+    if (has_ansi_colours()){
+    error_out_coloured(full_path, rang::fg::reset);
+    error_out_coloured(message_c, rang::fg::green);
+    error_out_coloured(" TYPE ERROR: ");
+    error_out_coloured(line_c, rang::fg::reset);
+    error_out_coloured("\n");
+    } else {
+    error(full_path);
+    error(" TYPE ERROR : ");
+    error(message_c);
+    error(line_c);
+    error("\n");
+    }
+}
 void DonsusParserError::error_out_coloured(const std::string &message,
                                            rang::fg colour) {
   std::cout << rang::style::bold << colour << message << rang::style::reset

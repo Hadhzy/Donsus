@@ -12,10 +12,10 @@ TEST(ArrayTestTypecheckCorrect, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
 
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ArrayTestTypecheckCorrect1, ArrayTypeCheck) {
@@ -29,10 +29,12 @@ TEST(ArrayTestTypecheckCorrect1, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ArrayTestTypecheckincorrect, ArrayTypeCheck) {
@@ -46,11 +48,12 @@ TEST(ArrayTestTypecheckincorrect, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      InCompatibleTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(ArrayTestTypecheckincorrect1, ArrayTypeCheck) {
@@ -63,11 +66,12 @@ TEST(ArrayTestTypecheckincorrect1, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      InCompatibleTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }
 TEST(ArrayOutOfBounds, ArrayTypeCheck) {
   std::string a = R"(
@@ -78,11 +82,12 @@ TEST(ArrayOutOfBounds, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      OutOfBoundException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ArrayAccessIncorrect, ArrayTypeCheck) {
@@ -96,11 +101,12 @@ TEST(ArrayAccessIncorrect, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); },
-      InCompatibleTypeException);
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(ArrayAccessCorrect, ArrayTypeCheck) {
@@ -114,8 +120,9 @@ TEST(ArrayAccessCorrect, ArrayTypeCheck) {
   DonsusParser::end_result parse_result = parser.donsus_parse();
 
   utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
-  parse_result->init_traverse();
 
-  EXPECT_NO_THROW(
-      { parse_result->traverse(donsus_sym, assign_type_to_node, sym_global); });
+  DonsusSema sema(file, parse_result);
+  sema.start_traverse(sym_global);
+
+  EXPECT_EQ(file.error_count, 0);
 }
