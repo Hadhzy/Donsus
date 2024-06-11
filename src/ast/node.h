@@ -39,9 +39,8 @@ struct donsus_node_type {
     DONSUS_ARRAY_ACCESS,
     DONSUS_FUNCTION_ARG,
     DONSUS_WHILE_LOOP,
-    DONSUS_RANGE_FOR_LOOP,
-    DONSUS_ARRAY_FOR_LOOP,
-
+    DONSUS_FOR_LOOP,
+    DONSUS_RANGE_EXPRESSION,
 
   };
 
@@ -66,34 +65,16 @@ struct variable_decl {
   void *identifier_value;
 };
 
-struct range_for_loop {
-  /*
-  for number: 1..10 {
-    printf("in loop: ", number);
-  }
-  If number is not provided then the loop variable will be "it"
-  */
-
-  std::string loop_variable;                           // "number"
-  utility::handle<donsus_ast::node> start;             // 1
-  utility::handle<donsus_ast::node> end;               // 10
-  std::vector<utility::handle<donsus_ast::node>> body; // {printf("in loop: ",
-                                                       // number);}
+struct range_expr {
+  utility::handle<donsus_ast::node> start;
+  utility::handle<donsus_ast::node> end;
 };
 
-struct array_for_loop {
-  /*
-    my_array: int[2] = [1, 2];
-
-  for my_array {
-  print("We got a : ", it);
-  }
-  */
-
-  std::string loop_variable;                           // "it"
-  std::string array_name;                              // "my_array"
-  std::vector<utility::handle<donsus_ast::node>> body; // {printf("in loop: ",
-                                                       // number);}
+struct for_loop {
+  // both array based and range based for loops
+  std::string loop_variable;
+  utility::handle<donsus_ast::node> iterator;
+  std::vector<utility::handle<donsus_ast::node>> body;
 };
 
 struct while_loop {
@@ -238,9 +219,7 @@ struct node : utility::property<> {
   DONSUS_TYPE real_type; // This type is assigned during type checking
   donsus_token start_offset_ast;
 
-  utility::handle<donsus_ast::node> get_last(){
-    return children.back();
-  }
+  utility::handle<donsus_ast::node> get_last() { return children.back(); }
 };
 
 } // namespace donsus_ast
