@@ -47,7 +47,7 @@ TEST(AssignmentTypeCheckType1Correct, AssignmentTypeCheck) {
   EXPECT_EQ(file.error_count, 0);
 }
 
-TEST(AssignmentTypeCheckType2Correct, AssignmentTypeCheck) {
+TEST(AssignmentTypeCheckTypeCustomInCorrect, AssignmentTypeCheck) {
   std::string a = R"(
     def d() ->int {
     a: int;
@@ -67,7 +67,7 @@ TEST(AssignmentTypeCheckType2Correct, AssignmentTypeCheck) {
   sema.start_traverse(sym_global);
 
 
-  EXPECT_EQ(file.error_count, 0);
+  EXPECT_NE(file.error_count, 0);
 }
 
 TEST(AssignmentTypeCheckType3Correct, AssignmentTypeCheck) {

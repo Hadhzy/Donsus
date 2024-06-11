@@ -1370,7 +1370,7 @@ auto DonsusParser::donsus_while_loop() -> parse_result {
 
   auto &expression = while_loop->get<donsus_ast::while_loop>();
 
-  donsus_parser_except(DONSUS_LPAR);
+  donsus_parser_next();
 
   parse_result condition_expression = donsus_expr(0);
   while_loop->children.push_back(condition_expression);

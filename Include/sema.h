@@ -34,9 +34,9 @@ public:
                                  utility::handle<DonsusSymTable> global_table)
       -> void;
   auto decide_type_for_expression(utility::handle<donsus_ast::node> node,
-                                   utility::handle<DonsusSymTable> table)
-                                      -> DONSUS_TYPE;
-      // BASIC SEMA
+                                  utility::handle<DonsusSymTable> table)
+      -> DONSUS_TYPE;
+  // BASIC SEMA
   // true if its duplicated
   auto donsus_sema_is_duplicated(std::string &name,
                                  utility::handle<DonsusSymTable> table,
@@ -67,21 +67,25 @@ public:
       int &found) -> void;
 
   // ERRORS
-  auto donsus_type_error(DonsusParser::parse_result *node, unsigned int column,
-                         unsigned int line, const std::string &message) -> void;
+  auto donsus_type_error(utility::handle<donsus_ast::node> node,
+                         const std::string &message) -> void;
 
-  auto donsus_show_type_error_on_line(DonsusParser::parse_result *node);
+  auto donsus_type_error(const std::string &message) -> void;
+
+  auto donsus_show_type_error_on_line(utility::handle<donsus_ast::node> node);
   auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
 
   // TRAVERSE
   auto assign_type_to_node(utility::handle<donsus_ast::node> node,
-                          utility::handle<DonsusSymTable> table,
-                          utility::handle<DonsusSymTable> global_table) -> void;
+                           utility::handle<DonsusSymTable> table,
+                           utility::handle<DonsusSymTable> global_table)
+      -> void;
 
   auto donsus_sym(utility::handle<donsus_ast::node> node,
-                       utility::handle<DonsusSymTable> table,
-                       utility::handle<DonsusSymTable> global_table) ->void;
-      private:
+                  utility::handle<DonsusSymTable> table,
+                  utility::handle<DonsusSymTable> global_table) -> void;
+
+private:
   DonsusParserError error;
   DonsusAstFile *file;
   utility::handle<donsus_ast::tree> tree;
