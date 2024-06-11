@@ -24,13 +24,17 @@ public:
     }
     std::string obj_input_linker_arg;
 
+    // output.o
     for (const auto &obj_path : obj_paths) {
-      obj_input_linker_arg += obj_path.string() + GetObjectFileExtension(); 
+      obj_input_linker_arg += obj_path.string() + GetObjectFileExtension();
       obj_input_linker_arg += "";
     }
 
-    // Todo: allow clang as well
+#if defined(DU_COMPILER_GCC)
     std::string linker_cmd = "gcc ";
+#elif defined(DU_COMPILER_CLANG)
+    std::string linker_cmd = "clang ";
+#endif
     linker_cmd += obj_input_linker_arg;
 
     return linker_cmd;

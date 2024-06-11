@@ -80,5 +80,5 @@ TEST(IdentifierRvalueCheckInCorrectUndefinedAssignments,
   DonsusSema sema(file, parse_result);
   sema.start_traverse(sym_global);
 
-  EXPECT_EQ(file.error_count, 0);
+  EXPECT_NE(file.error_count, 0);
 }

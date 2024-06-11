@@ -2,8 +2,8 @@ name: CI
 on: [ push, pull_request, workflow_dispatch ]
 
 jobs:
-  build_linux:
-    name: Ubuntu build, Check, and TEST
+  build_linux_gcc:
+    name: Ubuntu build, Check, and TEST(gcc)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,3 +30,34 @@ jobs:
           make
           cd donsus_test
           ./donsus_test
+
+  build_linux_clang:
+    name:  Ubuntu build, Check, and TEST(clang)
+    runs-on: ubuntu-latest
+    steps:
+       - uses: actions/checkout@v2
+       - name: Download LLVM
+         run: |
+           wget https://apt.llvm.org/llvm.sh
+           chmod +x llvm.sh
+           sudo ./llvm.sh 17
+           echo "/usr/lib/llvm-17/bin" >> $GITHUB_PATH
+       - name: Download GTEST
+         run: |
+           git clone https://github.com/google/googletest.git -b v1.14.0
+           cd googletest 
+           mkdir build  
+           cd build
+           cmake .. 
+           make
+           sudo make install
+       - name: build donsus
+         run: |
+           mkdir build
+           cd build
+           cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=DEBUG -S ../ -B . 
+           make
+           cd donsus_test
+           ./donsus_test
+
+

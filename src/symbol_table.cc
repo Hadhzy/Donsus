@@ -54,12 +54,12 @@ std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
 
 std::string DonsusSymTable::add(std::string short_name_c,
                                 std::vector<DONSUS_TYPE> &types) {
-  auto qualified_name = create_qualified_name(short_name);
+  auto qualified_name = create_qualified_name(short_name_c);
   sym t_symbol;
   t_symbol.types = types;
   t_symbol.index = underlying.size();
   t_symbol.key = qualified_name;
-  t_symbol.short_name = short_name_c;
+  t_symbol.short_name = std::move(short_name_c);
   t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
 
   underlying.push_back(t_symbol);
@@ -68,13 +68,13 @@ std::string DonsusSymTable::add(std::string short_name_c,
 
 std::string DonsusSymTable::add(std::string short_name_c, DONSUS_TYPE type,
                                 bool is_function_argument) {
-  auto qualified_name = create_qualified_name(short_name);
+  auto qualified_name = create_qualified_name(short_name_c);
   sym t_symbol;
   t_symbol.is_function_arg = is_function_argument;
   t_symbol.type = type;
   t_symbol.index = underlying.size();
   t_symbol.key = qualified_name;
-  t_symbol.short_name = short_name_c;
+  t_symbol.short_name = std::move(short_name_c);
   t_symbol.kind = sym::SYMBOL_PLACEHOLDER;
 
   underlying.push_back(t_symbol);
@@ -126,22 +126,22 @@ DonsusSymTable::get_sym_table(std::string &qa_sym_ex) {
 }
 
 utility::handle<DonsusSymTable>
-DonsusSymTable::get_sym_table_from_unqualified(std::string &short_name) {
+DonsusSymTable::get_sym_table_from_unqualified(std::string &short_name_c) {
 
   for (auto n : sym_table) {
-    if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+    if (n->qa_sym == n->parent->qa_sym + '.' + short_name_c) {
       return n;
     }
   }
 
   while (parent) {
     for (auto n : parent->sym_table) {
-      std::cout << n->qa_sym << ":" << n->short_name + '.' + short_name;
-      if (n->qa_sym == n->parent->qa_sym + '.' + short_name) {
+      std::cout << n->qa_sym << ":" << n->short_name + '.' + short_name_c;
+      if (n->qa_sym == n->parent->qa_sym + '.' + short_name_c) {
         return n;
       }
     }
-    if (parent->qa_sym == parent->qa_sym + '.' + short_name) {
+    if (parent->qa_sym == parent->qa_sym + '.' + short_name_c) {
       return parent;
     } else {
       parent = parent->parent;

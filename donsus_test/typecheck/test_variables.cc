@@ -118,5 +118,5 @@ TEST(StringTypecheck, TestSingleTypes) {
   sema2.start_traverse(sym_global2);
 
   EXPECT_EQ(file.error_count, 0);
-  EXPECT_EQ(file2.error_count, 0);
+  EXPECT_NE(file2.error_count, 0);
 }
