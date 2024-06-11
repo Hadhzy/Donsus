@@ -869,7 +869,7 @@ auto DonsusParser::donsus_variable_definition(
   donsus_parser_next();
   parse_result expression = donsus_expr(0);
   declaration->children.push_back(expression);
-  donsus_parser_except(DONSUS_SEMICOLON);
+  donsus_parser_except_current(DONSUS_SEMICOLON);
   return declaration;
 }
 
@@ -1518,7 +1518,7 @@ auto DonsusParser::donsus_return_statement() -> parse_result {
   donsus_parser_next();
   parse_result return_expression = donsus_expr(0);
   return_statement->children.push_back(return_expression);
-  donsus_parser_except(DONSUS_SEMICOLON);
+  donsus_parser_except_current(DONSUS_SEMICOLON);
   return return_statement;
 }
 
@@ -1641,8 +1641,7 @@ auto DonsusParser::create_if_statement(donsus_ast::donsus_node_type type,
 }
 
 auto DonsusParser::create_else_statement(donsus_ast::donsus_node_type type,
-                                         uint64_t child_count)
-    -> parse_result {
+                                         uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::else_statement>(type,
                                                               child_count);
 }
@@ -1672,15 +1671,13 @@ auto DonsusParser::create_while_loop(donsus_ast::donsus_node_type type,
 }
 
 auto DonsusParser::create_range_for_loop(donsus_ast::donsus_node_type type,
-                                         uint64_t child_count)
-    -> parse_result {
+                                         uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::range_for_loop>(type,
                                                               child_count);
 }
 
 auto DonsusParser::create_array_for_loop(donsus_ast::donsus_node_type type,
-                                         uint64_t child_count)
-    -> parse_result {
+                                         uint64_t child_count) -> parse_result {
   return donsus_tree->create_node<donsus_ast::array_for_loop>(type,
                                                               child_count);
 }
