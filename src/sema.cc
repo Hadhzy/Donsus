@@ -264,7 +264,7 @@ auto DonsusSema::assign_type_to_node(
     bool is_exist = donsus_sema_is_exist(iden_name, table);
     bool is_exist_global = donsus_sema_is_exist(iden_name, global_table);
     if (!is_exist && !is_exist_global)
-      donsus_type_error(node.get(), iden_name + "is not defined!");
+      donsus_type_error(node.get(), iden_name + " is not defined!");
 
     DonsusSymTable::sym identifier_symbol_local = table->get(iden_name);
     DonsusSymTable::sym identifier_symbol_global = global_table->get(iden_name);
@@ -391,7 +391,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
-      donsus_type_error(node.get(), decl_name + "has been already declared!");
+      donsus_type_error(node.get(), decl_name + " has been already declared!");
     break;
   }
 
@@ -402,7 +402,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         node->get<donsus_ast::variable_decl>().identifier_name, table, false);
 
     if (is_declared)
-      donsus_type_error(node.get(), arg_name + "has been already declared!");
+      donsus_type_error(node.get(), arg_name + " has been already declared!");
     break;
   }
 
@@ -413,7 +413,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         node->get<donsus_ast::array_decl>().identifier_name, table, false);
 
     if (is_declared)
-      donsus_type_error(node.get(), decl_name + "has been already declared!");
+      donsus_type_error(node.get(), decl_name + " has been already declared!");
     break;
   }
 
@@ -424,7 +424,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         node->get<donsus_ast::array_def>().identifier_name, table, false);
 
     if (is_declared)
-      donsus_type_error(node.get(), def_name + "has been already declared!!");
+      donsus_type_error(node.get(), def_name + " has been already declared!!");
 
     // Match type of elements in array against the type of the array
     for (auto &n : node->get<donsus_ast::array_def>().elements) {
@@ -437,7 +437,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
           donsus_typecheck_is_compatible(type_of_array, type_of_array_element);
       if (!are_the_same) {
         donsus_type_error(node.get(),
-                          "Operation between: " + type_of_array.to_string() +
+                          " Operation between: " + type_of_array.to_string() +
                               "and " + type_of_array_element.to_string() +
                               "are not supported");
       }
@@ -452,7 +452,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
              donsus_ast::ArrayType::STATIC)) {
       donsus_type_error(
           node.get(),
-          "array: " + node->get<donsus_ast::array_def>().identifier_name +
+          " array: " + node->get<donsus_ast::array_def>().identifier_name +
               " is out of bounds");
     }
 
@@ -463,7 +463,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
              donsus_ast::ArrayType::FIXED ||
          node->get<donsus_ast::array_def>().array_type ==
              donsus_ast::ArrayType::STATIC)) {
-      donsus_type_error(node.get(), "The size of the array must match with the "
+      donsus_type_error(node.get(), " The size of the array must match with the "
                                     "one specified as the subscript");
     }
     // ensure the size is the same as number of elements
@@ -486,7 +486,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         donsus_sema_is_duplicated(def_name, global_table, false);
 
     if (is_exist && is_exist_global)
-      donsus_type_error(node.get(), def_name + "has been already defined!");
+      donsus_type_error(node.get(), def_name + " has been already defined!");
 
     // check for signed and unsigned
     if ((node->get<donsus_ast::variable_decl>().identifier_type == DONSUS_U32 ||
@@ -498,7 +498,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
       if (node->children[0]->children[0]->type.type ==
           donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION) {
         donsus_type_error(node.get(),
-                          "Unsigned type cannot be negative at:" + def_name);
+                          " Unsigned type cannot be negative at:" + def_name);
       }
     }
 
@@ -517,7 +517,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (!is_compatible)
       donsus_type_error(
-          node.get(), "Operation between: " + local_type.to_string() + " and " +
+          node.get(), " Operation between: " + local_type.to_string() + " and " +
                           type_of_var_def.to_string() + " are not supported");
     break;
   }
@@ -558,7 +558,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
     bool is_func_declared = donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_func_declared)
-      donsus_type_error(node.get(), func_name + "has been already declared!");
+      donsus_type_error(node.get(), func_name + " has been already declared!");
     break;
   }
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
@@ -566,7 +566,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
     bool is_defined = donsus_sema_is_duplicated(func_name, table, true);
 
     if (is_defined)
-      donsus_type_error(node.get(), func_name + "has bene already declared!");
+      donsus_type_error(node.get(), func_name + " has bene already declared!");
 
     // loop through the function, assign types and then come back
     donsus_typecheck_is_return_type_valid(node);
@@ -605,7 +605,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         node->get<donsus_ast::assignment>().lvalue->real_type,
         node->get<donsus_ast::assignment>().rvalue->real_type);
     if (!are_the_same) {
-      donsus_type_error(node.get(), "Operation between: " +
+      donsus_type_error(node.get(), " Operation between: " +
                                         node->get<donsus_ast::assignment>()
                                             .lvalue->real_type.to_string() +
                                         " and " +
@@ -641,7 +641,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
 
     if (number_of_args != number_of_args_defined)
       donsus_type_error(node.get(),
-                        "Number of arguments in function call: " + func_name +
+                        " Number of arguments in function call: " + func_name +
                             " is not correct, " +
                             std::to_string(number_of_args) + "were provided " +
                             std::to_string(number_of_args_defined) +
@@ -657,7 +657,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
       if (!compatible)
         donsus_type_error(
             node.get(),
-            "type: " + current_table->get_function_argument(i).to_string() +
+            " type: " + current_table->get_function_argument(i).to_string() +
                 " is not compatible with type: " +
                 node->get<donsus_ast::function_call>()
                     .arguments[i]
@@ -811,7 +811,7 @@ void DonsusSema::donsus_typecheck_support_between_types(
         types += " " + type.to_string() + ",";
       }
       donsus_type_error(node.get(),
-                        "Inconsistent types in expression between types:" +
+                        " Inconsistent types in expression between types:" +
                             types);
     }
   }
@@ -842,7 +842,7 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid(
     return;
   }
   if (found == 0) {
-    donsus_type_error(node.get(), "Return statement is not correct, TBD!");
+    donsus_type_error(node.get(), " Return statement is not correct, TBD!");
   }
 }
 
@@ -853,7 +853,7 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid_for_children(
     // examine it here
     // if the type is void
     if (expect[0].type_un == DONSUS_TYPE::TYPE_VOID) {
-      donsus_type_error("Return is not possible when  type is void");
+      donsus_type_error(" Return is not possible when  type is void");
     }
     if (n->get<donsus_ast::return_kw>().types == expect)
       found++;
@@ -862,7 +862,7 @@ auto DonsusSema::donsus_typecheck_is_return_type_valid_for_children(
       for (auto type : expect) {
         for (auto type2 : n->get<donsus_ast::return_kw>().types) {
           if (type != type2) {
-            donsus_type_error("Return is not correct!");
+            donsus_type_error(" Return is not correct!");
           }
         }
       }
