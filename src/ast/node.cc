@@ -55,12 +55,12 @@ auto donsus_node_type::to_string() const -> std::string {
     return "DONSUS_FUNCTION_ARG";
   case DONSUS_WHILE_LOOP:
     return "DONSUS_WHILE_LOOP";
-  case DONSUS_RANGE_FOR_LOOP:
-    return "DONSUS_RANGE_FOR_LOOP";
-  case DONSUS_ARRAY_FOR_LOOP:
-    return "DONSUS_ARRAY_FOR_LOOP";
+  case DONSUS_FOR_LOOP:
+    return "DONSUS_FOR_LOOP";
+  case DONSUS_RANGE_EXPRESSION:
+    return "DONSUS_RANGE_EXPRESSION";
   default: {
-      return "";
+    return "";
   }
   }
 }
@@ -146,18 +146,17 @@ donsus_ast::de_get_from_donsus_node_type(donsus_ast::donsus_node_type type) {
     return "DONSUS_WHILE_LOOP";
   }
 
-  case donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
-    return "DONSUS_RANGE_FOR_LOOP";
+  case donsus_node_type::DONSUS_FOR_LOOP: {
+    return "DONSUS_FOR_LOOP";
   }
 
-  case donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
-    return "DONSUS_ARRAY_FOR_LOOP";
+  case donsus_node_type::DONSUS_RANGE_EXPRESSION: {
+    return "DONSUS_RANGE_EXPRESSION";
   }
 
   default: {
-      return "";
+    return "";
   }
   }
   }
 }
-

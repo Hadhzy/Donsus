@@ -27,10 +27,10 @@
 #include "llvm/IR/PassManager.h"
 #include "llvm/Passes/PassBuilder.h"
 
-#include <memory>
-#include <iostream>
-#include <filesystem>
 #include "../../Include/Internal/build_context.h"
+#include <filesystem>
+#include <iostream>
+#include <memory>
 
 // Select platform
 #if defined(DU_SYSTEMS_WINDOWS)
@@ -47,8 +47,7 @@ using PlatformClass = LinuxPlatform;
 #include "../../src/codegen/platform/osx_platform.h"
 #endif
 
-namespace DonsusCodegen 
-{
+namespace DonsusCodegen {
 Bitness GetBitness();
 class Platform {
 public:
@@ -116,10 +115,7 @@ public:
                      utility::handle<donsus_ast::node> &ast,
                      utility::handle<DonsusSymTable> &table);
 
-  llvm::Value *visit(donsus_ast::range_for_loop &ac_ast,
-                     utility::handle<DonsusSymTable> &table);
-
-  llvm::Value *visit(donsus_ast::array_for_loop &ac_ast,
+  llvm::Value *visit(donsus_ast::for_loop &ac_ast,
                      utility::handle<DonsusSymTable> &table);
 
   llvm::Value *visit(utility::handle<donsus_ast::node> &ast,

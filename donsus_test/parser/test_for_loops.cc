@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-TEST(ForLoopTest, ForRangeLoopWithoutName) {
+TEST(ForLoopTest, WholeForloopsTest) {
   std::string a = R"(
     for 1..10 {
         printf("in  loop: "); # it = current number
@@ -15,18 +15,20 @@ TEST(ForLoopTest, ForRangeLoopWithoutName) {
   DonsusParser::end_result result = parser.donsus_parse();
 
   std::string loop_variable =
-      result->get_nodes()[0]->get<donsus_ast::range_for_loop>().loop_variable;
+      result->get_nodes()[0]->get<donsus_ast::for_loop>().loop_variable;
   std::string start = result->get_nodes()[0]
-                          ->get<donsus_ast::range_for_loop>()
+                          ->get<donsus_ast::for_loop>()
+                          .iterator->get<donsus_ast::range_expr>()
                           .start->get<donsus_ast::number_expr>()
                           .value.value;
   std::string end = result->get_nodes()[0]
-                        ->get<donsus_ast::range_for_loop>()
+                        ->get<donsus_ast::for_loop>()
+                        .iterator->get<donsus_ast::range_expr>()
                         .end->get<donsus_ast::number_expr>()
                         .value.value;
 
   std::vector<utility::handle<donsus_ast::node>> body =
-      result->get_nodes()[0]->get<donsus_ast::range_for_loop>().body;
+      result->get_nodes()[0]->get<donsus_ast::for_loop>().body;
 
   EXPECT_EQ("it", loop_variable);
   EXPECT_EQ("1", start);
@@ -48,18 +50,20 @@ TEST(ForLoopTest, ForRangeLoopWithName) {
   DonsusParser::end_result result = parser.donsus_parse();
 
   std::string loop_variable =
-      result->get_nodes()[0]->get<donsus_ast::range_for_loop>().loop_variable;
+      result->get_nodes()[0]->get<donsus_ast::for_loop>().loop_variable;
   std::string start = result->get_nodes()[0]
-                          ->get<donsus_ast::range_for_loop>()
+                          ->get<donsus_ast::for_loop>()
+                          .iterator->get<donsus_ast::range_expr>()
                           .start->get<donsus_ast::number_expr>()
                           .value.value;
   std::string end = result->get_nodes()[0]
-                        ->get<donsus_ast::range_for_loop>()
+                        ->get<donsus_ast::for_loop>()
+                        .iterator->get<donsus_ast::range_expr>()
                         .end->get<donsus_ast::number_expr>()
                         .value.value;
 
   std::vector<utility::handle<donsus_ast::node>> body =
-      result->get_nodes()[0]->get<donsus_ast::range_for_loop>().body;
+      result->get_nodes()[0]->get<donsus_ast::for_loop>().body;
 
   EXPECT_EQ("number", loop_variable);
   EXPECT_EQ("2", start);
@@ -83,12 +87,14 @@ TEST(ForLoopTest, ForArrayLoopWithoutName) {
   DonsusParser::end_result result = parser.donsus_parse();
 
   std::string loop_variable =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().loop_variable;
+      result->get_nodes()[1]->get<donsus_ast::for_loop>().loop_variable;
 
-  std::string array_name =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().array_name;
+  std::string array_name = result->get_nodes()[1]
+                               ->get<donsus_ast::for_loop>()
+                               .iterator->get<donsus_ast::identifier>()
+                               .identifier_name;
   std::vector<utility::handle<donsus_ast::node>> array_body =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().body;
+      result->get_nodes()[1]->get<donsus_ast::for_loop>().body;
 
   EXPECT_EQ("it", loop_variable);
   EXPECT_EQ("my_array", array_name);
@@ -111,13 +117,15 @@ TEST(ForLoopTest, ForArrayLoopWithName) {
   DonsusParser::end_result result = parser.donsus_parse();
 
   std::string loop_variable =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().loop_variable;
+      result->get_nodes()[1]->get<donsus_ast::for_loop>().loop_variable;
 
-  std::string array_name =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().array_name;
+  std::string array_name = result->get_nodes()[1]
+                               ->get<donsus_ast::for_loop>()
+                               .iterator->get<donsus_ast::identifier>()
+                               .identifier_name;
 
   std::vector<utility::handle<donsus_ast::node>> array_body =
-      result->get_nodes()[1]->get<donsus_ast::array_for_loop>().body;
+      result->get_nodes()[1]->get<donsus_ast::for_loop>().body;
 
   EXPECT_EQ("number", loop_variable);
   EXPECT_EQ("my_array", array_name);

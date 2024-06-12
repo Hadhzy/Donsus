@@ -192,18 +192,8 @@ auto DonsusSema::assign_type_to_node(
     break;
   }
 
-  case donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
-    for (auto &n : node->get<donsus_ast::range_for_loop>().body) {
-      if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
-        continue;
-      }
-      assign_type_to_node(n, table, global_table);
-    }
-    break;
-  }
-
-  case donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
-    for (auto &n : node->get<donsus_ast::array_for_loop>().body) {
+  case donsus_ast::donsus_node_type::DONSUS_FOR_LOOP: {
+    for (auto &n : node->get<donsus_ast::for_loop>().body) {
       if (n->type.type == donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT) {
         continue;
       }

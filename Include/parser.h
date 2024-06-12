@@ -129,15 +129,15 @@ public:
   auto create_while_loop(donsus_ast::donsus_node_type type,
                          uint64_t child_count) -> parse_result;
 
-  // range for loop
-  auto donsus_range_for_loop(bool is_range_with_name) -> parse_result;
-  auto create_range_for_loop(donsus_ast::donsus_node_type type,
-                             uint64_t child_count) -> parse_result;
+  // for loop
+  auto donsus_for_loop() -> parse_result;
+  auto create_for_loop(donsus_ast::donsus_node_type type, uint64_t child_count)
+      -> parse_result;
 
-  // array for loop
-  auto donsus_array_for_loop(bool is_with_name) -> parse_result;
-  auto create_array_for_loop(donsus_ast::donsus_node_type type,
-                             uint64_t child_count) -> parse_result;
+  // range
+  auto donsus_range() -> parse_result;
+  auto create_range_expression(donsus_ast::donsus_node_type type,
+                               uint64_t child_count) -> parse_result;
 
   // float
   auto donsus_float_number(donsus_ast::donsus_node_type type,
