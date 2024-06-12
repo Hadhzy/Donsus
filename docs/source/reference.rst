@@ -429,6 +429,20 @@ Some examples for the usage of for loops over an array in donsus are as follows:
 
     for_loop_array(); # prints 1 2 3 4 5
 
+For Loops Without Iterator variable
+===================================
+As mentioned above, the iterator variable can be omitted and it will be inserted
+automatically in the form of a temporary variable - called: *it*.
+
+    def for_loop_array() ->void {
+        a:int[] = [1, 2, 3, 4, 5];
+        for a {
+            printf(it);
+        }
+    }
+
+    for_loop_array(); # prints 1 2 3 4 5
+
 .. _return:
     
 Return Statement

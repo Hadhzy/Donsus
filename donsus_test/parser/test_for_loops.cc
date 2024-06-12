@@ -97,7 +97,7 @@ TEST(ForLoopTest, ForArrayLoopWithoutName) {
             array_body[0]->type.type);
 }
 
-TEST(ForLoopTest, ForArrayLoopWithtName) {
+TEST(ForLoopTest, ForArrayLoopWithName) {
   std::string a = R"(
     my_array: int[2] = [1, 2];
 
