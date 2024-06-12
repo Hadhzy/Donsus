@@ -129,7 +129,7 @@ int DonsusCodeGenerator::create_object_file() {
     llvm::errs() << "Error: Module verification failed.\n";
     return 1;
   }
-   
+
 #if defined(DU_SYSTEMS_WINDOWS)
   auto Filename = "output.obj";
 #else if defined(DU_SYSTEMS_UNIX)
@@ -223,11 +223,8 @@ DonsusCodeGenerator::compile(utility::handle<donsus_ast::node> &n,
     return visit(n->get<donsus_ast::function_decl>(), table);
   }
 
-  case donsus_ast::donsus_node_type::DONSUS_RANGE_FOR_LOOP: {
-    return visit(n->get<donsus_ast::range_for_loop>(), table);
-  }
-  case donsus_ast::donsus_node_type::DONSUS_ARRAY_FOR_LOOP: {
-    return visit(n->get<donsus_ast::array_for_loop>(), table);
+  case donsus_ast::donsus_node_type::DONSUS_FOR_LOOP: {
+    return visit(n->get<donsus_ast::for_loop>(), table);
   }
 
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF: {
@@ -668,158 +665,67 @@ DonsusCodeGenerator::visit(donsus_ast::if_statement &ac_ast,
 }
 
 llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::range_for_loop &ac_ast,
+DonsusCodeGenerator::visit(donsus_ast::for_loop &ac_ast,
                            utility::handle<DonsusSymTable> &table) {
-  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
+  // llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
 
-  // Create blocks for the loop
-  llvm::BasicBlock *PreheaderBB = Builder->GetInsertBlock();
-  llvm::BasicBlock *LoopCondBB =
-      llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
-  llvm::BasicBlock *LoopBodyBB =
-      llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
-  llvm::BasicBlock *LoopIncBB =
-      llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
-  llvm::BasicBlock *AfterBB =
-      llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
+  // // Create blocks for the loop
+  // llvm::BasicBlock *PreheaderBB = Builder->GetInsertBlock();
+  // llvm::BasicBlock *LoopCondBB =
+  //     llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
+  // llvm::BasicBlock *LoopBodyBB =
+  //     llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
+  // llvm::BasicBlock *LoopIncBB =
+  //     llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
+  // llvm::BasicBlock *AfterBB =
+  //     llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
 
-  // Allocate and initialize the loop variable
-  llvm::AllocaInst *Alloca = Builder->CreateAlloca(
-      llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
-  llvm::Value *StartVal = compile(ac_ast.start, table);
-  Builder->CreateStore(StartVal, Alloca);
+  // // Allocate and initialize the loop variable
+  // llvm::AllocaInst *Alloca = Builder->CreateAlloca(
+  //     llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
+  // llvm::Value *StartVal = compile(ac_ast.start, table);
+  // Builder->CreateStore(StartVal, Alloca);
 
-  // Jump to the loop condition block
-  Builder->CreateBr(LoopCondBB);
-  Builder->SetInsertPoint(LoopCondBB);
+  // // Jump to the loop condition block
+  // Builder->CreateBr(LoopCondBB);
+  // Builder->SetInsertPoint(LoopCondBB);
 
-  // Load the current value of the loop variable
-  llvm::Value *CurVal = Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
+  // // Load the current value of the loop variable
+  // llvm::Value *CurVal = Builder->CreateLoad(Alloca->getAllocatedType(),
+  // Alloca);
 
-  // Compare the loop variable with the end value
-  llvm::Value *EndVal = compile(ac_ast.end, table);
-  llvm::Value *Cond = Builder->CreateICmpSLT(CurVal, EndVal);
+  // // Compare the loop variable with the end value
+  // llvm::Value *EndVal = compile(ac_ast.end, table);
+  // llvm::Value *Cond = Builder->CreateICmpSLT(CurVal, EndVal);
 
-  // Branch based on the comparison
-  Builder->CreateCondBr(Cond, LoopBodyBB, AfterBB);
+  // // Branch based on the comparison
+  // Builder->CreateCondBr(Cond, LoopBodyBB, AfterBB);
 
-  // Generate the loop body
-  Builder->SetInsertPoint(LoopBodyBB);
+  // // Generate the loop body
+  // Builder->SetInsertPoint(LoopBodyBB);
 
-  // Reload the current value of the loop variable
-  table->setInst(ac_ast.loop_variable, Alloca);
+  // // Reload the current value of the loop variable
+  // table->setInst(ac_ast.loop_variable, Alloca);
 
-  for (auto &bodyNode : ac_ast.body) {
-    compile(bodyNode, table);
-  }
+  // for (auto &bodyNode : ac_ast.body) {
+  //   compile(bodyNode, table);
+  // }
 
-  // After the body, jump to the increment block
-  Builder->CreateBr(LoopIncBB);
-  Builder->SetInsertPoint(LoopIncBB);
+  // // After the body, jump to the increment block
+  // Builder->CreateBr(LoopIncBB);
+  // Builder->SetInsertPoint(LoopIncBB);
 
-  // Increment the loop variable
-  llvm::Value *StepVal =
-      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1));
-  llvm::Value *NextVal = Builder->CreateAdd(CurVal, StepVal);
-  Builder->CreateStore(NextVal, Alloca);
+  // // Increment the loop variable
+  // llvm::Value *StepVal =
+  //     llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1));
+  // llvm::Value *NextVal = Builder->CreateAdd(CurVal, StepVal);
+  // Builder->CreateStore(NextVal, Alloca);
 
-  // Jump back to the loop condition block
-  Builder->CreateBr(LoopCondBB);
+  // // Jump back to the loop condition block
+  // Builder->CreateBr(LoopCondBB);
 
-  // Set the insertion point to the after block
-  Builder->SetInsertPoint(AfterBB);
-
-  // Return value after the loop
-  return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
-}
-
-llvm::Value *
-DonsusCodeGenerator::visit(donsus_ast::array_for_loop &ac_ast,
-                           utility::handle<DonsusSymTable> &table) {
-  llvm::Function *TheFunction = Builder->GetInsertBlock()->getParent();
-
-  // Create blocks for the loop
-  llvm::BasicBlock *LoopCondBB =
-      llvm::BasicBlock::Create(*TheContext, "for.cond", TheFunction);
-  llvm::BasicBlock *LoopBodyBB =
-      llvm::BasicBlock::Create(*TheContext, "for.body", TheFunction);
-  llvm::BasicBlock *LoopIncBB =
-      llvm::BasicBlock::Create(*TheContext, "for.inc", TheFunction);
-  llvm::BasicBlock *AfterBB =
-      llvm::BasicBlock::Create(*TheContext, "for.end", TheFunction);
-
-  // Allocate and initialize the loop variable
-  llvm::AllocaInst *Alloca = Builder->CreateAlloca(
-      llvm::Type::getInt32Ty(*TheContext), nullptr, ac_ast.loop_variable);
-
-  // Get the array from the symbol table
-  DonsusSymTable::sym sym = table->get(ac_ast.array_name);
-
-  // Ensure the array is properly typed and accessed
-  llvm::ArrayType *ArrayTy = llvm::ArrayType::get(
-      llvm::Type::getInt32Ty(*TheContext),
-      sym.array.num_of_elems); // Adjust based on actual member
-  llvm::AllocaInst *ArrayAlloca =
-      Builder->CreateAlloca(ArrayTy, nullptr, ac_ast.array_name);
-
-  // Store the array elements in the allocated space
-  for (size_t i = 0; i < sym.array.num_of_elems;
-       ++i) { // Adjust based on actual member
-    llvm::Value *Idx = llvm::ConstantInt::get(*TheContext, llvm::APInt(32, i));
-  }
-
-  // Initialize loop variable to 0
-  Builder->CreateStore(llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0)),
-                       Alloca);
-  Builder->CreateBr(LoopCondBB);
-
-  // Loop condition block
-  Builder->SetInsertPoint(LoopCondBB);
-  llvm::Value *CurVar = Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
-  llvm::Value *Cond = Builder->CreateICmpSLT(
-      CurVar,
-      llvm::ConstantInt::get(
-          *TheContext,
-          llvm::APInt(
-              32, sym.array.num_of_elems))); // Adjust based on actual member
-  Builder->CreateCondBr(Cond, LoopBodyBB, AfterBB);
-
-  // Loop body block
-  Builder->SetInsertPoint(LoopBodyBB);
-  llvm::Value *ArrayIdx =
-      Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
-  llvm::Value *Idx = llvm::ConstantInt::get(
-      *TheContext,
-      llvm::APInt(
-          32, 0)); // Assuming you're accessing the first element of ArrayAlloca
-  llvm::Value *ElemPtr =
-      Builder->CreateGEP(ArrayTy, ArrayAlloca, {Idx, ArrayIdx}); // Adjust based
-                                                                 // on actual
-                                                                 // member and
-  llvm::Value *Elem = Builder->CreateLoad(ElemPtr->getType(), ElemPtr);
-
-  table->setInst(ac_ast.loop_variable, Alloca);
-
-  // Handle loop body as needed
-  for (auto &bodyNode : ac_ast.body) {
-    compile(bodyNode, table);
-  }
-
-  // After the body, jump to the increment block
-  Builder->CreateBr(LoopIncBB);
-  Builder->SetInsertPoint(LoopIncBB);
-
-  // Increment the loop variable
-  llvm::Value *StepVal =
-      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 1));
-  llvm::Value *NextVal = Builder->CreateAdd(CurVar, StepVal);
-  Builder->CreateStore(NextVal, Alloca);
-
-  // Jump back to the loop condition block
-  Builder->CreateBr(LoopCondBB);
-
-  // Set the insertion point to the after block
-  Builder->SetInsertPoint(AfterBB);
+  // // Set the insertion point to the after block
+  // Builder->SetInsertPoint(AfterBB);
 
   // Return value after the loop
   return llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
