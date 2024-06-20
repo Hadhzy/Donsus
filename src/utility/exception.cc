@@ -25,6 +25,7 @@ void DonsusParserError::syntax_error_normal(unsigned int column,
   }
 }
 
+// Todo: make use of this function here
 void DonsusParserError::type_error_normal(unsigned int column,
                                           unsigned int line,
                                           const std::string &message,
@@ -49,7 +50,7 @@ void DonsusParserError::type_error_normal(unsigned int column,
 }
 void DonsusParserError::error_out_coloured(const std::string &message,
                                            rang::fg colour) {
-  std::cout << rang::style::bold << colour << message << rang::style::reset
+  std::cerr << rang::style::bold << colour << message << rang::style::reset
             << rang::fg::reset;
 }
 

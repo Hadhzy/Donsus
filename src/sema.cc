@@ -336,12 +336,12 @@ auto DonsusSema::donsus_make_pos_from_token(donsus_token &token)
 auto DonsusSema::donsus_show_type_error_on_line(
     utility::handle<donsus_ast::node> node) {
   std::string value_c = file->parser->lexer.string;
-  donsus_token ast_first_token = node.get()->start_offset_ast;
+  donsus_token ast_first_token = node->start_offset_ast;
   donsus_token_pos ast_first_token_pos =
       donsus_make_pos_from_token(ast_first_token);
 
   donsus_token_pos end =
-      donsus_make_pos_from_token(node.get()->get<donsus_token>());
+      donsus_make_pos_from_token(node->get<donsus_token>());
   std::string whole_ast_range =
       value_c.substr(ast_first_token_pos.abs_offset, end.abs_offset);
   error.error_out_coloured(whole_ast_range, rang::fg::reset);
@@ -355,6 +355,7 @@ auto DonsusSema::donsus_show_type_error_on_line(
   error.error_out_coloured("\n");
 }
 
+// Todo: give back token level error messages
 auto DonsusSema::donsus_type_error(utility::handle<donsus_ast::node> node,
                                    const std::string &message) -> void {
   if (!node) {
@@ -467,7 +468,7 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
                                     "one specified as the subscript");
     }
     // ensure the size is the same as number of elements
-    // e.g dynamic array will have it when doing codegen
+    // e.g dynamic array will have it when doing codegen_test
     node->get<donsus_ast::array_def>().size =
         node->get<donsus_ast::array_def>().number_of_elements;
 

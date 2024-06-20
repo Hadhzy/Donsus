@@ -2,7 +2,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "stdint.h"
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <memory>
