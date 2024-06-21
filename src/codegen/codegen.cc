@@ -951,7 +951,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         Argsv.push_back(
             Builder->CreateLoad(map_type(node->real_type), cur_value));
       } else {
-        Argsv.push_back(compile(node, table));
+        Argsv.push_back(cur_value);
       }
       continue;
     }
