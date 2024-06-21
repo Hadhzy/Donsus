@@ -1,0 +1,11 @@
+# multi variables
+a,b,c,d:int = 12;
+printf(a); # 12
+printf(b); # 12
+printf(c); # 12
+printf(d); # 12
+
+
+/*
+12121212
+*/

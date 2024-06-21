@@ -9,3 +9,5 @@ It is not seperated like others, e.g in parser or typecheck.
 
 
 To add new test cases: write the donsus file(.du) with a corresponding "..._expected.txt".
+
+If the code is supposed return the error use "error" in the filename.

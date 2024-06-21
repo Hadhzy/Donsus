@@ -767,59 +767,56 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return Builder->CreateRet(compile(ast->children[0], table));
 }
 
+// Todo: do not call this twice
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
                            utility::handle<DonsusSymTable> &table) {
-  // process escape sequences: \n etc.
-  std::vector<char> PreprocessedString;
-  for (int i = 0; i < ast.value.value.size(); ++i) {
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'n') {
-      //   10  0A 00001010 LF  &#10; Line Feed
-      PreprocessedString.push_back(0x0a);
-      ++i;
-      continue;
+  std::string PreprocessedString;
+  for (size_t i = 0; i < ast.value.value.size(); ++i) {
+    if (ast.value.value[i] == '\\' && i + 1 < ast.value.value.size()) {
+      switch (ast.value.value[i + 1]) {
+      case 'n':
+        PreprocessedString.push_back(0x0a);
+        ++i;
+        break;
+      case 'a':
+        PreprocessedString.push_back(0x07);
+        ++i;
+        break;
+      case 'b':
+        PreprocessedString.push_back(0x08);
+        ++i;
+        break;
+      case 'e':
+        PreprocessedString.push_back(0x1b);
+        ++i;
+        break;
+      case 'f':
+        PreprocessedString.push_back(0x0c);
+        ++i;
+        break;
+      case 'r':
+        PreprocessedString.push_back(0x0d);
+        ++i;
+        break;
+      case 't':
+        PreprocessedString.push_back(0x09);
+        ++i;
+        break;
+      case 'v':
+        PreprocessedString.push_back(0x0b);
+        ++i;
+        break;
+      default:
+        PreprocessedString.push_back(ast.value.value[i]);
+        break;
+      }
+    } else {
+      PreprocessedString.push_back(ast.value.value[i]);
     }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'a') {
-      PreprocessedString.push_back(0x07);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'b') {
-      PreprocessedString.push_back(0x08);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'e') {
-      PreprocessedString.push_back(0x1b);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'f') {
-      PreprocessedString.push_back(0x0c);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'r') {
-      PreprocessedString.push_back(0x0d);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 't') {
-      PreprocessedString.push_back(0x09);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'v') {
-      PreprocessedString.push_back(0x0b);
-      i++;
-      continue;
-    }
-    PreprocessedString.push_back(ast.value.value[i]);
   }
-  return Builder->CreateGlobalStringPtr(
-      llvm::StringRef(PreprocessedString.data()));
+  return Builder->CreateGlobalStringPtr(llvm::StringRef(PreprocessedString));
 }
-
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::float_expr &ca_ast,
