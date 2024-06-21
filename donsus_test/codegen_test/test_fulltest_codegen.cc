@@ -55,7 +55,7 @@ TEST(FullTest, FullCodegenTest) {
 
       int argc = 2;
 
-      int res = Du_Main(argc, argv);
+      Du_Main(argc, argv);
 
       std::string execute_filename =
           entry.path().stem().string() + "_actual.txt";

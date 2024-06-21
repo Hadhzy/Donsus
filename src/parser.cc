@@ -870,8 +870,6 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
 
   donsus_parser_except(DONSUS_COLO);
 
-  donsus_token_kind type = cur_token.kind;
-
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next();
     // check for void explicitly
@@ -1060,8 +1058,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
                           "Type: '" + cur_token.value + "'" +
                               " provided for the declaration of '" +
                               expression.func_name + "'" + " is not valid");
-      parse_result tmp;
-      return tmp;
+      parse_result tmp_c;
+      return tmp_c;
     }
   }
 
@@ -1092,8 +1090,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
     donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                         "Return type wasn't provided for function: '" +
                             expression.func_name + "'");
-    parse_result tmp;
-    return tmp;
+    parse_result tmp_c;
+    return tmp_c;
   }
   while (cur_token.kind != DONSUS_LBRACE &&
          cur_token.kind != DONSUS_SEMICOLON && cur_token.kind != DONSUS_END) {
@@ -1106,8 +1104,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
                           "Return type received: '" + cur_token.value +
                               "' in invalid for function: '" +
                               expression.func_name + "'");
-      parse_result tmp;
-      return tmp;
+      parse_result tmp_c;
+      return tmp_c;
     }
     donsus_parser_next();
   }
