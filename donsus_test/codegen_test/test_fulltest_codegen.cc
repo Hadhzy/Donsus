@@ -63,7 +63,11 @@ TEST(FullTest, FullCodegenTest) {
       std::system(execute_it.c_str());
 
       actual_result = read_file(execute_filename);
-
+      if (expected_result != actual_result) {
+        std::cout << "------------------------------\n";
+        std::cout << "error in: " << filename << "\n";
+        std::cout << "-------------------------------";
+      }
       EXPECT_EQ(expected_result, actual_result);
     }
   }
