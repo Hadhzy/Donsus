@@ -161,6 +161,7 @@ public:
 
   llvm::Type *map_type(DONSUS_TYPE type);
 
+  unsigned int map_bitwidth(DONSUS_TYPE type);
   // meta
   llvm::BasicBlock *main_block;
   llvm::Function *main_func;

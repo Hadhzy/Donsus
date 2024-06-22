@@ -32,15 +32,15 @@ struct donsus_node_type {
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
 
-    DONSUS_STRING_EXPRESSION,
-    DONSUS_BOOL_EXPRESSION,
-    DONSUS_UNARY_EXPRESSION,
-    DONSUS_PRINT_EXPRESSION,
-    DONSUS_ARRAY_ACCESS,
-    DONSUS_FUNCTION_ARG,
-    DONSUS_WHILE_LOOP,
-    DONSUS_FOR_LOOP,
-    DONSUS_RANGE_EXPRESSION,
+    DONSUS_STRING_EXPRESSION,    // just the type of the node
+    DONSUS_BOOL_EXPRESSION,      // just the type of the node
+    DONSUS_UNARY_EXPRESSION,     // just the type of the node
+    DONSUS_PRINT_EXPRESSION,     // just the type of the node
+    DONSUS_ARRAY_ACCESS,         // just the type of the node
+    DONSUS_FUNCTION_ARG,        // just the type of the node
+    DONSUS_WHILE_LOOP,          // just the type of the node
+    DONSUS_FOR_LOOP,            // just the type of the node
+    DONSUS_RANGE_EXPRESSION,    // just the type of the node
 
   };
 
@@ -83,7 +83,6 @@ struct while_loop {
   std::vector<utility::handle<donsus_ast::node>> body;
 };
 
-// actual node structure containing extra properties
 struct number_expr {
   donsus_token value;
 };

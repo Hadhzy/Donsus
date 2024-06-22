@@ -43,9 +43,8 @@ auto DonsusSema::assign_type_to_node(
   switch (node->type.type) {
 
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
-    // we can't figure out the type here.
-    // should be compatible with other types
-    node->real_type.type_un = DONSUS_TYPE::TYPE_BASIC_INT;
+    node->real_type.type_un = DONSUS_TYPE::TYPE_UNSPECIFIED_INTEGER;
+
     break;
   }
 
@@ -149,8 +148,7 @@ auto DonsusSema::assign_type_to_node(
   }
 
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION: {
-    // decide whether it's a string or single char
-    node->real_type.type_un = DONSUS_TYPE::TYPE_STRING; // not entirely correct
+    node->real_type.type_un = DONSUS_TYPE::TYPE_STRING;
     break;
   }
 
@@ -781,6 +779,7 @@ auto DonsusSema::donsus_typecheck_type_expr(
   return node->real_type;
 }
 
+// Todo: needs to be fixed
 /**
  * \brief Check if the operators are supported between operands.
  */

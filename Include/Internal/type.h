@@ -6,7 +6,8 @@
 class DONSUS_TYPE {
 public:
   enum kind : int {
-    TYPE_UNKNOWN = 0, // handled in type checker
+    TYPE_UNKNOWN = 0,         // handled in type checker
+    TYPE_UNSPECIFIED_INTEGER, // literal without specific type
     TYPE_BASIC_INT,
     TYPE_I32,
     TYPE_U64,
@@ -37,6 +38,13 @@ public:
   kind type_un;
 
   bool operator==(const DONSUS_TYPE &rhs) const {
+    // late typecheck
+    if ((rhs.type_un == DONSUS_TYPE::kind::TYPE_UNSPECIFIED_INTEGER &&
+         is_integer()) ||
+        (type_un == DONSUS_TYPE::kind::TYPE_UNSPECIFIED_INTEGER &&
+         rhs.is_integer())) {
+      return true;
+    }
     // TYPE_BASIC_INT and any other integer types are compatible
     if (rhs.type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT && is_integer() ||
         this->type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT &&

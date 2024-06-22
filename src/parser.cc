@@ -686,7 +686,6 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
 
   auto &expression = node->get<donsus_ast::number_expr>();
   expression.value = cur_token;
-
   return node;
 }
 

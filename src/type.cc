@@ -110,6 +110,9 @@ auto DONSUS_TYPE::to_string() const -> std::string {
   switch (type_un) {
   case TYPE_BASIC_INT:
     return "TYPE_BASIC_INT";
+  case TYPE_UNSPECIFIED_INTEGER:
+    return "TYPE_UNSPECIFIED_INTEGER";
+
   case TYPE_I32:
     return "TYPE_I32";
   case TYPE_U64:
@@ -139,7 +142,7 @@ auto DONSUS_TYPE::to_string() const -> std::string {
   case TYPE_STATIC_ARRAY:
     return "TYPE_STATIC_ARRAY";
   default: {
-      return "";
+    return "";
   }
   }
 }
@@ -148,7 +151,7 @@ auto DONSUS_TYPE::is_integer() const -> bool {
   if (this->type_un == TYPE_BASIC_INT || this->type_un == TYPE_I32 ||
       this->type_un == TYPE_U64 || this->type_un == TYPE_I8 ||
       this->type_un == TYPE_I64 || this->type_un == TYPE_I16 ||
-      this->type_un == TYPE_U32) {
+      this->type_un == TYPE_U32 || this->type_un == TYPE_UNSPECIFIED_INTEGER) {
     return true;
   } else
     return false;
