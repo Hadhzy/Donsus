@@ -33,6 +33,7 @@ TEST(SymbolTableCheckNestedFunctions, SymbolTableCheckFunction) {
   sema.start_traverse(sym_global);
 
   EXPECT_EQ(sym_global, sym_global2);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 //TODO: Fix this comparison

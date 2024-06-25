@@ -1451,7 +1451,7 @@ auto DonsusParser::bool_expression() -> parse_result {
 }
 
 auto DonsusParser::unary_expression() -> parse_result {
-  parse_result result = create_expression(
+  parse_result result = create_unary_expression(
       donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
   result->start_offset_ast = cur_token;
 

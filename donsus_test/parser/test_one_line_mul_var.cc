@@ -20,6 +20,7 @@ TEST(OneLineMulVar, OneLineMulVarDeclTest) {
             result->get_nodes()[2]->type.type);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_VARIABLE_DECLARATION,
             result->get_nodes()[3]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(OneLineMulVar, OneLineMulVarDefTest) {
@@ -40,4 +41,5 @@ TEST(OneLineMulVar, OneLineMulVarDefTest) {
             result->get_nodes()[2]->type.type);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION,
             result->get_nodes()[3]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }

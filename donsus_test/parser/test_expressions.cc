@@ -14,6 +14,7 @@ TEST(Expressions, ExpressionsNodeType) {
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->children[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Expressions, ExpressionsValueNumbers) {
@@ -29,6 +30,7 @@ TEST(Expressions, ExpressionsValueNumbers) {
       result->get_nodes()[0]->children[0]->get<donsus_ast::expression>().value;
   EXPECT_EQ("+", expression.value);
   EXPECT_EQ(10, expression.precedence);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Expressions, ExpressionsBooleans) {
@@ -50,6 +52,7 @@ TEST(Expressions, ExpressionsBooleans) {
   EXPECT_EQ("false", expression1.value);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_BOOL_EXPRESSION,
             result->get_nodes()[1]->children[0]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Expressions, ExpressionsValueWithIdentifiers) {
@@ -93,4 +96,5 @@ TEST(Expressions, ExpressionsValueWithIdentifiers) {
           .identifier_name;
 
   EXPECT_EQ("a", identifier_expression_children);
+  EXPECT_EQ(file.error_count, 0);
 }

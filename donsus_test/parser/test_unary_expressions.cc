@@ -22,4 +22,5 @@ TEST(UnaryExpressionsRvalue, UnaryExpressionsCheck) {
                      ->children[0]
                      ->get<donsus_ast::number_expr>()
                      .value.value);
+  EXPECT_EQ(file.error_count, 0);
 }

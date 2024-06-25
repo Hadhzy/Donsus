@@ -25,4 +25,5 @@ TEST(WhileLoopTest, WhileLoopStructureTest) {
             result->get_nodes()[1]->children[0]->children[0]->type.type);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION,
             result->get_nodes()[1]->children[0]->children[1]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }

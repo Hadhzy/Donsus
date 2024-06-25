@@ -36,6 +36,7 @@ TEST(ForLoopTest, WholeForloopsTest) {
   EXPECT_EQ(1, body.size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION,
             body[0]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ForLoopTest, ForRangeLoopWithName) {
@@ -71,6 +72,7 @@ TEST(ForLoopTest, ForRangeLoopWithName) {
   EXPECT_EQ(1, body.size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION,
             body[0]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ForLoopTest, ForArrayLoopWithoutName) {
@@ -101,6 +103,7 @@ TEST(ForLoopTest, ForArrayLoopWithoutName) {
   EXPECT_EQ(1, array_body.size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION,
             array_body[0]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ForLoopTest, ForArrayLoopWithName) {
@@ -132,4 +135,5 @@ TEST(ForLoopTest, ForArrayLoopWithName) {
   EXPECT_EQ(1, array_body.size());
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_PRINT_EXPRESSION,
             array_body[0]->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }

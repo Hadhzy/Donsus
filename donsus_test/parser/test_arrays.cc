@@ -20,6 +20,7 @@ TEST(ArrayStructureTest, ArrayDefinitionTest) {
   EXPECT_EQ(elements.size(), 3);
   EXPECT_EQ(elements[0]->type.type,
             donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ArrayDeclaration, ArrayDeclarationTest) {
@@ -52,6 +53,7 @@ TEST(ArrayAccess, TestArrays) {
   EXPECT_EQ(result->get_nodes()[1]->children[0]->type.type,
             donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS);
   EXPECT_EQ(array_access.identifier_name, "a");
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(ArrayAccessExpressionAsIndex, TestArrays) {
@@ -72,4 +74,5 @@ TEST(ArrayAccessExpressionAsIndex, TestArrays) {
   EXPECT_EQ(array_access.identifier_name, "a");
   EXPECT_EQ(array_access.index->type.type,
             donsus_ast::donsus_node_type::DONSUS_EXPRESSION);
+  EXPECT_EQ(file.error_count, 0);
 }

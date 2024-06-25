@@ -24,6 +24,7 @@ TEST(FunctionCallTest, FunctionName) {
   std::cout << _func_name << std::endl;
 
   EXPECT_EQ("a", _func_name);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /** \brief Check for function's arguments(just positional as of now)
@@ -50,4 +51,5 @@ TEST(FunctionCallTest, FunctionArguments) {
             second->type.type);
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_CALL,
             third->type.type);
+  EXPECT_EQ(file.error_count, 0);
 }
