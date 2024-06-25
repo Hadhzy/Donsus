@@ -1,7 +1,7 @@
 a_string: string = "my own string";
 
 b_int: int = 21;
-b_int_minus: int = 1; # should be minus eventually
+b_int_minus: int = -1; # should be minus eventually
 
 b_int_i8: int8 = 23;
 
