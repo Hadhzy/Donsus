@@ -43,6 +43,7 @@ TEST(WhileLoopCorrect2, WhileLoopTypeCheck) {
   EXPECT_EQ(file.error_count, 0);
 }
 
+// Todo: finish codegen for while loop
 TEST(WhileLoopIncorrect, WhileLoopTypeCheck) {
   std::string a = R"(
         a:int = 32;

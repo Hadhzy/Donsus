@@ -338,8 +338,7 @@ auto DonsusSema::donsus_show_type_error_on_line(
   donsus_token_pos ast_first_token_pos =
       donsus_make_pos_from_token(ast_first_token);
 
-  donsus_token_pos end =
-      donsus_make_pos_from_token(node->get<donsus_token>());
+  donsus_token_pos end = donsus_make_pos_from_token(node->get<donsus_token>());
   std::string whole_ast_range =
       value_c.substr(ast_first_token_pos.abs_offset, end.abs_offset);
   error.error_out_coloured(whole_ast_range, rang::fg::reset);
@@ -462,8 +461,9 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
              donsus_ast::ArrayType::FIXED ||
          node->get<donsus_ast::array_def>().array_type ==
              donsus_ast::ArrayType::STATIC)) {
-      donsus_type_error(node.get(), " The size of the array must match with the "
-                                    "one specified as the subscript");
+      donsus_type_error(node.get(),
+                        " The size of the array must match with the "
+                        "one specified as the subscript");
     }
     // ensure the size is the same as number of elements
     // e.g dynamic array will have it when doing codegen_test
@@ -515,9 +515,10 @@ auto DonsusSema::donsus_sym(utility::handle<donsus_ast::node> node,
         donsus_typecheck_is_compatible(local_type, type_of_var_def);
 
     if (!is_compatible)
-      donsus_type_error(
-          node.get(), " Operation between: " + local_type.to_string() + " and " +
-                          type_of_var_def.to_string() + " are not supported");
+      donsus_type_error(node.get(),
+                        " Operation between: " + local_type.to_string() +
+                            " and " + type_of_var_def.to_string() +
+                            " are not supported");
     break;
   }
 
@@ -784,36 +785,41 @@ auto DonsusSema::donsus_typecheck_type_expr(
  * \brief Check if the operators are supported between operands.
  */
 void DonsusSema::donsus_typecheck_support_between_types(
-    utility::handle<donsus_ast::node> node, std::set<DONSUS_TYPE> *childTypes) {
+    utility::handle<donsus_ast::node> node) {
+  for (auto child : node->children) {
+    donsus_typecheck_support_between_types(child);
 
-  std::set<DONSUS_TYPE> defaultSet;
-  if (childTypes == nullptr) {
-    childTypes = &defaultSet;
+    // this fails
+    //assert(child->real_type.type_un);
   }
-
-  if (!node)
-    return;
-
-  if (node->type.type == donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
-    // If the node is an expression, recursively compare types of its children
-
-    for (auto &child : node->children) {
-      if (child->type.type != donsus_ast::donsus_node_type::DONSUS_EXPRESSION) {
-        childTypes->insert(child->real_type);
-      }
-      donsus_typecheck_support_between_types(child, childTypes);
+  if (node->is_operator()) {
+    if (node->children.size() != 2) {
+      // handle error
     }
+    utility::handle<donsus_ast::node> left = node->children[0];
+    utility::handle<donsus_ast::node> right = node->children[1];
 
-    // Check for inconsistent types within the expression
-    if (childTypes->size() > 1) {
-      std::string types{};
-      for (auto &type : *childTypes) {
-        types += " " + type.to_string() + ",";
-      }
+    if (left->real_type != right->real_type) {
       donsus_type_error(node.get(),
-                        " Inconsistent types in expression between types:" +
-                            types);
+                        "Inconsistent types in expression between types:" +
+                            left->real_type.to_string() + ", " +
+                            right->real_type.to_string());
     }
+    donsus_token op = node->get<donsus_ast::expression>().value;
+    switch (op.kind) {
+    case DONSUS_PLUS:
+    case DONSUS_MINUS:
+    case DONSUS_STAR:
+    case DONSUS_SLASH: {
+      if (!(left->real_type.is_integer() && right->real_type.is_integer())) {
+        donsus_type_error("Operands types are not integers");
+      }
+    }
+    default: {
+    }
+    }
+
+    node->real_type = left->real_type;
   }
 }
 

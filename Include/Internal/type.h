@@ -35,7 +35,7 @@ public:
 
   donsus_token_kind to_parse(kind type);
 
-  kind type_un;
+  kind type_un{};
 
   bool operator==(const DONSUS_TYPE &rhs) const {
     // late typecheck

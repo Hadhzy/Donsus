@@ -32,15 +32,15 @@ struct donsus_node_type {
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
 
-    DONSUS_STRING_EXPRESSION,    // just the type of the node
-    DONSUS_BOOL_EXPRESSION,      // just the type of the node
-    DONSUS_UNARY_EXPRESSION,     // just the type of the node
-    DONSUS_PRINT_EXPRESSION,     // just the type of the node
-    DONSUS_ARRAY_ACCESS,         // just the type of the node
-    DONSUS_FUNCTION_ARG,        // just the type of the node
-    DONSUS_WHILE_LOOP,          // just the type of the node
-    DONSUS_FOR_LOOP,            // just the type of the node
-    DONSUS_RANGE_EXPRESSION,    // just the type of the node
+    DONSUS_STRING_EXPRESSION, // just the type of the node
+    DONSUS_BOOL_EXPRESSION,   // just the type of the node
+    DONSUS_UNARY_EXPRESSION,  // just the type of the node
+    DONSUS_PRINT_EXPRESSION,  // just the type of the node
+    DONSUS_ARRAY_ACCESS,      // just the type of the node
+    DONSUS_FUNCTION_ARG,      // just the type of the node
+    DONSUS_WHILE_LOOP,        // just the type of the node
+    DONSUS_FOR_LOOP,          // just the type of the node
+    DONSUS_RANGE_EXPRESSION,  // just the type of the node
 
   };
 
@@ -215,10 +215,27 @@ struct node : utility::property<> {
   std::vector<utility::handle<donsus_ast::node>>
       children;          // size type in the future
   donsus_node_type type; // This is the node's type
-  DONSUS_TYPE real_type; // This type is assigned during type checking
+
+  // This type is assigned during type checking
+  // TYPE_UNKNOWN by deafult
+  DONSUS_TYPE real_type{};
   donsus_token start_offset_ast;
 
   utility::handle<donsus_ast::node> get_last() { return children.back(); }
+  bool is_operator() {
+    if (type.type == donsus_node_type::DONSUS_EXPRESSION) {
+      switch (get<expression>().value.kind) {
+      case DONSUS_PLUS:
+      case DONSUS_MINUS:
+      case DONSUS_SLASH:
+      case DONSUS_STAR:
+        return true;
+      default: {
+      }
+      }
+    }
+    return false;
+  }
 };
 
 } // namespace donsus_ast
