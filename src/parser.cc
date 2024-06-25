@@ -809,7 +809,9 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   }
 
   if (left) {
-    if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS) {
+    if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS ||
+        left->type.type ==
+            donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION) {
       return left;
     }
   }
