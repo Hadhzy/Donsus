@@ -1,0 +1,164 @@
+# Integer operations
+b_int_add: int = 21 + 1;
+b_int_sub: int = 21 - 1;
+b_int_mul: int = 21 * 2;
+b_int_div: int = 21 / 2; # rounded up
+b_int_paren: int = (21 + 2) * 3 - 1;
+
+printf(b_int_add, "\n"); # 22
+printf(b_int_sub, "\n"); # 20
+printf(b_int_mul, "\n"); # 42
+printf(b_int_div, "\n"); # 10
+printf(b_int_paren, "\n"); # 68
+
+# 8-bit integer operations
+b_int_i8_add: int8 = 23 + 5;
+b_int_i8_sub: int8 = 23 - 3;
+b_int_i8_mul: int8 = 23 * 2;
+b_int_i8_div: int8 = 23 / 2;
+b_int_i8_paren: int8 = (23 + 2) * 3 - 1;
+
+printf(b_int_i8_add, "\n"); # 28
+printf(b_int_i8_sub, "\n"); # 20
+printf(b_int_i8_mul, "\n"); # 46
+printf(b_int_i8_div, "\n"); # 11
+printf(b_int_i8_paren, "\n"); # 71
+
+# 16-bit integer operations
+b_int_i16_add: int16 = 29 + 5;
+b_int_i16_sub: int16 = 29 - 3;
+b_int_i16_mul: int16 = 29 * 2;
+b_int_i16_div: int16 = 29 / 2;
+b_int_i16_paren: int16 = (29 + 2) * 3 - 1;
+
+printf(b_int_i16_add, "\n"); # 34
+printf(b_int_i16_sub, "\n"); # 26
+printf(b_int_i16_mul, "\n"); # 58
+printf(b_int_i16_div, "\n"); # 14.5
+printf(b_int_i16_paren, "\n"); # 92
+
+# 32-bit integer operations
+b_int_i32_add: int32 = 12 + 5;
+b_int_i32_sub: int32 = 12 - 3;
+b_int_i32_mul: int32 = 12 * 2;
+b_int_i32_div: int32 = 12 / 2;
+b_int_i32_paren: int32 = (12 + 2) * 3 - 1;
+
+printf(b_int_i32_add, "\n"); # 17
+printf(b_int_i32_sub, "\n"); # 9
+printf(b_int_i32_mul, "\n"); # 24
+printf(b_int_i32_div, "\n"); # 6
+printf(b_int_i32_paren, "\n"); # 41
+
+# 64-bit integer operations
+b_int_i64_add: int64 = 45 + 5;
+b_int_i64_sub: int64 = 45 - 3;
+b_int_i64_mul: int64 = 45 * 2;
+b_int_i64_div: int64 = 45 / 2;
+b_int_i64_paren: int64 = (45 + 2) * 3 - 1;
+
+printf(b_int_i64_add, "\n"); # 50
+printf(b_int_i64_sub, "\n"); # 42
+printf(b_int_i64_mul, "\n"); # 90
+printf(b_int_i64_div, "\n"); # 22.5
+printf(b_int_i64_paren, "\n"); # 140
+
+# Unsigned 32-bit integer operations
+b_int_u32_add: u32 = 34 + 5;
+b_int_u32_sub: u32 = 34 - 3;
+b_int_u32_mul: u32 = 34 * 2;
+b_int_u32_div: u32 = 34 / 2;
+b_int_u32_paren: u32 = (34 + 2) * 3 - 1;
+
+printf(b_int_u32_add, "\n"); # 39
+printf(b_int_u32_sub, "\n"); # 31
+printf(b_int_u32_mul, "\n"); # 68
+printf(b_int_u32_div, "\n"); # 17
+printf(b_int_u32_paren, "\n"); # 107
+
+# Unsigned 64-bit integer operations
+b_int_u64_add: u64 = 98 + 5;
+b_int_u64_sub: u64 = 98 - 3;
+b_int_u64_mul: u64 = 98 * 2;
+b_int_u64_div: u64 = 98 / 2;
+b_int_u64_paren: u64 = (98 + 2) * 3 - 1;
+
+printf(b_int_u64_add, "\n"); # 103
+printf(b_int_u64_sub, "\n"); # 95
+printf(b_int_u64_mul, "\n"); # 196
+printf(b_int_u64_div, "\n"); # 49
+printf(b_int_u64_paren, "\n"); # 299
+
+# 32-bit float operations
+c_float_f32_add: f32 = 32.3 + 5.5;
+c_float_f32_sub: f32 = 32.3 - 3.3;
+c_float_f32_mul: f32 = 32.3 * 2.0;
+c_float_f32_div: f32 = 32.3 / 2.0;
+c_float_f32_paren: f32 = (32.3 + 2.2) * 3.1 - 1.1;
+
+printf(c_float_f32_add, "\n"); # 37.8
+printf(c_float_f32_sub, "\n"); # 29.0
+printf(c_float_f32_mul, "\n"); # 64.6
+printf(c_float_f32_div, "\n"); # 16.15
+printf(c_float_f32_paren, "\n"); # 108.69
+
+# 64-bit float operations
+c_float_f64_add: f64 = 11.1 + 5.5;
+c_float_f64_sub: f64 = 11.1 - 3.3;
+c_float_f64_mul: f64 = 11.1 * 2.0;
+c_float_f64_div: f64 = 11.1 / 2.0;
+c_float_f64_paren: f64 = (11.1 + 2.2) * 3.1 - 1.1;
+
+printf(c_float_f64_add, "\n"); # 16.6
+printf(c_float_f64_sub, "\n"); # 7.8
+printf(c_float_f64_mul, "\n"); # 22.2
+printf(c_float_f64_div, "\n"); # 5.55
+printf(c_float_f64_paren, "\n"); # 37.53
+
+/*
+22
+20
+42
+10
+68
+28
+20
+46
+11
+74
+34
+26
+58
+14
+92
+17
+9
+24
+6
+41
+50
+42
+90
+22
+140
+39
+31
+68
+17
+107
+103
+95
+196
+49
+299
+37.799999
+29.000000
+64.599998
+16.150000
+105.849998
+16.600000
+7.800000
+22.200001
+5.550000
+40.130001
+*/

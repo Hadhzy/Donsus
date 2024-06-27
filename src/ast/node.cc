@@ -9,6 +9,27 @@ using namespace donsus_ast;
 
 donsus_node_type::donsus_node_type(underlying type) : type(type) {}
 
+bool donsus_node_type::pre_match(DONSUS_TYPE AType) const {
+  switch (type) {
+  case DONSUS_NUMBER_EXPRESSION:
+    return AType.is_integer();
+  case DONSUS_STRING_EXPRESSION:
+    return AType.is_string();
+  case DONSUS_FLOAT_EXPRESSION:
+    return AType.is_float();
+  case DONSUS_BOOL_EXPRESSION:
+    return AType.is_bool();
+  // So that recursion can happem
+  // Let's say an expression getting it's type
+  //
+  case DONSUS_EXPRESSION: {
+    return true;
+  }
+  default: {
+    return false;
+  }
+  }
+}
 auto donsus_node_type::to_string() const -> std::string {
   switch (type) {
   case DONSUS_VARIABLE_DECLARATION:

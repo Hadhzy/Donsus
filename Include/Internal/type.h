@@ -66,6 +66,8 @@ public:
   [[nodiscard]] auto to_string() const -> std::string;
   [[nodiscard]] auto is_integer() const -> bool;
   [[nodiscard]] auto is_float() const -> bool;
+  [[nodiscard]] auto is_bool() const -> bool;
+  [[nodiscard]] auto is_string() const -> bool;
 };
 
 /**

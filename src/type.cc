@@ -157,3 +157,9 @@ auto DONSUS_TYPE::is_integer() const -> bool {
 auto DONSUS_TYPE::is_float() const -> bool {
   return (this->type_un == TYPE_F32 || this->type_un == TYPE_F64);
 }
+auto DONSUS_TYPE::is_bool() const -> bool {
+  return (this->type_un == TYPE_BOOL);
+}
+auto DONSUS_TYPE::is_string() const -> bool {
+  return (this->type_un == TYPE_STRING);
+}

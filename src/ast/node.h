@@ -51,6 +51,12 @@ struct donsus_node_type {
   [[nodiscard]] auto to_string() const -> std::string;
 
   underlying type;
+  /**
+   * \brief Finds out if a DONSUS_TYPE can be attached
+   * to the node. Used for typechecking.
+   * \param The Donsus RealType
+   */
+  bool pre_match(DONSUS_TYPE AType) const;
 };
 
 std::string de_get_from_donsus_node_type(donsus_node_type type);
@@ -217,10 +223,11 @@ struct node : utility::property<> {
   donsus_node_type type; // This is the node's type
 
   // This type is assigned during type checking
-  // TYPE_UNKNOWN by deafult
+  // TYPE_UNKNOWN by default
   DONSUS_TYPE real_type{};
   donsus_token start_offset_ast;
 
+  utility::handle<donsus_ast::node> parent_type;
   utility::handle<donsus_ast::node> get_last() { return children.back(); }
   bool is_operator() {
     if (type.type == donsus_node_type::DONSUS_EXPRESSION) {

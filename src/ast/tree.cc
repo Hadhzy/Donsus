@@ -226,12 +226,16 @@ void tree::evaluate(
     // derive from variable definition
     if (current->type.type == donsus_node_type::DONSUS_VARIABLE_DEFINITION) {
       for (auto &n : current->children) {
-        n->parent_type = current;
+        if (n->type.pre_match(current->real_type)) {
+          n->parent_type = current;
+        }
       }
     }
     if (current->type.type == donsus_node_type::DONSUS_EXPRESSION) {
       for (auto &n : current->children) {
-        n->parent_type = current;
+        if (n->type.pre_match(current->real_type)) {
+          n->parent_type = current;
+        }
       }
     }
     for (auto &c : current->children) {

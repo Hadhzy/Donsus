@@ -829,22 +829,38 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   switch (ca_ast.value.kind) {
   case DONSUS_PLUS: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFAdd(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateAdd(compile(*it, table), compile(*(it + 1), table));
     }
   }
   case DONSUS_MINUS: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFSub(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateSub(compile(*it, table), compile(*(it + 1), table));
     }
   }
   case DONSUS_SLASH: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFDiv(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateSDiv(compile(*it, table),
                                  compile(*(it + 1), table));
     }
   }
   case DONSUS_STAR: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFMul(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
     }
   }
