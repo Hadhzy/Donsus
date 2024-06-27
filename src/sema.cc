@@ -36,15 +36,20 @@ auto DonsusSema::decide_type_for_expression(
 }
 
 auto DonsusSema::assign_type_to_node(
-    utility::handle<donsus_ast::node> node,
+    utility::handle<donsus_ast::node> &node,
     utility::handle<DonsusSymTable> table,
     utility::handle<DonsusSymTable> global_table) -> void {
 
   switch (node->type.type) {
 
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
-    node->real_type.type_un = DONSUS_TYPE::TYPE_UNSPECIFIED_INTEGER;
 
+    if (node->parent_type && node->parent_type->real_type.type_un) {
+      // derive the type from parent context
+      node->real_type = node->parent_type->real_type;
+    } else {
+      node->real_type.type_un = DONSUS_TYPE::TYPE_UNSPECIFIED_INTEGER;
+    }
     break;
   }
 
@@ -113,6 +118,13 @@ auto DonsusSema::assign_type_to_node(
     break;
   }
 
+  case donsus_ast::donsus_node_type::DONSUS_VARIABLE_DEFINITION: {
+    node->real_type.type_un =
+        make_type(node->get<donsus_ast::variable_decl>().identifier_type)
+            .type_un;
+    break;
+  }
+
   case donsus_ast::donsus_node_type::DONSUS_FUNCTION_ARG: {
     node->real_type.type_un =
         make_type(node->get<donsus_ast::variable_decl>().identifier_type)
@@ -126,7 +138,13 @@ auto DonsusSema::assign_type_to_node(
     // after all the children of donsus expression got a type
     // we can just pick the closest one and set it up as the expression
     // type
-    node->real_type.type_un = decide_type_for_expression(node, table).type_un;
+    if (node->parent_type) {
+      node->real_type = node->parent_type->real_type;
+    } else {
+      // Todo: remove this
+      // will get removed
+      node->real_type.type_un = decide_type_for_expression(node, table).type_un;
+    }
     break;
   }
 
@@ -790,7 +808,7 @@ void DonsusSema::donsus_typecheck_support_between_types(
     donsus_typecheck_support_between_types(child);
 
     // this fails
-    //assert(child->real_type.type_un);
+    // assert(child->real_type.type_un);
   }
   if (node->is_operator()) {
     if (node->children.size() != 2) {
@@ -811,8 +829,10 @@ void DonsusSema::donsus_typecheck_support_between_types(
     case DONSUS_MINUS:
     case DONSUS_STAR:
     case DONSUS_SLASH: {
-      if (!(left->real_type.is_integer() && right->real_type.is_integer())) {
-        donsus_type_error("Operands types are not integers");
+      if (!((left->real_type.is_integer() && right->real_type.is_integer()) ||
+            (left->real_type.is_float() && right->real_type.is_float()))) {
+        donsus_type_error(
+            "Operands are not compatible with arithmetic operators!");
       }
     }
     default: {

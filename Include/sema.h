@@ -75,7 +75,7 @@ public:
   auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
 
   // TRAVERSE
-  auto assign_type_to_node(utility::handle<donsus_ast::node> node,
+  auto assign_type_to_node(utility::handle<donsus_ast::node> &node,
                            utility::handle<DonsusSymTable> table,
                            utility::handle<DonsusSymTable> global_table)
       -> void;

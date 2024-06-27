@@ -65,6 +65,7 @@ public:
   bool operator!=(DONSUS_TYPE &rhs) const { return !(rhs == *this); }
   [[nodiscard]] auto to_string() const -> std::string;
   [[nodiscard]] auto is_integer() const -> bool;
+  [[nodiscard]] auto is_float() const -> bool;
 };
 
 /**

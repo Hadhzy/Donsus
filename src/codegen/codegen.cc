@@ -323,7 +323,6 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
     if (is_definition) {
       // FROM UNKNOWN TO DESIRED TYPE
-      ast->children[0]->real_type = make_type(type);
       auto result = compile(ast->children[0], table);
       if (result->getType() != map_type(make_type(type))) {
         // if cast is needed, as of now its always needed if the
@@ -347,7 +346,6 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // variable definition
   if (is_definition) {
     // FROM UNKNOWN TO DESIRED TYPE
-    ast->children[0]->real_type = make_type(type);
     llvm::AllocaInst *Allocadef =
         Builder->CreateAlloca(map_type(make_type(type)), nullptr, name);
     table->setInst(name, Allocadef);
@@ -1026,7 +1024,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     return llvm::ConstantInt::get(
         *TheContext,
         llvm::APInt(
-            32,
+            map_bitwidth(ast->real_type),
             -std::stoi(
                 ast->children[0]->get<donsus_ast::number_expr>().value.value),
             true));
