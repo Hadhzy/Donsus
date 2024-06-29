@@ -34,6 +34,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT:
     return false;
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT:
@@ -946,17 +947,27 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       format_string.append(printf_format(node->real_type));
 
     } else {
-
-      format_string.append(printf_format(node->real_type));
+      format_string.append(printf_format(node->assume_type()));
     }
   }
   Argsv.push_back(Builder->CreateGlobalString(format_string));
 
   for (auto node : ast->children) {
 
-    // just for access_array
+    // just for access_array and literal float
     if (is_expression(node)) {
       llvm::Value *cur_value = compile(node, table);
+      if (node->real_type.type_un == DONSUS_TYPE::TYPE_F32) {
+        llvm::Value *Alloca_FLliteral =
+            Builder->CreateAlloca(map_type(node->real_type));
+        Builder->CreateStore(cur_value, Alloca_FLliteral);
+        llvm::Value *loadedFloatValue =
+            Builder->CreateLoad(map_type(node->real_type), Alloca_FLliteral);
+        llvm::Value *new_value =
+            Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
+        Argsv.push_back(new_value);
+        continue;
+      }
       if (cur_value->getType()->isPointerTy() &&
           node->type.type ==
               donsus_ast::donsus_node_type::underlying::DONSUS_ARRAY_ACCESS) {
@@ -981,7 +992,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       }
       continue;
     }
-    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32 ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_F64) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
       llvm::Value *loadedFloatValue =
           Builder->CreateLoad(map_type(sym.type), sym.inst);

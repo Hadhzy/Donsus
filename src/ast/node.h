@@ -219,8 +219,8 @@ struct print_expr {};
 struct node : utility::property<> {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
-      children;          // size type in the future
-  donsus_node_type type; // This is the node's type
+      children; // size type in the future
+  donsus_node_type type;
 
   // This type is assigned during type checking
   // TYPE_UNKNOWN by default
@@ -229,6 +229,10 @@ struct node : utility::property<> {
 
   utility::handle<donsus_ast::node> parent_type;
   utility::handle<donsus_ast::node> get_last() { return children.back(); }
+  // Used when passing in untyped literals for expressions e.g
+  // printf(1);
+  DONSUS_TYPE assume_type();
+
   bool is_operator() {
     if (type.type == donsus_node_type::DONSUS_EXPRESSION) {
       switch (get<expression>().value.kind) {

@@ -48,7 +48,8 @@ auto DonsusSema::assign_type_to_node(
       // derive the type from parent context
       node->real_type = node->parent_type->real_type;
     } else {
-      node->real_type.type_un = DONSUS_TYPE::TYPE_UNSPECIFIED_INTEGER;
+      // Forces the default type
+      node->real_type.type_un = DONSUS_TYPE::TYPE_I32;
     }
     break;
   }
