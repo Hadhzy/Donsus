@@ -152,7 +152,6 @@ TEST(SymbolType, SymbolTableVariable) {
  These types should not be equal
  * */
 TEST(SymbolTypeNotEqual, SymbolTableVariable) {
-  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   DONSUS_TYPE type1;
   DONSUS_TYPE type2;
 
