@@ -27,7 +27,7 @@ TEST(SymbolTableCheckNestedFunctions, SymbolTableCheckFunction) {
   utility::handle<DonsusSymTable> sym_global2 = new DonsusSymTable();
 
   utility::handle<DonsusSymTable> nested_1 = sym_global2->add_sym_table("func");
-  utility::handle<DonsusSymTable> c = nested_1->add_sym_table("a");
+  nested_1->add_sym_table("a");
 
   DonsusSema sema(file, parse_result);
   sema.start_traverse(sym_global);
