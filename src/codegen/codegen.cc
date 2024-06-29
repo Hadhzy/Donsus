@@ -34,6 +34,7 @@ auto is_expression(utility::handle<donsus_ast::node> node) -> bool {
   case donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT:
     return false;
   case donsus_ast::donsus_node_type::DONSUS_NUMBER_EXPRESSION:
+  case donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_STRING_EXPRESSION:
   case donsus_ast::donsus_node_type::DONSUS_ASSIGNMENT:
@@ -315,29 +316,24 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     if (is_definition) {
       initial_value = llvm::Constant::getNullValue(map_type(make_type(type)));
     } else {
-      initial_value = llvm::Constant::getNullValue(
-          map_type(make_type(type))); // zero initializer
+      initial_value = llvm::Constant::getNullValue(map_type(make_type(type)));
     }
 
     auto *c = new llvm::GlobalVariable(
         *TheModule, map_type(make_type(type)), false,
         llvm::GlobalValue::LinkageTypes::ExternalLinkage, initial_value, name);
     if (is_definition) {
+      // FROM UNKNOWN TO DESIRED TYPE
       auto result = compile(ast->children[0], table);
       if (result->getType() != map_type(make_type(type))) {
         // if cast is needed, as of now its always needed if the
         // type is not one of the integer types
-
         // convert from f32 to f64
         if (make_type(type).type_un == DONSUS_TYPE::TYPE_F64) {
           llvm::Value *f64_g_v =
               Builder->CreateFPExt(result, Builder->getDoubleTy());
           Builder->CreateStore(f64_g_v, c);
         }
-        /*        llvm::Type *type_l = map_type(make_type(type));
-                // converts integer to float - needs to be changed in the
-           future. llvm::Value *new_value = Builder->CreateUIToFP(result,
-           type_l); Builder->CreateStore(new_value, c);*/
       } else {
         Builder->CreateStore(result, c);
       }
@@ -350,7 +346,7 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   // variable definition
   if (is_definition) {
-    // CreateAlloca (Type *Ty, Value *ArraySize=nullptr, const Twine &Name="")
+    // FROM UNKNOWN TO DESIRED TYPE
     llvm::AllocaInst *Allocadef =
         Builder->CreateAlloca(map_type(make_type(type)), nullptr, name);
     table->setInst(name, Allocadef);
@@ -365,8 +361,8 @@ llvm::Value *DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       Builder->CreateAlloca(map_type(make_type(type)), nullptr, name);
 
   table->setInst(name, Alloca);
-  llvm::Value *decl_value =
-      llvm::ConstantInt::get(*TheContext, llvm::APInt(32, 0));
+  llvm::Value *decl_value = llvm::ConstantInt::get(
+      *TheContext, llvm::APInt(map_bitwidth(make_type(type)), 0));
   Builder->CreateStore(decl_value, Alloca);
   llvm::Value *CurVardef =
       Builder->CreateLoad(Alloca->getAllocatedType(), Alloca);
@@ -389,6 +385,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
 
   DonsusSymTable::sym sym1 = table->get(identifier_name);
   llvm::Value *lhs_value;
+  // should not be true
   if (sym1.array.array_type) {
     lhs_value = Builder->CreateLoad(
         sym1.array.array_type, compile(ac_ast.lvalue, table), sym1.short_name);
@@ -445,7 +442,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   // here we would need to cast
   return llvm::ConstantInt::get(
       *TheContext,
-      llvm::APInt(32,
+      llvm::APInt(map_bitwidth(ast->real_type),
                   std::stoi(ast->get<donsus_ast::number_expr>().value.value),
                   false));
 }
@@ -767,59 +764,56 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   return Builder->CreateRet(compile(ast->children[0], table));
 }
 
+// Todo: do not call this twice
 llvm::Value *
 DonsusCodeGenerator::visit(donsus_ast::string_expr &ast,
                            utility::handle<DonsusSymTable> &table) {
-  // process escape sequences: \n etc.
-  std::vector<char> PreprocessedString;
-  for (int i = 0; i < ast.value.value.size(); ++i) {
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'n') {
-      //   10  0A 00001010 LF  &#10; Line Feed
-      PreprocessedString.push_back(0x0a);
-      ++i;
-      continue;
+  std::string PreprocessedString;
+  for (size_t i = 0; i < ast.value.value.size(); ++i) {
+    if (ast.value.value[i] == '\\' && i + 1 < ast.value.value.size()) {
+      switch (ast.value.value[i + 1]) {
+      case 'n':
+        PreprocessedString.push_back(0x0a);
+        ++i;
+        break;
+      case 'a':
+        PreprocessedString.push_back(0x07);
+        ++i;
+        break;
+      case 'b':
+        PreprocessedString.push_back(0x08);
+        ++i;
+        break;
+      case 'e':
+        PreprocessedString.push_back(0x1b);
+        ++i;
+        break;
+      case 'f':
+        PreprocessedString.push_back(0x0c);
+        ++i;
+        break;
+      case 'r':
+        PreprocessedString.push_back(0x0d);
+        ++i;
+        break;
+      case 't':
+        PreprocessedString.push_back(0x09);
+        ++i;
+        break;
+      case 'v':
+        PreprocessedString.push_back(0x0b);
+        ++i;
+        break;
+      default:
+        PreprocessedString.push_back(ast.value.value[i]);
+        break;
+      }
+    } else {
+      PreprocessedString.push_back(ast.value.value[i]);
     }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'a') {
-      PreprocessedString.push_back(0x07);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'b') {
-      PreprocessedString.push_back(0x08);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'e') {
-      PreprocessedString.push_back(0x1b);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'f') {
-      PreprocessedString.push_back(0x0c);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'r') {
-      PreprocessedString.push_back(0x0d);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 't') {
-      PreprocessedString.push_back(0x09);
-      i++;
-      continue;
-    }
-    if (ast.value.value[i] == '\\' && ast.value.value[i + 1] == 'v') {
-      PreprocessedString.push_back(0x0b);
-      i++;
-      continue;
-    }
-    PreprocessedString.push_back(ast.value.value[i]);
   }
-  return Builder->CreateGlobalStringPtr(
-      llvm::StringRef(PreprocessedString.data()));
+  return Builder->CreateGlobalStringPtr(llvm::StringRef(PreprocessedString));
 }
-
 llvm::Value *
 DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
                            donsus_ast::float_expr &ca_ast,
@@ -836,22 +830,38 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
   switch (ca_ast.value.kind) {
   case DONSUS_PLUS: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFAdd(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateAdd(compile(*it, table), compile(*(it + 1), table));
     }
   }
   case DONSUS_MINUS: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFSub(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateSub(compile(*it, table), compile(*(it + 1), table));
     }
   }
   case DONSUS_SLASH: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFDiv(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateSDiv(compile(*it, table),
                                  compile(*(it + 1), table));
     }
   }
   case DONSUS_STAR: {
     for (auto it = ast->children.begin(); it != ast->children.end(); ++it) {
+      if (ast->real_type.is_float()) {
+        return Builder->CreateFMul(compile(*it, table),
+                                   compile(*(it + 1), table));
+      }
       return Builder->CreateMul(compile(*it, table), compile(*(it + 1), table));
     }
   }
@@ -937,24 +947,34 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       format_string.append(printf_format(node->real_type));
 
     } else {
-
-      format_string.append(printf_format(node->real_type));
+      format_string.append(printf_format(node->assume_type()));
     }
   }
   Argsv.push_back(Builder->CreateGlobalString(format_string));
 
   for (auto node : ast->children) {
 
-    // just for access_array
+    // just for access_array and literal float
     if (is_expression(node)) {
       llvm::Value *cur_value = compile(node, table);
+      if (node->real_type.type_un == DONSUS_TYPE::TYPE_F32) {
+        llvm::Value *Alloca_FLliteral =
+            Builder->CreateAlloca(map_type(node->real_type));
+        Builder->CreateStore(cur_value, Alloca_FLliteral);
+        llvm::Value *loadedFloatValue =
+            Builder->CreateLoad(map_type(node->real_type), Alloca_FLliteral);
+        llvm::Value *new_value =
+            Builder->CreateFPExt(loadedFloatValue, Builder->getDoubleTy());
+        Argsv.push_back(new_value);
+        continue;
+      }
       if (cur_value->getType()->isPointerTy() &&
           node->type.type ==
               donsus_ast::donsus_node_type::underlying::DONSUS_ARRAY_ACCESS) {
         Argsv.push_back(
             Builder->CreateLoad(map_type(node->real_type), cur_value));
       } else {
-        Argsv.push_back(compile(node, table));
+        Argsv.push_back(cur_value);
       }
       continue;
     }
@@ -972,7 +992,8 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
       }
       continue;
     }
-    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32) {
+    if (sym.type.type_un == DONSUS_TYPE::TYPE_F32 ||
+        sym.type.type_un == DONSUS_TYPE::TYPE_F64) {
       // https://stackoverflow.com/questions/63144506/printf-doesnt-work-for-floats-in-llvm-ir#comment111685194_63156309
       llvm::Value *loadedFloatValue =
           Builder->CreateLoad(map_type(sym.type), sym.inst);
@@ -1031,7 +1052,7 @@ DonsusCodeGenerator::visit(utility::handle<donsus_ast::node> &ast,
     return llvm::ConstantInt::get(
         *TheContext,
         llvm::APInt(
-            32,
+            map_bitwidth(ast->real_type),
             -std::stoi(
                 ast->children[0]->get<donsus_ast::number_expr>().value.value),
             true));
@@ -1159,6 +1180,34 @@ llvm::Value *DonsusCodegen::DonsusCodeGenerator::visit(
      return nullptr;
    }*/
   return value;
+}
+unsigned int
+DonsusCodegen::DonsusCodeGenerator::map_bitwidth(DONSUS_TYPE type) {
+  switch (type.type_un) {
+  case DONSUS_TYPE::TYPE_I8: {
+    return 8;
+  }
+
+  case DONSUS_TYPE::TYPE_I16: {
+    return 16;
+  }
+
+  // i32 and literals
+  case DONSUS_TYPE::TYPE_BASIC_INT:
+  case DONSUS_TYPE::TYPE_I32:
+  case DONSUS_TYPE::TYPE_UNSPECIFIED_INTEGER:
+  case DONSUS_TYPE::TYPE_U32: {
+    return 32;
+  }
+
+  case DONSUS_TYPE::TYPE_I64:
+  case DONSUS_TYPE::TYPE_U64: {
+    return 64;
+  }
+  default: {
+    return 32;
+  }
+  }
 }
 llvm::Type *DonsusCodegen::DonsusCodeGenerator::map_type(DONSUS_TYPE type) {
   switch (type.type_un) {

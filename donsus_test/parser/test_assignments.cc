@@ -28,6 +28,7 @@ TEST(AssignmentName, AssignmentName) {
   EXPECT_EQ(
       "a",
       result->get_nodes()[1]->get<donsus_ast::assignment>().identifier_name);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(AssignmentArrayAccess, AssignmentTest) {
@@ -56,4 +57,5 @@ TEST(AssignmentArrayAccess, AssignmentTest) {
   EXPECT_EQ(
       "a",
       result->get_nodes()[1]->get<donsus_ast::assignment>().identifier_name);
+  EXPECT_EQ(file.error_count, 0);
 }

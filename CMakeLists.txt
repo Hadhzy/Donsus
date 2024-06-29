@@ -9,15 +9,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   # using Clang
   message("using clang")
   set(DONSUS_USED_COMPILER "clang")
-
+  add_compile_options(-Wunused-variable -Werror=unused-variable)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   # using GCC
   message("using gcc")
   set(DONSUS_USED_COMPILER "gcc")
+  add_compile_options(-Wunused-variable -Werror=unused-variable)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual Studio C++
   message("using msvc")
   set(DONSUS_USED_COMPILER "msvc")
+  add_compile_options(/W4 /WX)
 endif()
 
 # find llvm

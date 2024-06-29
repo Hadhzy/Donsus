@@ -7,8 +7,56 @@
 
 using namespace donsus_ast;
 
+DONSUS_TYPE node::assume_type() {
+
+  DONSUS_TYPE type_l;
+  switch (type.type) {
+  case donsus_node_type::DONSUS_NUMBER_EXPRESSION: {
+    type_l.type_un = DONSUS_TYPE::TYPE_I32;
+    break;
+  }
+  case donsus_node_type::DONSUS_FLOAT_EXPRESSION: {
+    type_l.type_un = DONSUS_TYPE::TYPE_F32;
+    break;
+  }
+  case donsus_node_type::DONSUS_STRING_EXPRESSION: {
+    type_l.type_un = DONSUS_TYPE::TYPE_STRING;
+    break;
+  }
+
+  case donsus_node_type::DONSUS_EXPRESSION: {
+    return children[0]->assume_type();
+  }
+  default: {
+    // handle error here
+  }
+  }
+  real_type = type_l;
+  return type_l;
+}
 donsus_node_type::donsus_node_type(underlying type) : type(type) {}
 
+bool donsus_node_type::pre_match(DONSUS_TYPE AType) const {
+  switch (type) {
+  case DONSUS_NUMBER_EXPRESSION:
+    return AType.is_integer();
+  case DONSUS_STRING_EXPRESSION:
+    return AType.is_string();
+  case DONSUS_FLOAT_EXPRESSION:
+    return AType.is_float();
+  case DONSUS_BOOL_EXPRESSION:
+    return AType.is_bool();
+  // So that recursion can happem
+  // Let's say an expression getting it's type
+  //
+  case DONSUS_EXPRESSION: {
+    return true;
+  }
+  default: {
+    return false;
+  }
+  }
+}
 auto donsus_node_type::to_string() const -> std::string {
   switch (type) {
   case DONSUS_VARIABLE_DECLARATION:

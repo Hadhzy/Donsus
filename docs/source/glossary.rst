@@ -102,6 +102,15 @@ For example::
     if(condition) {
     }
 
+for statement:
+^^^^^^^^^^^^^^
+init-statement(1): A declaration of a loop counter variable with initializer.
+iteration-expression(2): Any expression, which is executed after every iteration of the loop and before reevaluating condition.
+condition(3): An expression that is contextually convertible to bool.
+statement(4): Any statement, typically a compound statement, which is the body of the loop.
+
+while statement:
+^^^^^^^^^^^^^^^^
 
 `Condition` and `guard` can be used interchangeably to refer to the same definition.
 An `invariant` is a specific guard which is always true.

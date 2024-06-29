@@ -56,8 +56,7 @@ public:
   auto donsus_typecheck_type_expr(utility::handle<donsus_ast::node> node)
       -> DONSUS_TYPE;
   void donsus_typecheck_support_between_types(
-      utility::handle<donsus_ast::node> node,
-      std::set<DONSUS_TYPE> *childTypes = nullptr);
+      utility::handle<donsus_ast::node> node);
   auto donsus_typecheck_is_valid_operator(donsus_token_kind kind) -> bool;
   auto
   donsus_typecheck_is_return_type_valid(utility::handle<donsus_ast::node> node)
@@ -76,7 +75,7 @@ public:
   auto donsus_make_pos_from_token(donsus_token &token) -> donsus_token_pos;
 
   // TRAVERSE
-  auto assign_type_to_node(utility::handle<donsus_ast::node> node,
+  auto assign_type_to_node(utility::handle<donsus_ast::node> &node,
                            utility::handle<DonsusSymTable> table,
                            utility::handle<DonsusSymTable> global_table)
       -> void;

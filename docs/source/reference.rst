@@ -363,6 +363,7 @@ The condition has to be provided in parentheses. The body of the while loop acce
 Some examples for the usage of while loops in donsus are as follows::
 
     def while_loop(a:int) -> void {
+        # a must be defined prior to the execution
         while(a>0) {
             printf("a is greater than 0");
             a = a - 1;
@@ -376,8 +377,8 @@ Some examples for the usage of while loops in donsus are as follows::
 For Loops
 ---------
 The for loop is used to execute a block of code repeatedly. In donsus there are two types of for loops. The first type is the for loop that iterates over a range of numbers. The second type is the for loop that iterates over an array. 
-
-Let's discuss each of them seperately. 
+The init statement(counter variable) is automatically created prior to the execution of the loop.identifiers
+Let's discuss each of them separately.
 
 For Loops Over a Range of Numbers
 ==================================
@@ -425,6 +426,20 @@ Some examples for the usage of for loops over an array in donsus are as follows:
         for number: a {
             printf(number);
         }   
+    }
+
+    for_loop_array(); # prints 1 2 3 4 5
+
+For Loops Without Iterator variable
+===================================
+As mentioned above, the iterator variable can be omitted and it will be inserted
+automatically in the form of a temporary variable - called: *it*.::
+
+    def for_loop_array() ->void {
+        a:int[] = [1, 2, 3, 4, 5];
+        for a {
+            printf(it);
+        }
     }
 
     for_loop_array(); # prints 1 2 3 4 5

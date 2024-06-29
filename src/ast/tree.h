@@ -42,7 +42,7 @@ public:
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
                visit,
-           std::function<void(utility::handle<node>,
+           std::function<void(utility::handle<node>&,
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
                assign_node,
@@ -56,7 +56,7 @@ public:
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
                visit,
-           std::function<void(utility::handle<node>,
+           std::function<void(utility::handle<node>&,
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
                assign_node,
@@ -69,7 +69,7 @@ public:
                          utility::handle<DonsusSymTable> table,
                          utility::handle<DonsusSymTable> global_table)>
           visit,
-      std::function<void(utility::handle<node>,
+      std::function<void(utility::handle<node>&,
                          utility::handle<DonsusSymTable> table,
                          utility::handle<DonsusSymTable> global_table)>
           assign_node,
@@ -81,10 +81,10 @@ public:
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
                visit,
-           std::function<void(utility::handle<node>,
+           std::function<void(utility::handle<node> &,
                               utility::handle<DonsusSymTable> table,
                               utility::handle<DonsusSymTable> global_table)>
-               assign_node,
+               assign_type_to_node,
            utility::handle<DonsusSymTable> sym,
            DonsusCodegen::DonsusCodeGenerator &codegen,
            utility::handle<node> curr_node = nullptr);

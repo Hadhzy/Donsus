@@ -31,6 +31,7 @@ TEST(SymbolTableCheckScalar, SymbolTableVariable) {
 
   DonsusSymTable::sym a_sym = sym_global->get("a");
   EXPECT_EQ(a_sym, ex_sym);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /*
@@ -73,6 +74,7 @@ TEST(SymbolTableCheckScalarInFunction, SymbolTableVariable) {
   utility::handle<DonsusSymTable> a_symtable =
       sym_global->get_sym_table(function_global_table);
   EXPECT_EQ(a_symtable, table_a);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /*
@@ -143,16 +145,13 @@ TEST(SymbolType, SymbolTableVariable) {
   EXPECT_EQ(sym_e.type.type_un, DONSUS_TYPE::TYPE_I64);
   EXPECT_EQ(sym_f.type.type_un, DONSUS_TYPE::TYPE_I16);
   EXPECT_EQ(sym_g.type.type_un, DONSUS_TYPE::TYPE_U32);
-
-  std::cout << "here: "
-            << "\n";
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /*
  These types should not be equal
  * */
 TEST(SymbolTypeNotEqual, SymbolTableVariable) {
-  utility::handle<DonsusSymTable> sym_global = new DonsusSymTable();
   DONSUS_TYPE type1;
   DONSUS_TYPE type2;
 

@@ -17,6 +17,7 @@ TEST(Functions, FunctionDeclarationNodeType) {
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_DECL, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDeclarationName) {
@@ -31,6 +32,7 @@ TEST(Functions, FunctionDeclarationName) {
   std::string name =
       result->get_nodes()[0]->get<donsus_ast::function_decl>().func_name;
   EXPECT_EQ("a", name);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDeclarationReturnType) {
@@ -46,6 +48,7 @@ TEST(Functions, FunctionDeclarationReturnType) {
                                          .return_type[0]
                                          .type_un;
   EXPECT_EQ(DONSUS_TYPE::TYPE_BASIC_INT, fn_return_type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDeclarationParameters) {
@@ -79,6 +82,7 @@ TEST(Functions, FunctionDeclarationParameters) {
   EXPECT_EQ(donsus_token_kind::DONSUS_BASIC_INT,
             fn_param->get<donsus_ast::variable_decl>().identifier_type);
   EXPECT_EQ("b", fn_param->get<donsus_ast::variable_decl>().identifier_name);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDefinitionParameters) {
@@ -104,6 +108,7 @@ TEST(Functions, FunctionDefinitionParameters) {
   */
   EXPECT_EQ(DONSUS_TYPE::TYPE_BASIC_INT, fn_param->real_type.type_un);
   EXPECT_EQ("b", fn_param->get<donsus_ast::variable_decl>().identifier_name);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDefinitionNodeType) {
@@ -118,6 +123,7 @@ TEST(Functions, FunctionDefinitionNodeType) {
   donsus_ast::donsus_node_type::underlying type =
       result->get_nodes()[0]->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(Functions, FunctionDefinitionNestedFunctions) {
@@ -137,6 +143,7 @@ TEST(Functions, FunctionDefinitionNestedFunctions) {
           .body[0]
           ->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FUNCTION_DEF, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 // the function's body will be tested with other tests relating to things that

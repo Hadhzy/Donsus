@@ -19,7 +19,7 @@ void tree::traverse(
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         visit,
-    std::function<void(utility::handle<node>,
+    std::function<void(utility::handle<node> &,
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         assign_node,
@@ -34,7 +34,7 @@ void tree::traverse(
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         visit,
-    std::function<void(utility::handle<node>,
+    std::function<void(utility::handle<node> &,
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         assign_node,
@@ -78,7 +78,7 @@ void tree::traverse_nodes(
     std::function<void(utility::handle<node>, utility::handle<DonsusSymTable>,
                        utility::handle<DonsusSymTable>)>
         visit,
-    std::function<void(utility::handle<node>,
+    std::function<void(utility::handle<node> &,
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         assign_type_to_node,
@@ -194,13 +194,14 @@ void tree::evaluate(
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         visit,
-    std::function<void(utility::handle<node>,
+    std::function<void(utility::handle<node> &,
                        utility::handle<DonsusSymTable> table,
                        utility::handle<DonsusSymTable> global_table)>
         assign_type_to_node,
     utility::handle<DonsusSymTable> sym,
     DonsusCodegen::DonsusCodeGenerator &codegen,
     utility::handle<node> curr_node) {
+
   // Assign nodes to types
   while (!stack_assign.empty()) {
     // python pop
@@ -221,7 +222,23 @@ void tree::evaluate(
     } else {
       assign_type_to_node(current, sym, sym);
     }
-    for (auto c : current->children) {
+
+    // derive from variable definition
+    if (current->type.type == donsus_node_type::DONSUS_VARIABLE_DEFINITION) {
+      for (auto &n : current->children) {
+        if (n->type.pre_match(current->real_type)) {
+          n->parent_type = current;
+        }
+      }
+    }
+    if (current->type.type == donsus_node_type::DONSUS_EXPRESSION) {
+      for (auto &n : current->children) {
+        if (n->type.pre_match(current->real_type)) {
+          n->parent_type = current;
+        }
+      }
+    }
+    for (auto &c : current->children) {
       stack_assign.push(c);
     }
   }

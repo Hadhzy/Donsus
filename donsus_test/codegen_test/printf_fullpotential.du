@@ -1,0 +1,16 @@
+# escape sequences
+# literals
+
+printf(2, "\n");
+printf(2+4, "\n");
+printf("hello", "\n");
+printf(4.5, "\n");
+printf((2*2)+1);
+
+/*
+2
+6
+hello
+4.500000
+5
+*/

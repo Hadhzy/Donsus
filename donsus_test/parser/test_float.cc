@@ -18,6 +18,7 @@ TEST(FloatTest, FloatExpression){
       result->get_nodes()[0]->children[0]->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 
@@ -33,6 +34,7 @@ TEST(FloatTest, FloatExpressionf64){
       result->get_nodes()[0]->children[0]->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_FLOAT_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 
@@ -48,6 +50,7 @@ TEST(FloatTest, FloatExpressionf64Add){
       result->get_nodes()[0]->children[0]->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 

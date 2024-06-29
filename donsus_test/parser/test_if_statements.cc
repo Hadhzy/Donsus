@@ -19,6 +19,7 @@ TEST(IfStatements, IfStatementsNodeType) {
           .body[0]
           ->type.type;
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 TEST(IfStatements, IfStatementsGlobal) {
   std::string a = R"(
@@ -32,6 +33,7 @@ TEST(IfStatements, IfStatementsGlobal) {
       result->get_nodes()[0]->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(IfStatements, IfStatementsCondition) {
@@ -65,6 +67,7 @@ TEST(IfStatements, IfStatementsCondition) {
   EXPECT_EQ(">", expression.value);
   EXPECT_EQ(1, expression.length);
   EXPECT_EQ(1, expression.precedence);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(IfStatements, IfStatementsAlternateCase) {
@@ -91,6 +94,7 @@ TEST(IfStatements, IfStatementsAlternateCase) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_ELSE_STATEMENT, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 TEST(IfStatements, IfStatementsElifCase) {
@@ -117,4 +121,5 @@ TEST(IfStatements, IfStatementsElifCase) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IF_STATEMENT, type);
+  EXPECT_EQ(file.error_count, 0);
 }

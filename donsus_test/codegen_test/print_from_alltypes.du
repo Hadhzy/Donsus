@@ -1,0 +1,46 @@
+a_string: string = "my own string";
+
+b_int: int = 21;
+b_int_minus: int = -1; # should be minus eventually
+
+b_int_i8: int8 = 23;
+
+b_int_i16: int16 = 29;
+b_int_i32: int32 = 12;
+b_int_i64: int64 = 45;
+
+b_int_u32: u32 = 34;
+b_int_u64: u64 = 98;
+
+c_float_f32: f32 = 32.3;
+c_float_f64: f64 = 11.1;
+
+printf(a_string, "\n");
+
+printf(b_int, "\n");
+printf(b_int_minus, "\n");
+printf(b_int_i8, "\n");
+printf(b_int_i16, "\n");
+printf(b_int_i32, "\n");
+printf(b_int_i64, "\n");
+printf(b_int_u32, "\n");
+printf(b_int_u64, "\n");
+
+printf(c_float_f32, "\n");
+printf(c_float_f64);
+
+
+/*
+my own string
+21
+1
+23
+29
+12
+45
+34
+98
+32.299999
+11.100000
+*/
+

@@ -44,14 +44,14 @@ public:
 
 class Parser {
   BaseCommandGroup InitComGroup{};
-  char **src;
+  char const**src;
 
 public:
-  Parser(char **argv) : src(argv) {
+  Parser(char const**argv) : src(argv) {
     assert(argv);
     make_chunks();
   }
-  void parse(char *);
+  void parse(char const*);
   void make_chunks();
   BaseCommandGroup &get_comm_group();
 };
@@ -86,16 +86,16 @@ bool BaseCommand::operator==(const BaseCommand &rhs) const {
 }
 void BaseCommand::print() const { std::cout << "command: -" << this->Data; }
 
-void Parser::parse(char *text) {
+void Parser::parse(char const*text) {
   if (!text)
     return;
   if (text[0] == '-') {
-    char *restOfText = text + 1;
+    char const*restOfText = text + 1;
     BaseCommand comm = BaseCommand(restOfText, InitComGroup);
   }
 }
 void Parser::make_chunks() {
-  for (char *c = *src; c; c = *++src) {
+  for (char const*c = *src; c; c = *++src) {
     parse(c);
   }
 }

@@ -1,0 +1,5 @@
+my_float: f32 = 12.12;
+my_float_2: f64 = 12.12;
+
+printf(my_float, "\n");
+printf(my_float_2);

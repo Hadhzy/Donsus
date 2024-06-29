@@ -22,6 +22,7 @@ TEST(ReturnStatementTest, ReturnStatementNodeType) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_RETURN_STATEMENT, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /** \brief Check for return statement's type
@@ -44,6 +45,7 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeNumber) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /** \brief Check for return statement's type
@@ -66,6 +68,7 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeIdentifier) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_IDENTIFIER, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /** \brief Check for return statement's type
@@ -88,6 +91,7 @@ TEST(ReturnStatementTest, ReturnStatementReturnTypeIdentifierNumber) {
           ->type.type;
 
   EXPECT_EQ(donsus_ast::donsus_node_type::DONSUS_EXPRESSION, type);
+  EXPECT_EQ(file.error_count, 0);
 }
 /** \brief Test for multiple return statement
  * *//*

@@ -6,7 +6,8 @@
 class DONSUS_TYPE {
 public:
   enum kind : int {
-    TYPE_UNKNOWN = 0, // handled in type checker
+    TYPE_UNKNOWN = 0,         // handled in type checker
+    TYPE_UNSPECIFIED_INTEGER, // literal without specific type
     TYPE_BASIC_INT,
     TYPE_I32,
     TYPE_U64,
@@ -34,9 +35,16 @@ public:
 
   donsus_token_kind to_parse(kind type);
 
-  kind type_un;
+  kind type_un{};
 
   bool operator==(const DONSUS_TYPE &rhs) const {
+    // late typecheck
+    if ((rhs.type_un == DONSUS_TYPE::kind::TYPE_UNSPECIFIED_INTEGER &&
+         is_integer()) ||
+        (type_un == DONSUS_TYPE::kind::TYPE_UNSPECIFIED_INTEGER &&
+         rhs.is_integer())) {
+      return true;
+    }
     // TYPE_BASIC_INT and any other integer types are compatible
     if (rhs.type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT && is_integer() ||
         this->type_un == DONSUS_TYPE::kind::TYPE_BASIC_INT &&
@@ -57,6 +65,9 @@ public:
   bool operator!=(DONSUS_TYPE &rhs) const { return !(rhs == *this); }
   [[nodiscard]] auto to_string() const -> std::string;
   [[nodiscard]] auto is_integer() const -> bool;
+  [[nodiscard]] auto is_float() const -> bool;
+  [[nodiscard]] auto is_bool() const -> bool;
+  [[nodiscard]] auto is_string() const -> bool;
 };
 
 /**

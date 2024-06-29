@@ -119,6 +119,7 @@ TEST(VariableTest, VariableDeclarationType) {
 
   EXPECT_EQ(DONSUS_BASIC_INT, type);
   EXPECT_EQ(DONSUS_BASIC_INT, function_type);
+  EXPECT_EQ(file.error_count, 0);
 }
 
 /** \brief Check for variable decl identifier name
@@ -135,4 +136,5 @@ TEST(VariableTest, VariableDeclarationIdentifier) {
       result->get_nodes()[0]->get<donsus_ast::variable_decl>().identifier_name;
 
   EXPECT_EQ("a", name);
+  EXPECT_EQ(file.error_count, 0);
 }

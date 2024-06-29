@@ -686,7 +686,6 @@ auto DonsusParser::donsus_number_primary(donsus_ast::donsus_node_type type,
 
   auto &expression = node->get<donsus_ast::number_expr>();
   expression.value = cur_token;
-
   return node;
 }
 
@@ -810,7 +809,9 @@ auto DonsusParser::donsus_expr(unsigned int ptp) -> parse_result {
   }
 
   if (left) {
-    if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS) {
+    if (left->type.type == donsus_ast::donsus_node_type::DONSUS_ARRAY_ACCESS ||
+        left->type.type ==
+            donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION) {
       return left;
     }
   }
@@ -869,8 +870,6 @@ auto DonsusParser::donsus_variable_decl() -> parse_result {
   start_offset = cur_token;
 
   donsus_parser_except(DONSUS_COLO);
-
-  donsus_token_kind type = cur_token.kind;
 
   if (cur_token.kind == DONSUS_COLO) {
     donsus_parser_next();
@@ -1060,8 +1059,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
                           "Type: '" + cur_token.value + "'" +
                               " provided for the declaration of '" +
                               expression.func_name + "'" + " is not valid");
-      parse_result tmp;
-      return tmp;
+      parse_result tmp_c;
+      return tmp_c;
     }
   }
 
@@ -1092,8 +1091,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
     donsus_syntax_error(&declaration, cur_token.column, cur_token.line,
                         "Return type wasn't provided for function: '" +
                             expression.func_name + "'");
-    parse_result tmp;
-    return tmp;
+    parse_result tmp_c;
+    return tmp_c;
   }
   while (cur_token.kind != DONSUS_LBRACE &&
          cur_token.kind != DONSUS_SEMICOLON && cur_token.kind != DONSUS_END) {
@@ -1106,8 +1105,8 @@ auto DonsusParser::donsus_function_decl() -> parse_result {
                           "Return type received: '" + cur_token.value +
                               "' in invalid for function: '" +
                               expression.func_name + "'");
-      parse_result tmp;
-      return tmp;
+      parse_result tmp_c;
+      return tmp_c;
     }
     donsus_parser_next();
   }
@@ -1454,7 +1453,7 @@ auto DonsusParser::bool_expression() -> parse_result {
 }
 
 auto DonsusParser::unary_expression() -> parse_result {
-  parse_result result = create_expression(
+  parse_result result = create_unary_expression(
       donsus_ast::donsus_node_type::DONSUS_UNARY_EXPRESSION, 10);
   result->start_offset_ast = cur_token;
 

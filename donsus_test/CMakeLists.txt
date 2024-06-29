@@ -42,12 +42,13 @@ add_executable(donsus_test
         typecheck/test_bools.cc
         typecheck/test_arrays_typecheck.cc
         typecheck/test_while_loops_typecheck.cc
-        
-       
 
         #symbol table
         symbol_table/test_variables.cc
         symbol_table/test_sym_functions.cc
+
+        #codegen_test
+        codegen_test/test_fulltest_codegen.cc
 )
 
 

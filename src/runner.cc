@@ -28,7 +28,7 @@ DonsusParser Du_Parse(std::string result, DonsusAstFile &file) {
   return parser;
 }
 
-int Du_Main(int argc, char **argv) {
+int Du_Main(int argc, char const**argv) {
   DonsusAstFile file;
   DonsusCLI::Parser cli_parser = DonsusCLI::Parser(argv);
 
@@ -70,7 +70,7 @@ int Du_Main(int argc, char **argv) {
 
   std::cout << "\n";
 #endif
-  // codegen
+  // codegen_test
   std::unique_ptr<llvm::LLVMContext> TheContext =
       std::make_unique<llvm::LLVMContext>();
   std::unique_ptr<llvm::Module> TheModule =
@@ -99,13 +99,13 @@ int Du_Main(int argc, char **argv) {
   llvm::InitializeAllAsmPrinters();
 
   if (codegen.Builder) {
-    /*    codegen.Builder->SetInsertPoint(codegen.main_block);*/
+    /*    codegen_test.Builder->SetInsertPoint(codegen_test.main_block);*/
     codegen.Finish();
     codegen.create_object_file();
     codegen.Link();
   }
 
-  // codegen
+  // codegen_test
 #if DEBUG
   std::cout << "\n";
   std::cout << "SYMBOL TABLE:" << std::endl;

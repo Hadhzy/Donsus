@@ -32,15 +32,15 @@ struct donsus_node_type {
     DONSUS_ARRAY_DEFINITION,     // just the type of the node
     DONSUS_ARRAY_DECLARATION,    // just the type of the node
 
-    DONSUS_STRING_EXPRESSION,
-    DONSUS_BOOL_EXPRESSION,
-    DONSUS_UNARY_EXPRESSION,
-    DONSUS_PRINT_EXPRESSION,
-    DONSUS_ARRAY_ACCESS,
-    DONSUS_FUNCTION_ARG,
-    DONSUS_WHILE_LOOP,
-    DONSUS_FOR_LOOP,
-    DONSUS_RANGE_EXPRESSION,
+    DONSUS_STRING_EXPRESSION, // just the type of the node
+    DONSUS_BOOL_EXPRESSION,   // just the type of the node
+    DONSUS_UNARY_EXPRESSION,  // just the type of the node
+    DONSUS_PRINT_EXPRESSION,  // just the type of the node
+    DONSUS_ARRAY_ACCESS,      // just the type of the node
+    DONSUS_FUNCTION_ARG,      // just the type of the node
+    DONSUS_WHILE_LOOP,        // just the type of the node
+    DONSUS_FOR_LOOP,          // just the type of the node
+    DONSUS_RANGE_EXPRESSION,  // just the type of the node
 
   };
 
@@ -51,6 +51,12 @@ struct donsus_node_type {
   [[nodiscard]] auto to_string() const -> std::string;
 
   underlying type;
+  /**
+   * \brief Finds out if a DONSUS_TYPE can be attached
+   * to the node. Used for typechecking.
+   * \param The Donsus RealType
+   */
+  bool pre_match(DONSUS_TYPE AType) const;
 };
 
 std::string de_get_from_donsus_node_type(donsus_node_type type);
@@ -83,7 +89,6 @@ struct while_loop {
   std::vector<utility::handle<donsus_ast::node>> body;
 };
 
-// actual node structure containing extra properties
 struct number_expr {
   donsus_token value;
 };
@@ -214,12 +219,34 @@ struct print_expr {};
 struct node : utility::property<> {
   // children tbd
   std::vector<utility::handle<donsus_ast::node>>
-      children;          // size type in the future
-  donsus_node_type type; // This is the node's type
-  DONSUS_TYPE real_type; // This type is assigned during type checking
+      children; // size type in the future
+  donsus_node_type type;
+
+  // This type is assigned during type checking
+  // TYPE_UNKNOWN by default
+  DONSUS_TYPE real_type{};
   donsus_token start_offset_ast;
 
+  utility::handle<donsus_ast::node> parent_type;
   utility::handle<donsus_ast::node> get_last() { return children.back(); }
+  // Used when passing in untyped literals for expressions e.g
+  // printf(1);
+  DONSUS_TYPE assume_type();
+
+  bool is_operator() {
+    if (type.type == donsus_node_type::DONSUS_EXPRESSION) {
+      switch (get<expression>().value.kind) {
+      case DONSUS_PLUS:
+      case DONSUS_MINUS:
+      case DONSUS_SLASH:
+      case DONSUS_STAR:
+        return true;
+      default: {
+      }
+      }
+    }
+    return false;
+  }
 };
 
 } // namespace donsus_ast
